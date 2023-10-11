@@ -1,0 +1,33 @@
+Olive language specification
+
+Alphabet:
+a. Uppercase (A-Z) and lowercase (a-z) letters of the English alphabet
+b. Decimal digits (0-9)
+c. Underline character '_'
+
+Lexic:
+a. Special symbols, representing:
+- Operators: not = + - * / % < <= == >=
+- Separators: space ( ) [ ] { } : ; ,
+- Comments: --
+- Reserved words: void, number, char, string, array, const, if, else, do, while, for, break, not, input, output, return
+
+b. Identifiers:
+A sequence which contains any combination of uppercase and lowercase letters. Maximum length of 255 characters.
+
+identifier ::= letter{letter}
+letter ::= "A" | "B" | ... | "Z" | "a" | "b" | ... | "z"
+digit ::= "0" | nonzero
+symbol ::= "_"
+
+c. Constants:
+1. Integer:
+number ::= "+"nonzero{digit} | "-"nonzero{digit} | "0"
+nonzero ::= "1" | ... | "9"
+
+2. Character:
+char ::= 'letter' | 'digit'
+
+3. String:
+string ::= "character{character}"
+character ::= letter | digit

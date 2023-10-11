@@ -1,0 +1,30 @@
+program ::= function | function "\n" program
+function ::= "FUN" string "(" decllist ")" ":" type cmpdstmt
+
+decllist ::= declaration | declaration "," decllist
+declaration ::= IDENTIFIER ":" type | IDENTIFIER ":" type "=" expression
+
+type1 ::= "NUMBER" | "CHAR" | "STRING"
+arraydecl ::= "ARRAY" "[" no "]" ":" type1
+type ::= type1 | arraydecl
+
+cmpdstmt ::= "{" stmtlist "}"
+stmtlist ::= stmt | stmt "\n" stmtlist 
+
+stmt ::= simplstmt | structstmt
+simplstmt ::= decllist | assignstmt | iostmt
+
+assignstmt ::= IDENTIFIER "=" expression
+expression ::=  term | expression "+" term | expression "-" term
+term ::= factor | term "*" factor | term "/" factor | term "%" factor
+factor ::= "(" expression ")" | IDENTIFIER | number
+
+iostmt ::= "INPUT" "(" IDENTIFIER ")" | "OUTPUT" "(" IDENTIFIER ")"
+structstmt ::= cmpdstmt | ifstmt | whilestmt | forstmt
+
+ifstmt ::= "IF" condition cmpdstmt ["ELSE" cmpdstmt]
+whilestmt ::= "WHILE" condition cmpdstmt
+forstmt ::= "FOR" "(" declaration ";" condition ";" assignstmt ")" cmpdstmt
+
+condition ::= expression RELATION expression | "not" condition
+RELATION ::= "<" | "<=" | "==" | ">=" | ">"

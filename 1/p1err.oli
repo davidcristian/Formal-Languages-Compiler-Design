@@ -1,0 +1,12 @@
+fun p1err(): void {
+    -- Two types of lexical errors
+
+    1a: number -- 1a is not a valid variable name
+    b: number
+
+    input(b)
+    input(a)
+
+    c: number = a + b
+    output3(c) -- output3 is not a valid statement
+}
