@@ -22,7 +22,7 @@ symbol ::= "_"
 
 c. Constants:
 1. Integer:
-number ::= "+"nonzero{digit} | "-"nonzero{digit} | "0"
+number ::= ["+" | "-"]nonzero{digit} | "0"
 nonzero ::= "1" | ... | "9"
 
 2. Character:

@@ -7,9 +7,9 @@ newline ::= "\n" | "\r\n"
 decllist ::= declaration | declaration "," decllist
 declaration ::= IDENTIFIER ":" type | IDENTIFIER ":" type "=" expression
 
-type1 ::= "VOID" | "NUMBER" | "CHAR" | "STRING"
-arraydecl ::= "ARRAY" "<" type1 ">" "(" number ")" 
-type ::= type1 | arraydecl
+primitive ::= "VOID" | "NUMBER" | "CHAR" | "STRING"
+arraydecl ::= "ARRAY" "<" primitive ">" "(" number ")" 
+type ::= primitive | arraydecl
 
 cmpdstmt ::= "{" stmtlist "}"
 stmtlist ::= stmt | stmt newlines stmtlist 
