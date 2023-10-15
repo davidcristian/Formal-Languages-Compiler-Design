@@ -1,15 +1,18 @@
-program ::= function | function "\n" program
+program ::= function | function newlines program
 function ::= "FUN" string "(" decllist ")" ":" type cmpdstmt
+
+newlines ::= newline | newline newlines
+newline ::= "\n" | "\r\n"
 
 decllist ::= declaration | declaration "," decllist
 declaration ::= IDENTIFIER ":" type | IDENTIFIER ":" type "=" expression
 
-type1 ::= "NUMBER" | "CHAR" | "STRING"
-arraydecl ::= "ARRAY" "[" no "]" ":" type1
+type1 ::= "VOID" | "NUMBER" | "CHAR" | "STRING"
+arraydecl ::= "ARRAY" "<" type1 ">" "(" number ")" 
 type ::= type1 | arraydecl
 
 cmpdstmt ::= "{" stmtlist "}"
-stmtlist ::= stmt | stmt "\n" stmtlist 
+stmtlist ::= stmt | stmt newlines stmtlist 
 
 stmt ::= simplstmt | structstmt
 simplstmt ::= decllist | assignstmt | iostmt
