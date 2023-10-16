@@ -1,21 +1,23 @@
 program ::= function | function newlines program
-function ::= "FUN" string "(" decllist ")" ":" type cmpdstmt
+function ::= "FUN" IDENTIFIER "(" [decllist] ")" ":" type cmpdstmt
 
-newlines ::= newline | newline newlines
-newline ::= "\n" | "\r\n"
+newlines ::= newline{newline}
+newline ::= "\n" | "\r\n" | comment "\n" | comment "\r\n"
+comment ::= "--" STRING
 
 decllist ::= declaration | declaration "," decllist
-declaration ::= IDENTIFIER ":" type | IDENTIFIER ":" type "=" expression
+declaration ::= IDENTIFIER ":" type | ["CONST"] IDENTIFIER ":" type "=" expression
 
 primitive ::= "VOID" | "NUMBER" | "CHAR" | "STRING"
-arraydecl ::= "ARRAY" "<" primitive ">" "(" number ")" 
+arraydecl ::= "ARRAY" "<" primitive ">" "(" expression ")"
 type ::= primitive | arraydecl
 
 cmpdstmt ::= "{" stmtlist "}"
-stmtlist ::= stmt | stmt newlines stmtlist 
+stmtlist ::= stmt | stmt newlines stmtlist
 
 stmt ::= simplstmt | structstmt
-simplstmt ::= decllist | assignstmt | iostmt
+simplstmt ::= decllist | assignstmt | iostmt | callstmt | returnstmt | breakstmt
+structstmt ::= cmpdstmt | ifstmt | whilestmt | forstmt | dostmt
 
 assignstmt ::= IDENTIFIER "=" expression
 expression ::=  term | expression "+" term | expression "-" term
@@ -23,11 +25,14 @@ term ::= factor | term "*" factor | term "/" factor | term "%" factor
 factor ::= "(" expression ")" | IDENTIFIER | number
 
 iostmt ::= "INPUT" "(" IDENTIFIER ")" | "OUTPUT" "(" IDENTIFIER ")"
-structstmt ::= cmpdstmt | ifstmt | whilestmt | forstmt
+callstmt ::= IDENTIFIER "(" [expression {"," expression}] ")"
+returnstmt ::= "RETURN" | "RETURN" expression
+breakstmt ::= "BREAK"
 
 ifstmt ::= "IF" condition cmpdstmt ["ELSE" cmpdstmt]
 whilestmt ::= "WHILE" condition cmpdstmt
-forstmt ::= "FOR" "(" declaration ";" condition ";" assignstmt ")" cmpdstmt
+forstmt ::= "FOR" "(" (declaration | assignstmt) ";" condition ";" assignstmt ")" cmpdstmt
+dostmt ::= "DO" cmpdstmt "WHILE" "(" condition ")"
 
 condition ::= expression RELATION expression | "not" condition
 RELATION ::= "<" | "<=" | "==" | ">=" | ">"
