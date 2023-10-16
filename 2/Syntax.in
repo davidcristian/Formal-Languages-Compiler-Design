@@ -29,10 +29,12 @@ callstmt ::= IDENTIFIER "(" [expression {"," expression}] ")"
 returnstmt ::= "RETURN" | "RETURN" expression
 breakstmt ::= "BREAK"
 
-ifstmt ::= "IF" "(" condition ")" cmpdstmt ["ELSE" cmpdstmt]
-dostmt ::= "DO" cmpdstmt "WHILE" "(" condition ")"
-whilestmt ::= "WHILE" "(" condition ")" cmpdstmt
-forstmt ::= "FOR" "(" (declaration | assignstmt) ";" condition ";" assignstmt ")" cmpdstmt
+ifstmt ::= "IF" "(" conditions ")" cmpdstmt ["ELSE" cmpdstmt]
+dostmt ::= "DO" cmpdstmt "WHILE" "(" conditions ")"
+whilestmt ::= "WHILE" "(" conditions ")" cmpdstmt
+forstmt ::= "FOR" "(" (declaration | assignstmt) ";" conditions ";" assignstmt ")" cmpdstmt
 
-condition ::= expression RELATION expression | "not" condition
+conditions ::= condition | condition "OR" conditions
+condition ::= simplecond | simplecond "AND" condition
+simplecond ::= expression RELATION expression | "NOT" simplecond
 RELATION ::= "<" | "<=" | "==" | ">=" | ">"

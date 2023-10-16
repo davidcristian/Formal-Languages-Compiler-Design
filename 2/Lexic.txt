@@ -7,10 +7,13 @@ c. ASCII symbols
 
 Lexic:
 a. Special symbols, representing:
-- Operators: not = + - * / % < <= == >= >
+- Arithmetic: + - * / %
+- Assignment: =
+- Comparison: == > < >= <=
+- Logical: and or not
 - Separators: space < > ( ) [ ] { } : ; ,
-- Line comment: --
-- Reserved words: void, number, char, string, array, const, if, else, do, while, for, break, input, output, return
+- Line comments: --
+- Reserved words: void, number, char, string, array, const, fun, if, else, do, while, for, break, input, output, return
 
 b. Identifiers:
 A sequence which contains any combination of uppercase and lowercase letters. Maximum length of 255 characters.
