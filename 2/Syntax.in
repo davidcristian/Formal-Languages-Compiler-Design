@@ -1,4 +1,4 @@
-program ::= function | function newlines program
+program ::= [newlines] function | function newlines program
 function ::= "FUN" IDENTIFIER "(" [decllist] ")" ":" type cmpdstmt
 
 newlines ::= newline{newline}
@@ -13,7 +13,7 @@ arraydecl ::= "ARRAY" "<" primitive ">" "(" expression ")"
 type ::= primitive | arraydecl
 
 cmpdstmt ::= "{" stmtlist "}"
-stmtlist ::= stmt | stmt newlines stmtlist
+stmtlist ::= [comment] stmt | stmt newlines stmtlist
 
 stmt ::= simplstmt | structstmt
 simplstmt ::= decllist | assignstmt | iostmt | callstmt | returnstmt | breakstmt
@@ -22,7 +22,7 @@ structstmt ::= cmpdstmt | ifstmt | dostmt | whilestmt | forstmt
 assignstmt ::= IDENTIFIER "=" expression
 expression ::=  term | expression "+" term | expression "-" term
 term ::= factor | term "*" factor | term "/" factor | term "%" factor
-factor ::= "(" expression ")" | IDENTIFIER | number
+factor ::= "(" expression ")" | IDENTIFIER | NUMBER
 
 iostmt ::= "INPUT" "(" IDENTIFIER ")" | "OUTPUT" "(" IDENTIFIER ")"
 callstmt ::= IDENTIFIER "(" [expression {"," expression}] ")"
