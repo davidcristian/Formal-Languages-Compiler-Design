@@ -2,7 +2,7 @@ program ::= function | function newlines program
 function ::= "FUN" IDENTIFIER "(" [decllist] ")" ":" type cmpdstmt
 
 newlines ::= newline{newline}
-newline ::= "\n" | "\r\n" | comment "\n" | comment "\r\n"
+newline ::= [CR]LF | comment [CR]LF
 comment ::= "--" STRING
 
 decllist ::= declaration | declaration "," decllist
@@ -17,7 +17,7 @@ stmtlist ::= stmt | stmt newlines stmtlist
 
 stmt ::= simplstmt | structstmt
 simplstmt ::= decllist | assignstmt | iostmt | callstmt | returnstmt | breakstmt
-structstmt ::= cmpdstmt | ifstmt | whilestmt | forstmt | dostmt
+structstmt ::= cmpdstmt | ifstmt | dostmt | whilestmt | forstmt
 
 assignstmt ::= IDENTIFIER "=" expression
 expression ::=  term | expression "+" term | expression "-" term
@@ -29,10 +29,10 @@ callstmt ::= IDENTIFIER "(" [expression {"," expression}] ")"
 returnstmt ::= "RETURN" | "RETURN" expression
 breakstmt ::= "BREAK"
 
-ifstmt ::= "IF" condition cmpdstmt ["ELSE" cmpdstmt]
-whilestmt ::= "WHILE" condition cmpdstmt
-forstmt ::= "FOR" "(" (declaration | assignstmt) ";" condition ";" assignstmt ")" cmpdstmt
+ifstmt ::= "IF" "(" condition ")" cmpdstmt ["ELSE" cmpdstmt]
 dostmt ::= "DO" cmpdstmt "WHILE" "(" condition ")"
+whilestmt ::= "WHILE" "(" condition ")" cmpdstmt
+forstmt ::= "FOR" "(" (declaration | assignstmt) ";" condition ";" assignstmt ")" cmpdstmt
 
 condition ::= expression RELATION expression | "not" condition
 RELATION ::= "<" | "<=" | "==" | ">=" | ">"
