@@ -1,23 +1,21 @@
-program ::= [newlines] function | function newlines program
-function ::= "FUN" IDENTIFIER "(" [decllist] ")" ":" type cmpdstmt
+program ::= stmtlist
 
 newlines ::= newline{newline}
-newline ::= [CR]LF | comment [CR]LF
-comment ::= "--" STRING
+newline ::= [CR]LF
 
 decllist ::= declaration | declaration "," decllist
-declaration ::= IDENTIFIER ":" type | ["CONST"] IDENTIFIER ":" type "=" expression
+declaration ::= IDENTIFIER ":" type | IDENTIFIER ":" type "=" expression
 
-primitive ::= "VOID" | "NUMBER" | "CHAR" | "STRING"
+primitive ::= "NUMBER" | "CHAR" | "STRING"
 arraydecl ::= "ARRAY" "<" primitive ">" "(" expression ")"
 type ::= primitive | arraydecl
 
 cmpdstmt ::= "{" stmtlist "}"
-stmtlist ::= [comment] stmt | stmt newlines stmtlist
+stmtlist ::= stmt | stmt newlines stmtlist
 
 stmt ::= simplstmt | structstmt
-simplstmt ::= decllist | assignstmt | iostmt | callstmt | returnstmt | breakstmt
-structstmt ::= cmpdstmt | ifstmt | dostmt | whilestmt | forstmt
+simplstmt ::= decllist | assignstmt | iostmt
+structstmt ::= cmpdstmt | ifstmt | whilestmt | forstmt
 
 assignstmt ::= IDENTIFIER "=" expression
 expression ::=  term | expression "+" term | expression "-" term
@@ -25,16 +23,12 @@ term ::= factor | term "*" factor | term "/" factor | term "%" factor
 factor ::= "(" expression ")" | IDENTIFIER | NUMBER
 
 iostmt ::= "INPUT" "(" IDENTIFIER ")" | "OUTPUT" "(" IDENTIFIER ")"
-callstmt ::= IDENTIFIER "(" [expression {"," expression}] ")"
-returnstmt ::= "RETURN" | "RETURN" expression
-breakstmt ::= "BREAK"
 
 ifstmt ::= "IF" "(" conditions ")" cmpdstmt ["ELSE" cmpdstmt]
-dostmt ::= "DO" cmpdstmt "WHILE" "(" conditions ")"
 whilestmt ::= "WHILE" "(" conditions ")" cmpdstmt
 forstmt ::= "FOR" "(" (declaration | assignstmt) ";" conditions ";" assignstmt ")" cmpdstmt
 
 conditions ::= condition | condition "OR" conditions
-condition ::= simplecond | simplecond "AND" condition
-simplecond ::= expression RELATION expression | "NOT" simplecond
+condition ::= simplcond | simplcond "AND" condition
+simplcond ::= expression RELATION expression | "NOT" simplcond
 RELATION ::= "<" | "<=" | "==" | ">=" | ">"

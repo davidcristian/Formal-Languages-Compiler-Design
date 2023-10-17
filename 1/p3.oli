@@ -1,15 +1,13 @@
-fun p3(): void {
-    -- Compute the sum of n numbers
-    num: number
+-- Compute the sum of n numbers
+num: number
 
-    n: number
-    input(n)
+n: number
+input(n)
 
-    sum: number = 0
-    for (i: number = 0; i < n; i = i + 1) {
-        input(num)
-        sum = sum + num
-    }
-
-    output(sum)
+sum: number = 0
+for (i: number = 0; i < n; i = i + 1) {
+    input(num)
+    sum = sum + num
 }
+
+output(sum)

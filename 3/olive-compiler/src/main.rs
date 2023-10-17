@@ -3,25 +3,32 @@ use models::symbol_table::SymbolTable;
 
 use regex::Regex;
 use std::fs::File;
-use std::io::{prelude::*, BufReader};
+use std::io::{self, BufRead};
 
 fn parse_line(
     line: &str,
     symbol_table: &mut SymbolTable<String>,
     constant_table: &mut SymbolTable<String>,
+    separators: &str,
 ) {
-    // this pattern is case-insensitive
-    // first part (before the |((const ) matches simple assignments like a = 2
-    // second part (after the |((const ) matches declarations like const a: string = "abc", b: number
-    const VARIABLE_REGEX_PATTERN: &str = r#"(?i)([0-9A-Za-z]+\s*=\s*.*$)|((const\s+)?[0-9A-Za-z]+\s*:\s*(void|number|char|string)(\s*=\s*("[^"]*"|'[^']*'|[^,]*))?)"#;
+    // TODO: fix for last part of for loops
+    // first part matches simple assignments like a = 2
+    // second part matches declarations like a: string = "abc", b: number
+    let variable_regex_pattern = format!(
+        r#"([0-9A-Za-z]+\s*=\s*("[^"]*"|'[^']*'|[^{}]*)$)|([0-9A-Za-z]+\s*:\s*(number|char|string)(\s*=\s*("[^"]*"|'[^']*'|[^{}]*))?)"#,
+        separators, separators
+    );
 
-    // example captures: ["n: number = 1", "const s: string = "abc"", "c: char"]
-    let regex = Regex::new(VARIABLE_REGEX_PATTERN).unwrap();
+    // example captures: ["n: number = 1", "c: char = 'a'", "s: string"]
+    let regex = Regex::new(variable_regex_pattern.as_str()).unwrap();
     for capture in regex.captures_iter(&line) {
         println!("\ncapture: {:?}", &capture[0]);
         if capture[0].trim().ends_with("=") {
             panic!("invalid declaration: {}", &capture[0])
         }
+
+        // TODO: check if it is a comparison (==, >, <, >=, <=)
+        // if yes, ignore
 
         let mut split_capture = capture[0].split("=");
         // extract left hand side (declaration) and right hand side (value)
@@ -30,11 +37,12 @@ fn parse_line(
 
         let mut split_declaration = extracted_declaration.split(":");
         // extract left hand side (symbol name) and right hand side (symbol type)
-        let extracted_name = split_declaration.next().unwrap().trim();
+        let symbol_name = split_declaration.next().unwrap().trim();
         let symbol_type = split_declaration.next().unwrap_or("").trim();
 
-        // parse the symbol name and check if it is immutable
-        let (symbol_name, is_immutable) = parse_symbol_name(extracted_name);
+        if !is_identifier(&symbol_name) {
+            panic!("invalid symbol name: {}", symbol_name);
+        }
 
         // this is a simple declaration, example: a = 2
         if symbol_type.is_empty() {
@@ -42,6 +50,7 @@ fn parse_line(
                 panic!("identifier not in symbol table: {}", symbol_name);
             }
 
+            // parse the value of the assignment
             parse_value(&symbol_value, symbol_table, constant_table);
             return;
         }
@@ -55,7 +64,6 @@ fn parse_line(
         println!("symbol_type: {}", symbol_type);
         println!("symbol_name: {}", symbol_name);
         println!("symbol_value: {}", symbol_value);
-        println!("is_immutable: {}", is_immutable);
 
         // parse the value of the declaration
         parse_value(&symbol_value, symbol_table, constant_table);
@@ -67,39 +75,12 @@ fn parse_line(
     }
 }
 
-fn parse_symbol_name(extracted_name: &str) -> (String, bool) {
-    // check if the declaration is for a constant variable (preceded by "const")
-    // by default we assume that the variable is not constant and the extracted name is correct
-    let mut symbol_name = extracted_name.to_string();
-    let mut split_name = extracted_name.split_whitespace();
-
-    let first_token = split_name.next().unwrap();
-    let is_immutable = first_token.to_lowercase() == "const";
-    if is_immutable {
-        // "const" was not all lowercase => throw error
-        if first_token != "const" {
-            panic!("invalid token preceding symbol name: {}", extracted_name);
-        }
-
-        // symbol name is the next token after const
-        symbol_name = split_name.next().unwrap().to_string();
-
-        // if split_name still has elements, then the declaration is invalid => throw error
-        // this is to prevent a declaration like "const a b c: number = 1"
-        if split_name.next().is_some() {
-            panic!("invalid symbol name: {}", extracted_name);
-        }
-    }
-
-    (symbol_name, is_immutable)
-}
-
 fn parse_value(
     value: &str,
     symbol_table: &mut SymbolTable<String>,
     constant_table: &mut SymbolTable<String>,
 ) {
-    // check if value is not empty
+    // check if value is missing (empty string) => simple declaration like "a: number"
     // an empty string token would still be a valid value and passes this check
     // this check is added to cover truly-empty strings that came from unwrap_or("")
     if value.is_empty() {
@@ -110,7 +91,7 @@ fn parse_value(
     const VALUE_REGEX_PATTERN: &str =
         r#"(".*?("|$))|('.*?('|$))|(((\+|-)*)?(\d*\.\d+|\d+\.?\d*))|([A-Za-z]+)"#;
 
-    // example captures: ["a + 2", "5 + 6 + 7", "b - c", ""abc" + "def""]
+    // example captures: ["a + 2", "5 + 6 + 7", "b - c", "'a' + 'b'"]
     let regex = Regex::new(VALUE_REGEX_PATTERN).unwrap();
     for capture in regex.captures_iter(&value) {
         let constant = &capture[0];
@@ -164,19 +145,62 @@ fn is_identifier(value: &str) -> bool {
     rule.is_match(value)
 }
 
+fn escape_character_classes(tokens: &Vec<char>) -> String {
+    // escapes needed characters in a regex character class
+    const ESCAPE_CHARACTERS: &str = r#"^-]\["#;
+    let mut escaped_value = String::new();
+
+    for &ch in tokens {
+        if ESCAPE_CHARACTERS.contains(ch) {
+            escaped_value.push('\\');
+        }
+
+        escaped_value.push(ch);
+    }
+
+    escaped_value
+}
+
 fn main() {
-    const FILE_PATH: &str = "../../1/p1.oli";
+    const PROGRAM_FILE_PATH: &str = "../../1/p2.oli";
+    const TOKEN_FILE_PATH: &str = "../../2/token.in";
+
+    let token_file = File::open(TOKEN_FILE_PATH).expect("could not open token file");
+    let token_reader = io::BufReader::new(token_file);
+
+    // read tokens from token file
+    let raw_tokens = token_reader
+        .lines()
+        .map(|line| line.expect("could not read token line"))
+        .collect::<Vec<String>>();
+
+    // keep only unique special characters (not alphanumeric)
+    // example: from ["<", "<=", "char", ","] to ["<", "=", ","]
+    let tokens = raw_tokens
+        .iter()
+        .filter(|&token| !token.chars().all(|ch| ch.is_alphanumeric()))
+        .flat_map(|token| token.chars())
+        .collect::<std::collections::HashSet<char>>()
+        .into_iter()
+        .collect::<Vec<char>>();
+
+    println!("tokens: {:?}", &tokens);
+
+    // define program separators
+    let separators: Vec<char> = vec!['<', '>', '(', ')', '[', ']', '{', '}', ':', ';', ','];
+    let separators = escape_character_classes(&separators);
 
     // store the symbol table and constant table separately
     let mut symbol_table: SymbolTable<String> = SymbolTable::new();
     let mut constant_table: SymbolTable<String> = SymbolTable::new();
 
-    let file = File::open(FILE_PATH).expect("could not open file");
-    let reader = BufReader::new(file);
+    let program_file = File::open(PROGRAM_FILE_PATH).expect("could not open program file");
+    let program_reader = io::BufReader::new(program_file);
 
-    for line in reader.lines() {
-        let line = line.expect("could not read line");
-        parse_line(&line, &mut symbol_table, &mut constant_table);
+    // read program line by line
+    for line in program_reader.lines() {
+        let line = line.expect("could not read program line");
+        parse_line(&line, &mut symbol_table, &mut constant_table, &separators);
     }
 
     println!("\nSymbol Table");

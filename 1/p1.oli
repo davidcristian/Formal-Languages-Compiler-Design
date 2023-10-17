@@ -1,22 +1,17 @@
-fun p1(): void {
-    -- Compute the maximum of three numbers
-    a: number, b: number, c: number
+-- Compute the maximum of three numbers
+a: number, b: number, c: number
 
-    input(a)
-    input(b)
-    input(c)
+input(a)
+input(b)
+input(c)
 
-    if (a > b) {
-        if (a > c) {
-            output(a)
-        } else {
-            output(c)
-        }
-    } else {
-        if (b > c) {
-            output(b)
-        } else {
-            output(c)
-        }
-    }
+max: number = a
+if (b > max) {
+    max = b
 }
+
+if (c > max) {
+    max = c
+}
+
+output(max)
