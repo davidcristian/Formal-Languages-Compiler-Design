@@ -1,6 +1,4 @@
-# Formal Languages and Compiler Design
-
-## Olive Programming Language
+# Olive Programming Language Compiler
 
 ```
  __________________________
@@ -17,3 +15,5 @@
 ### 1. [Sample Programs](1)
 
 ### 2. [Language Specification](2)
+
+### 2. [Symbol Table](3)
