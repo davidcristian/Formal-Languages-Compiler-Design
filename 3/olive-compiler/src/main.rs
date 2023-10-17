@@ -10,16 +10,13 @@ fn parse_line(
     symbol_table: &mut SymbolTable<String>,
     constant_table: &mut SymbolTable<String>,
 ) {
-    // TODO: 2 more cases:
-    // - simple assigment AFTER declaration: a = 2
-    // - fix captures after a declaration: const a: number = 1, b: number
-
     // this pattern is case-insensitive
-    const DECLARATION_REGEX_PATTERN: &str =
-        r#"(?i)(const\s+)?[0-9A-Za-z]+\s*:\s*(void|number|char|string)(\s*=\s*.*)?"#;
+    // first part (before the |((const ) matches simple assignments like a = 2
+    // second part (after the |((const ) matches declarations like const a: string = "abc", b: number
+    const VARIABLE_REGEX_PATTERN: &str = r#"(?i)([0-9A-Za-z]+\s*=\s*.*$)|((const\s+)?[0-9A-Za-z]+\s*:\s*(void|number|char|string)(\s*=\s*("[^"]*"|'[^']*'|[^,]*))?)"#;
 
     // example captures: ["n: number = 1", "const s: string = "abc"", "c: char"]
-    let regex = Regex::new(DECLARATION_REGEX_PATTERN).unwrap();
+    let regex = Regex::new(VARIABLE_REGEX_PATTERN).unwrap();
     for capture in regex.captures_iter(&line) {
         println!("\ncapture: {:?}", &capture[0]);
         if capture[0].trim().ends_with("=") {
@@ -34,15 +31,25 @@ fn parse_line(
         let mut split_declaration = extracted_declaration.split(":");
         // extract left hand side (symbol name) and right hand side (symbol type)
         let extracted_name = split_declaration.next().unwrap().trim();
-        let symbol_type = split_declaration.next().unwrap().trim();
+        let symbol_type = split_declaration.next().unwrap_or("").trim();
+
+        // parse the symbol name and check if it is immutable
+        let (symbol_name, is_immutable) = parse_symbol_name(extracted_name);
+
+        // this is a simple declaration, example: a = 2
+        if symbol_type.is_empty() {
+            if symbol_table.get(&symbol_name.to_string()).is_none() {
+                panic!("identifier not in symbol table: {}", symbol_name);
+            }
+
+            parse_value(&symbol_value, symbol_table, constant_table);
+            return;
+        }
 
         // perhaps remove this in the future when user-defined types are added
         if !symbol_type.chars().all(|c| c.is_lowercase()) {
             panic!("invalid symbol type: {}", symbol_type);
         }
-
-        // parse the symbol name and check if it is immutable
-        let (symbol_name, is_immutable) = parse_symbol_name(extracted_name);
 
         println!("declaration: {}", extracted_declaration);
         println!("symbol_type: {}", symbol_type);
