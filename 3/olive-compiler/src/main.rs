@@ -2,25 +2,29 @@ mod models;
 use models::symbol_table::SymbolTable;
 
 use regex::Regex;
-use std::fs;
+use std::fs::File;
+use std::io::{prelude::*, BufReader};
 
-fn parse_program(
-    program: &str,
+fn parse_line(
+    line: &str,
     symbol_table: &mut SymbolTable<String>,
     constant_table: &mut SymbolTable<String>,
 ) {
     // TODO: 2 more cases:
     // - simple assigment AFTER declaration: a = 2
-    // - that last case with .+, only have it .+ for non-strings, otherwise it must be in quotes
+    // - fix captures after a declaration: const a: number = 1, b: number
 
     // this pattern is case-insensitive
-    const INIT_REGEX_PATTERN: &str =
-        r#"(?i)(const\s+)?[0-9A-Za-z]+\s*:\s*(void|number|char|string)(\s*=\s*.+)?"#;
+    const DECLARATION_REGEX_PATTERN: &str =
+        r#"(?i)(const\s+)?[0-9A-Za-z]+\s*:\s*(void|number|char|string)(\s*=\s*.*)?"#;
 
     // example captures: ["n: number = 1", "const s: string = "abc"", "c: char"]
-    let regex = Regex::new(INIT_REGEX_PATTERN).unwrap();
-    for capture in regex.captures_iter(&program) {
+    let regex = Regex::new(DECLARATION_REGEX_PATTERN).unwrap();
+    for capture in regex.captures_iter(&line) {
         println!("\ncapture: {:?}", &capture[0]);
+        if capture[0].trim().ends_with("=") {
+            panic!("invalid declaration: {}", &capture[0])
+        }
 
         let mut split_capture = capture[0].split("=");
         // extract left hand side (declaration) and right hand side (value)
@@ -32,22 +36,27 @@ fn parse_program(
         let extracted_name = split_declaration.next().unwrap().trim();
         let symbol_type = split_declaration.next().unwrap().trim();
 
-        // parse the symbol name and check if it is constant
-        let (symbol_name, is_constant) = parse_symbol_name(extracted_name);
+        // perhaps remove this in the future when user-defined types are added
+        if !symbol_type.chars().all(|c| c.is_lowercase()) {
+            panic!("invalid symbol type: {}", symbol_type);
+        }
+
+        // parse the symbol name and check if it is immutable
+        let (symbol_name, is_immutable) = parse_symbol_name(extracted_name);
 
         println!("declaration: {}", extracted_declaration);
         println!("symbol_type: {}", symbol_type);
         println!("symbol_name: {}", symbol_name);
         println!("symbol_value: {}", symbol_value);
-        println!("is_mutable: {}", !is_constant);
+        println!("is_immutable: {}", is_immutable);
+
+        // parse the value of the declaration
+        parse_value(&symbol_value, symbol_table, constant_table);
 
         // add symbol to symbol table if it doesn't exist
         if symbol_table.get(&symbol_name.to_string()).is_none() {
             symbol_table.put(symbol_name.to_string());
         }
-
-        // parse the value of the declaration
-        parse_value(&symbol_value, constant_table);
     }
 }
 
@@ -58,8 +67,8 @@ fn parse_symbol_name(extracted_name: &str) -> (String, bool) {
     let mut split_name = extracted_name.split_whitespace();
 
     let first_token = split_name.next().unwrap();
-    let is_constant = first_token.to_lowercase() == "const";
-    if is_constant {
+    let is_immutable = first_token.to_lowercase() == "const";
+    if is_immutable {
         // "const" was not all lowercase => throw error
         if first_token != "const" {
             panic!("invalid token preceding symbol name: {}", extracted_name);
@@ -75,10 +84,14 @@ fn parse_symbol_name(extracted_name: &str) -> (String, bool) {
         }
     }
 
-    (symbol_name, is_constant)
+    (symbol_name, is_immutable)
 }
 
-fn parse_value(value: &str, constant_table: &mut SymbolTable<String>) {
+fn parse_value(
+    value: &str,
+    symbol_table: &mut SymbolTable<String>,
+    constant_table: &mut SymbolTable<String>,
+) {
     // check if value is not empty
     // an empty string token would still be a valid value and passes this check
     // this check is added to cover truly-empty strings that came from unwrap_or("")
@@ -94,18 +107,26 @@ fn parse_value(value: &str, constant_table: &mut SymbolTable<String>) {
     let regex = Regex::new(VALUE_REGEX_PATTERN).unwrap();
     for capture in regex.captures_iter(&value) {
         let constant = &capture[0];
-        println!("- found constant: {}", constant);
 
-        // TODO: also match identifiers and check if they exist in the symbol table?
+        if is_identifier(constant) {
+            println!("- found identifier: {}", constant);
 
-        if validate_value(constant) {
-            // add constant to constant table if it doesn't exist
-            if constant_table.get(&constant.to_string()).is_none() {
-                constant_table.put(constant.to_string());
+            // check if identifier exists in the symbol table
+            if symbol_table.get(&constant.to_string()).is_none() {
+                panic!("identifier not in symbol table: {}", constant);
             }
         } else {
-            // identifiers are intentionally not matched for the constant table
-            println!("- invalid constant: {}", constant);
+            println!("- found constant: {}", constant);
+
+            if validate_value(constant) {
+                // add constant to constant table if it doesn't exist
+                if constant_table.get(&constant.to_string()).is_none() {
+                    constant_table.put(constant.to_string());
+                }
+            } else {
+                // this should match all invalid constants such as floats, invalid numbers, etc.
+                panic!("- invalid constant: {}", constant);
+            }
         }
     }
 }
@@ -128,19 +149,34 @@ fn validate_value(value: &str) -> bool {
     rule_1.is_match(value) || rule_2.is_match(value) || rule_3.is_match(value)
 }
 
+fn is_identifier(value: &str) -> bool {
+    // rule:
+    // - value must only contain letters (case-insensitive)
+
+    let rule = Regex::new(r#"^[A-Za-z]+$"#).unwrap();
+    rule.is_match(value)
+}
+
 fn main() {
-    const FILE_PATH: &str = "../../1/p2.oli";
-    let program = fs::read_to_string(FILE_PATH).expect("ERROR: Could not read file!");
+    const FILE_PATH: &str = "../../1/p1.oli";
 
     // store the symbol table and constant table separately
     let mut symbol_table: SymbolTable<String> = SymbolTable::new();
     let mut constant_table: SymbolTable<String> = SymbolTable::new();
 
-    parse_program(&program, &mut symbol_table, &mut constant_table);
+    let file = File::open(FILE_PATH).expect("could not open file");
+    let reader = BufReader::new(file);
+
+    for line in reader.lines() {
+        let line = line.expect("could not read line");
+        parse_line(&line, &mut symbol_table, &mut constant_table);
+    }
 
     println!("\nSymbol Table");
     symbol_table.display();
+    println!("Symbol Table Length: {}", symbol_table.len());
 
     println!("\nConstant Table");
     constant_table.display();
+    println!("Constant Table Length: {}", constant_table.len());
 }

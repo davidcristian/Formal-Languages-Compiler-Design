@@ -60,13 +60,16 @@ where
 
         let mut index = self.hash1(&key);
         let hash2_value = self.hash2(&key);
-        let mut increment_size = false;
+        let mut increment_size = true;
 
         // find the next available index using double hashing
         while let Some(entry) = &self.table[index] {
             // deleted entries or entries with the same key are overwritten
-            if entry.deleted || entry.key == key {
-                increment_size = entry.deleted;
+            if entry.deleted {
+                break;
+            }
+            if entry.key == key {
+                increment_size = false;
                 break;
             }
 
@@ -146,12 +149,10 @@ where
     // resizes the table to increase its current capacity by RESIZE_FACTOR
     // O(n) time complexity
     fn resize(&mut self) {
-        let old_table =
-            std::mem::replace(&mut self.table, vec![None; self.capacity * RESIZE_FACTOR]);
-
-        self.capacity *= RESIZE_FACTOR;
         self.size = 0;
+        self.capacity *= RESIZE_FACTOR;
 
+        let old_table = std::mem::replace(&mut self.table, vec![None; self.capacity]);
         for entry in old_table.into_iter() {
             if let Some(e) = entry {
                 if !e.deleted {
