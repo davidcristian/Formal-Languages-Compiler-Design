@@ -17,8 +17,8 @@ where
         }
     }
 
-    pub fn len(&self) -> usize {
-        self.table.len()
+    pub fn size(&self) -> usize {
+        self.table.size()
     }
 
     pub fn put(&mut self, key: K) {

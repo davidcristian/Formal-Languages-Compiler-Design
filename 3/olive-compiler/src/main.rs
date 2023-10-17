@@ -181,9 +181,9 @@ fn main() {
 
     println!("\nSymbol Table");
     symbol_table.display();
-    println!("Symbol Table Length: {}", symbol_table.len());
+    println!("Symbol Table Size: {}", symbol_table.size());
 
     println!("\nConstant Table");
     constant_table.display();
-    println!("Constant Table Length: {}", constant_table.len());
+    println!("Constant Table Size: {}", constant_table.size());
 }

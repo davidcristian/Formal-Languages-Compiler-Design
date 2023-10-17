@@ -32,7 +32,7 @@ where
         }
     }
 
-    pub fn len(&self) -> usize {
+    pub fn size(&self) -> usize {
         self.size
     }
 
