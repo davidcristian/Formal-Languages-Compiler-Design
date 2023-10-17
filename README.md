@@ -16,4 +16,4 @@
 
 ### 2. [Language Specification](2)
 
-### 2. [Symbol Table](3)
+### 3. [Symbol Table](3)
