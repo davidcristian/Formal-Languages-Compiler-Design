@@ -16,10 +16,10 @@ stmtlist ::= stmt | stmt newlines stmtlist
 stmt ::= simplstmt | structstmt
 simplstmt ::= decllist | assignstmt | iostmt
 
-assignstmt ::= identifier "=" expression | identifier "[" expression "]" "=" expression
+assignstmt ::= identifier "=" expression | identifier "[" number "]" "=" expression
 expression ::=  term | expression "+" term | expression "-" term
 term ::= factor | term "*" factor | term "/" factor | term "%" factor
-factor ::= "(" expression ")" | identifier | identifier "[" expression "]" | number | char | string
+factor ::= "(" expression ")" | identifier | identifier "[" number "]" | number | char | string
 
 iostmt ::= "input" "(" identifier ")" | "output" "(" identifier ")"
 structstmt ::= cmpdstmt | ifstmt | whilestmt
