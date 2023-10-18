@@ -9,28 +9,31 @@ Lexic:
 a. Special symbols, representing:
 - Arithmetic: + - * / %
 - Assignment: =
-- Comparison: == < > <= >=
-- Logical: and or not
-- Separators: whitespace < > ( ) [ ] { } : ; ,
+- Comparison: == != < > <= >=
+- Logical: && ||
+- Separators: whitespace ( ) [ ] { } : ,
 - Comments: --
-- Reserved words: number, char, string, array, if, else, while, for, input, output
+- Reserved words: number char string array if else while input output
 
 b. Identifiers:
 A sequence which contains any combination of uppercase and lowercase letters. Maximum length of 255 characters.
 
 identifier ::= letter{letter}
-letter ::= "A" | "B" | ... | "Z" | "a" | "b" | ... | "z"
+letter ::= uppercase | lowercase
+uppercase ::= "A".."Z"
+lowercase ::= "a".."z"
+
 digit ::= "0" | nonzero
-symbol ::= " " | "!" | """ | "#" | "$" | "%" | "&" | "'" | "(" | ")" | "*" | "+" | "," | "-" | "." | "/" | ":" | ";" | "<" | "=" | ">" | "?" | "@" | "[" | "\" | "]" | "^" | "_" | "`" | "{" | "|" | "}" | "~"
+symbol ::= " " | "!" | "\"" | "#" | "$" | "%" | "&" | "'" | "(" | ")" | "*" | "+" | "," | "-" | "." | "/" | ":" | ";" | "<" | "=" | ">" | "?" | "@" | "[" | "\\" | "]" | "^" | "_" | "`" | "{" | "|" | "}" | "~"
 
 c. Constants:
 1. Integer:
-number ::= ["+" | "-"]nonzero{digit} | "0"
+number ::= ["+" | "-"] nonzero{digit} | "0"
 nonzero ::= "1" | ... | "9"
 
 2. Character:
-char ::= 'letter' | 'digit' | 'symbol'
+char ::= "'" (letter | digit | symbol) "'"
 
 3. String:
-string ::= "" | "character{character}"
+string ::= '"' {character} '"'
 character ::= letter | digit | symbol

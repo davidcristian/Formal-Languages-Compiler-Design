@@ -1,24 +1,28 @@
-use super::hash_table::HashTable;
+use super::hash_map::HashMap;
 
-pub struct SymbolTable<K> {
-    table: HashTable<K, usize>,
+pub struct Table<K> {
+    table: HashMap<K, usize>,
     current_index: usize,
 }
 
 #[allow(dead_code)]
-impl<K> SymbolTable<K>
+impl<K> Table<K>
 where
     K: std::fmt::Debug + Clone + Eq + std::hash::Hash,
 {
     pub fn new() -> Self {
-        SymbolTable {
-            table: HashTable::new(),
-            current_index: 1,
+        Self {
+            table: HashMap::new(),
+            current_index: 0,
         }
     }
 
     pub fn size(&self) -> usize {
         self.table.size()
+    }
+
+    pub fn insert(&mut self, key: K, value: usize) {
+        self.table.put(key, value);
     }
 
     pub fn put(&mut self, key: K) {

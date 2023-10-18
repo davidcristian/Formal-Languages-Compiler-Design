@@ -1,13 +1,13 @@
 program ::= stmtlist
 
-newlines ::= newline{newline}
-newline ::= [CR]LF
+newlines ::= newline | newline newlines
+newline ::= CR LF | LF
 
 decllist ::= declaration | declaration "," decllist
-declaration ::= IDENTIFIER ":" type | IDENTIFIER ":" type "=" expression
+declaration ::= identifier ":" type | identifier ":" type "=" expression
 
-primitive ::= "NUMBER" | "CHAR" | "STRING"
-arraydecl ::= "ARRAY" "<" primitive ">" "(" expression ")"
+primitive ::= "number" | "char" | "string"
+arraydecl ::= "array" "<" primitive ">" "(" expression ")"
 type ::= primitive | arraydecl
 
 cmpdstmt ::= "{" stmtlist "}"
@@ -15,20 +15,19 @@ stmtlist ::= stmt | stmt newlines stmtlist
 
 stmt ::= simplstmt | structstmt
 simplstmt ::= decllist | assignstmt | iostmt
-structstmt ::= cmpdstmt | ifstmt | whilestmt | forstmt
 
-assignstmt ::= IDENTIFIER "=" expression
+assignstmt ::= identifier "=" expression | identifier "[" number "]" "=" expression
 expression ::=  term | expression "+" term | expression "-" term
 term ::= factor | term "*" factor | term "/" factor | term "%" factor
-factor ::= "(" expression ")" | IDENTIFIER | NUMBER
+factor ::= "(" expression ")" | identifier | identifier "[" number "]" | number | char | string
 
-iostmt ::= "INPUT" "(" IDENTIFIER ")" | "OUTPUT" "(" IDENTIFIER ")"
+iostmt ::= "input" "(" identifier ")" | "output" "(" identifier ")"
+structstmt ::= cmpdstmt | ifstmt | whilestmt
 
-ifstmt ::= "IF" "(" conditions ")" cmpdstmt ["ELSE" cmpdstmt]
-whilestmt ::= "WHILE" "(" conditions ")" cmpdstmt
-forstmt ::= "FOR" "(" (declaration | assignstmt) ";" conditions ";" assignstmt ")" cmpdstmt
+ifstmt ::= "if" "(" conditions ")" cmpdstmt | "if" "(" conditions ")" cmpdstmt "else" cmpdstmt
+whilestmt ::= "while" "(" conditions ")" cmpdstmt
 
-conditions ::= condition | condition "OR" conditions
-condition ::= simplcond | simplcond "AND" condition
-simplcond ::= expression RELATION expression | "NOT" simplcond
-RELATION ::= "<" | "<=" | "==" | ">=" | ">"
+conditions ::= condition | condition "||" conditions
+condition ::= simplcond | simplcond "&&" condition
+simplcond ::= expression relation expression
+relation ::= "<" | "<=" | "==" | "!=" | ">=" | ">"

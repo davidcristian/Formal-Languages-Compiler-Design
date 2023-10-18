@@ -5,9 +5,10 @@ n: number
 input(n)
 
 sum: number = 0
-for (i: number = 0; i < n; i = i + 1) {
+while (n > 0) {
     input(num)
     sum = sum + num
+    n = n - 1
 }
 
 output(sum)

@@ -11,14 +11,14 @@ struct Entry<K, V> {
     deleted: bool,
 }
 
-pub struct HashTable<K, V> {
+pub struct HashMap<K, V> {
     table: Vec<Option<Entry<K, V>>>,
     capacity: usize,
     size: usize,
 }
 
 #[allow(dead_code)]
-impl<K, V> HashTable<K, V>
+impl<K, V> HashMap<K, V>
 where
     K: std::fmt::Debug + Clone + Eq + std::hash::Hash,
     V: std::fmt::Debug + Clone,
@@ -51,7 +51,10 @@ where
     }
 
     // inserts a key-value pair into the hash table
-    // O(1) average time complexity (depends on hash functions and load factor)
+    // Complexity analysis:
+    // Best: O(1)
+    // Worst: O(n)
+    // Average: O(1)
     pub fn put(&mut self, key: K, value: V) {
         // check if we need to resize
         if (self.size as f64 / self.capacity as f64) >= LOAD_FACTOR {
@@ -88,7 +91,10 @@ where
     }
 
     // returns the value for the given key
-    // O(1) average time complexity (depends on hash functions)
+    // Complexity analysis:
+    // Best: O(1)
+    // Worst: O(n)
+    // Average: O(1)
     pub fn get(&self, key: &K) -> Option<&V> {
         let mut index = self.hash1(key);
         let hash2_value = self.hash2(key);
@@ -105,7 +111,10 @@ where
     }
 
     // removes the value for the given key
-    // O(1) average time complexity (depends on hash functions)
+    // Complexity analysis:
+    // Best: O(1)
+    // Worst: O(n)
+    // Average: O(1)
     pub fn remove(&mut self, key: &K) {
         let mut index = self.hash1(key);
         let hash2_value = self.hash2(key);
@@ -123,7 +132,10 @@ where
     }
 
     // clears the entire table
-    // O(n) time complexity
+    // Complexity analysis:
+    // Best: O(n)
+    // Worst: O(n)
+    // Average: O(n)
     pub fn clear(&mut self) {
         self.table = vec![None; INITIAL_CAPACITY];
         self.capacity = INITIAL_CAPACITY;
@@ -132,7 +144,10 @@ where
     }
 
     // display the table
-    // O(n) time complexity
+    // Complexity analysis:
+    // Best: O(n)
+    // Worst: O(n)
+    // Average: O(n)
     pub fn display(&self) {
         for (index, entry) in self.table.iter().enumerate() {
             match entry {
@@ -147,7 +162,10 @@ where
     }
 
     // resizes the table to increase its current capacity by RESIZE_FACTOR
-    // O(n) time complexity
+    // Complexity analysis:
+    // Best: O(n)
+    // Worst: O(n)
+    // Average: O(n)
     fn resize(&mut self) {
         self.size = 0;
         self.capacity *= RESIZE_FACTOR;

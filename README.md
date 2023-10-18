@@ -17,3 +17,5 @@
 ### 2. [Language Specification](2)
 
 ### 3. [Symbol Table](3)
+
+### 4. [Scanner](4)

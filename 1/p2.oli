@@ -9,7 +9,7 @@ if (n <= 1) {
 } else {
     i: number = 2
     
-    while (i <= n / 2 and isPrime == 1) {
+    while (i <= n / 2 && isPrime == 1) {
         if (n % i == 0) {
             isPrime = 0
         }
