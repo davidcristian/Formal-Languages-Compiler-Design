@@ -11,26 +11,27 @@ fn parse_line(
     constant_table: &mut SymbolTable<String>,
     separators: &str,
 ) {
-    // TODO: fix for last part of for loops
     // first part matches simple assignments like a = 2
     // second part matches declarations like a: string = "abc", b: number
     let variable_regex_pattern = format!(
-        r#"([0-9A-Za-z]+\s*=\s*("[^"]*"|'[^']*'|[^{}]*)$)|([0-9A-Za-z]+\s*:\s*(number|char|string)(\s*=\s*("[^"]*"|'[^']*'|[^{}]*))?)"#,
+        r#"([0-9A-Za-z]+\s*=\s*("[^"]*"|'[^']*'|[^{}]*))|([0-9A-Za-z]+\s*:\s*(number|char|string)(\s*=\s*("[^"]*"|'[^']*'|[^{}]*))?)"#,
         separators, separators
     );
 
     // example captures: ["n: number = 1", "c: char = 'a'", "s: string"]
     let regex = Regex::new(variable_regex_pattern.as_str()).unwrap();
     for capture in regex.captures_iter(&line) {
-        println!("\ncapture: {:?}", &capture[0]);
-        if capture[0].trim().ends_with("=") {
-            panic!("invalid declaration: {}", &capture[0])
+        let capture = &capture[0].trim();
+        if is_comparison(&capture) {
+            continue;
         }
 
-        // TODO: check if it is a comparison (==, >, <, >=, <=)
-        // if yes, ignore
+        println!("\ncapture: {:?}", &capture);
+        if capture.ends_with("=") {
+            panic!("invalid declaration: {}", &capture)
+        }
 
-        let mut split_capture = capture[0].split("=");
+        let mut split_capture = capture.split("=");
         // extract left hand side (declaration) and right hand side (value)
         let extracted_declaration = split_capture.next().unwrap().trim();
         let symbol_value = split_capture.next().unwrap_or("").trim();
@@ -145,6 +146,14 @@ fn is_identifier(value: &str) -> bool {
     rule.is_match(value)
 }
 
+fn is_comparison(value: &str) -> bool {
+    // rule:
+    // - value must have an identifier and a comparison operator (==, <, >, <=, >=)
+
+    let rule = Regex::new(r#"^[A-Za-z]+\s*(==|<|>|>=|>=)"#).unwrap();
+    rule.is_match(value)
+}
+
 fn escape_character_classes(tokens: &Vec<char>) -> String {
     // escapes needed characters in a regex character class
     const ESCAPE_CHARACTERS: &str = r#"^-]\["#;
@@ -162,7 +171,7 @@ fn escape_character_classes(tokens: &Vec<char>) -> String {
 }
 
 fn main() {
-    const PROGRAM_FILE_PATH: &str = "../../1/p2.oli";
+    const PROGRAM_FILE_PATH: &str = "../../1/p3.oli";
     const TOKEN_FILE_PATH: &str = "../../2/token.in";
 
     let token_file = File::open(TOKEN_FILE_PATH).expect("could not open token file");
