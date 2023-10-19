@@ -179,7 +179,7 @@ impl Scanner {
         let rule_3_number = Regex::new(r"^(((\+|-)?[1-9][0-9]*)|(0))$").unwrap();
         let rule_3_string_char = Regex::new(r#"^("[^"]*"|'[^']')$"#).unwrap();
 
-        // TODO: verify if char is only one character and if identifier exists in table?
+        // TODO: verify if identifier exists in table?
 
         let table_key = token.to_string();
         if self.tokens.contains(&table_key) || table_key == INTERNAL_SEPARATOR {
