@@ -1,8 +1,8 @@
 use super::hash_map::HashMap;
 
 pub struct Table<K> {
-    table: HashMap<K, usize>,
-    current_index: usize,
+    table: HashMap<K, isize>,
+    current_index: isize,
 }
 
 #[allow(dead_code)]
@@ -21,16 +21,16 @@ where
         self.table.size()
     }
 
-    pub fn insert(&mut self, key: K, value: usize) {
-        self.table.put(key, value);
-    }
-
-    pub fn put(&mut self, key: K) {
+    pub fn insert(&mut self, key: K) {
         self.table.put(key, self.current_index);
         self.current_index += 1;
     }
 
-    pub fn get(&self, key: &K) -> Option<&usize> {
+    pub fn put(&mut self, key: K, value: isize) {
+        self.table.put(key, value);
+    }
+
+    pub fn get(&self, key: &K) -> Option<&isize> {
         self.table.get(key)
     }
 

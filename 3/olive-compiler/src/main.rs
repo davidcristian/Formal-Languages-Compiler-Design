@@ -5,8 +5,8 @@ fn test_table() {
     let mut table = Table::new();
     assert_eq!(table.size(), 0);
 
-    table.put("a");
-    table.put("b");
+    table.insert("a");
+    table.insert("b");
     assert_eq!(table.size(), 2);
 
     assert_eq!(table.get(&"a"), Some(&0));
@@ -17,7 +17,7 @@ fn test_table() {
     assert_eq!(table.get(&"a"), None);
     assert_eq!(table.size(), 1);
 
-    table.insert("a", 1);
+    table.put("a", 1);
     assert_eq!(table.get(&"a"), Some(&1));
     assert_eq!(table.get(&"b"), Some(&1));
 
