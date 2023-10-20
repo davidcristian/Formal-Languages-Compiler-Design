@@ -92,8 +92,8 @@ impl Scanner {
         // inline function to capture token
         let mut handle_token = |token: &mut String| {
             if !token.is_empty() {
-                line_tokens.push(token.clone());
-                token.clear();
+                let old_token = std::mem::replace(token, String::new());
+                line_tokens.push(old_token);
             }
         };
 
@@ -140,7 +140,7 @@ impl Scanner {
 
                 token.push(ch);
                 while let Some(next_ch) = chars.peek() {
-                    let potential_token = token.clone() + &next_ch.to_string();
+                    let potential_token = format!("{}{}", token, next_ch);
                     if self.tokens.contains(&potential_token) {
                         token.push(chars.next().unwrap());
                     } else {
@@ -179,8 +179,6 @@ impl Scanner {
         let rule_3_number = Regex::new(r"^(((\+|-)?[1-9][0-9]*)|(0))$").unwrap();
         let rule_3_string_char = Regex::new(r#"^("[^"]*"|'[^']')$"#).unwrap();
 
-        // TODO: verify if identifier exists in table?
-
         let table_key = token.to_string();
         if self.tokens.contains(&table_key) || table_key == INTERNAL_SEPARATOR {
             // check if token is a reserved word or a symbol
@@ -192,25 +190,27 @@ impl Scanner {
             true
         } else if rule_2.is_match(token) {
             // only add identifier to table if it doesn't exist
-            if self.identifier_table.get(&table_key).is_none() {
-                self.identifier_table.insert(table_key.clone());
+            let mut value = *self.identifier_table.get(&table_key).unwrap_or(&-1);
+            if value == -1 {
+                value = self.identifier_table.insert(table_key);
             }
 
             self.token_list.push(Pair {
                 key: String::from(IDENTIFIER_NAME),
-                value: self.identifier_table.get(&table_key).unwrap().clone(),
+                value,
             });
 
             true
         } else if rule_3_number.is_match(token) || rule_3_string_char.is_match(token) {
             // only add constant to table if it doesn't exist
-            if self.constant_table.get(&table_key).is_none() {
-                self.constant_table.insert(table_key.clone());
+            let mut value = *self.constant_table.get(&table_key).unwrap_or(&-1);
+            if value == -1 {
+                value = self.constant_table.insert(table_key);
             }
 
             self.token_list.push(Pair {
                 key: String::from(CONSTANT_NAME),
-                value: self.constant_table.get(&table_key).unwrap().clone(),
+                value,
             });
 
             true

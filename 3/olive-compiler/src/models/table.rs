@@ -21,9 +21,11 @@ where
         self.table.size()
     }
 
-    pub fn insert(&mut self, key: K) {
+    pub fn insert(&mut self, key: K) -> isize {
         self.table.put(key, self.current_index);
         self.current_index += 1;
+
+        self.current_index - 1
     }
 
     pub fn put(&mut self, key: K, value: isize) {
