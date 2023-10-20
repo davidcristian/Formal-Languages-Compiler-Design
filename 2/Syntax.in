@@ -7,14 +7,14 @@ decllist ::= declaration | declaration "," decllist
 declaration ::= identifier ":" type | identifier ":" type "=" expression
 
 primitive ::= "number" | "char" | "string"
-arraydecl ::= "array" "<" primitive ">" "(" expression ")"
+arraydecl ::= "array" "<" primitive ">" "(" number ")"
 type ::= primitive | arraydecl
 
 cmpdstmt ::= "{" stmtlist "}"
 stmtlist ::= stmt | stmt newlines stmtlist
 
 stmt ::= simplstmt | structstmt
-simplstmt ::= decllist | assignstmt | iostmt
+simplstmt ::= assignstmt | iostmt | decllist
 
 assignstmt ::= identifier "=" expression | identifier "[" number "]" "=" expression
 expression ::=  term | expression "+" term | expression "-" term

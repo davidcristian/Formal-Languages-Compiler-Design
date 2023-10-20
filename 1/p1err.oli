@@ -6,5 +6,5 @@ b: number
 input(b)
 input(a)
 
-c: number = a + b
-output3(c) -- output3 is not a valid statement
+c: char = 'hello' -- 'hello' is not a valid char
+output(c)
