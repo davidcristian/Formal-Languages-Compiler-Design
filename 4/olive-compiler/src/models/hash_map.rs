@@ -32,10 +32,6 @@ where
         }
     }
 
-    pub fn size(&self) -> usize {
-        self.size
-    }
-
     // first hash function
     fn hash1(&self, key: &K) -> usize {
         let mut hasher = std::collections::hash_map::DefaultHasher::new();
@@ -48,6 +44,34 @@ where
         let mut hasher = std::collections::hash_map::DefaultHasher::new();
         key.hash(&mut hasher);
         1 + ((hasher.finish() as usize) % (self.capacity - 1))
+    }
+
+    // resizes the table to increase its current capacity by RESIZE_FACTOR
+    // Complexity analysis:
+    // Best: O(n)
+    // Worst: O(n)
+    // Average: O(n)
+    fn resize(&mut self) {
+        self.size = 0;
+        self.capacity *= RESIZE_FACTOR;
+
+        let old_table = std::mem::replace(&mut self.table, vec![None; self.capacity]);
+        for entry in old_table.into_iter() {
+            if let Some(e) = entry {
+                if !e.deleted {
+                    self.put(e.key, e.value);
+                }
+            }
+        }
+    }
+
+    // returns the current size of the hash table
+    // Complexity analysis:
+    // Best: O(1)
+    // Worst: O(1)
+    // Average: O(1)
+    pub fn size(&self) -> usize {
+        self.size
     }
 
     // inserts a key-value pair into the hash table
@@ -110,7 +134,7 @@ where
         None
     }
 
-    // removes the value for the given key
+    // removes the key-value pair for the given key
     // Complexity analysis:
     // Best: O(1)
     // Worst: O(n)
@@ -131,19 +155,17 @@ where
         }
     }
 
-    // clears the entire table
+    // clears the hash table
     // Complexity analysis:
     // Best: O(n)
     // Worst: O(n)
     // Average: O(n)
     pub fn clear(&mut self) {
-        self.table = vec![None; INITIAL_CAPACITY];
-        self.capacity = INITIAL_CAPACITY;
-
+        self.table = vec![None; self.capacity];
         self.size = 0;
     }
 
-    // display the table
+    // prints the content of the hash table
     // Complexity analysis:
     // Best: O(n)
     // Worst: O(n)
@@ -157,25 +179,6 @@ where
                 // Some(e) if e.deleted => println!("Index {}: [Deleted]", index),
                 //_ => println!("Index {}: [Empty]", index),
                 _ => {}
-            }
-        }
-    }
-
-    // resizes the table to increase its current capacity by RESIZE_FACTOR
-    // Complexity analysis:
-    // Best: O(n)
-    // Worst: O(n)
-    // Average: O(n)
-    fn resize(&mut self) {
-        self.size = 0;
-        self.capacity *= RESIZE_FACTOR;
-
-        let old_table = std::mem::replace(&mut self.table, vec![None; self.capacity]);
-        for entry in old_table.into_iter() {
-            if let Some(e) = entry {
-                if !e.deleted {
-                    self.put(e.key, e.value);
-                }
             }
         }
     }
