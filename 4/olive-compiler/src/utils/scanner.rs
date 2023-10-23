@@ -5,6 +5,7 @@ use std::fs::File;
 use std::io::{self, BufRead, BufReader};
 
 use super::token::*;
+use crate::models::hash_map::HashMap;
 use crate::models::pair::Pair;
 use crate::models::table::Table;
 
@@ -12,26 +13,30 @@ use crate::models::table::Table;
 // - fix triple reserved_tokens clone (use refs)
 // - make consume functions private and pass
 //   references to them instead of the scanner
+// - remove value field from ST and use bucket index instead in token list
 // - add comments
 
+const RESERVED_TOKEN_VALUE: &usize = &0;
+const IDENTIFIER_OFFSET: &usize = &1;
+const CONSTANT_OFFSET: &usize = &2;
+
+const INTERNAL_SEPARATOR_OFFSET: &usize = &3;
 const INTERNAL_SEPARATOR: &str = "\\n";
-const IDENTIFIER_NAME: &str = "id";
-const CONSTANT_NAME: &str = "constant";
 
 lazy_static! {
-    // these expressions are correct, unwrap() is safe; if not, the compiler will panic
+    // these expressions are correct, unwrap() is safe; if not, the program will panic
     static ref IDENTIFIER: Regex = Regex::new(r"^([A-Za-z]+)$").unwrap();
     static ref NUMBER: Regex = Regex::new(r"^(((\+|-)?[1-9][0-9]*)|(0))$").unwrap();
     static ref STRING_CHAR: Regex = Regex::new(r#"^("[^"]*"|'[^']')$"#).unwrap();
 }
 
 pub struct Scanner {
-    reserved_tokens: Vec<String>,
+    reserved_tokens: HashMap<String, usize>,
     raw_line: Vec<char>,
     line_index: usize,
 
     // store the token list, identifier table, and constant table separately
-    token_list: Vec<Pair<String, isize>>,
+    token_list: Vec<Pair<usize, usize>>,
     identifier_table: Table<String>,
     constant_table: Table<String>,
 }
@@ -52,7 +57,7 @@ impl Scanner {
         }
     }
 
-    fn parse_token_file(file_path: &str) -> Result<Vec<String>, String> {
+    fn parse_token_file(file_path: &str) -> Result<HashMap<String, usize>, String> {
         println!("Reading '{}'", &file_path);
         let token_file = match File::open(file_path) {
             Ok(file) => file,
@@ -63,11 +68,11 @@ impl Scanner {
         };
 
         let token_reader = BufReader::new(token_file);
-        let mut tokens = Vec::new();
+        let mut tokens = HashMap::new();
 
         for (line_index, line) in token_reader.lines().enumerate() {
             match line {
-                Ok(line) => tokens.push(line),
+                Ok(line) => tokens.put(line, line_index + 1),
                 Err(e) => {
                     let error = format!(
                         "could not read token file line {}: {}",
@@ -83,9 +88,13 @@ impl Scanner {
     }
 
     pub fn display(&self) {
+        println!("\nReserved tokens:");
+        self.reserved_tokens.display();
+        println!("Reserved tokens size: {}", self.reserved_tokens.size());
+
         println!("\nToken list:");
         for entry in &self.token_list {
-            println!("Token: {}, Table Index: {}", entry.key, entry.value);
+            println!("K: {:2}, V: {:2}", entry.key, entry.value);
         }
         println!("Token list size: {}", self.token_list.len());
 
@@ -252,43 +261,46 @@ impl Scanner {
         // 4. None of the above, lexical error
 
         let table_key = String::from(token);
-        match token {
-            _ if self.reserved_tokens.contains(&table_key) || table_key == INTERNAL_SEPARATOR => {
-                // check if token is a reserved word or a symbol
-                self.token_list.push(Pair {
-                    key: table_key,
-                    value: -1,
-                });
+        if self.reserved_tokens.contains(&table_key) || table_key == INTERNAL_SEPARATOR {
+            // check if token is a reserved word or a symbol
+            let token_code = match self.reserved_tokens.get(&table_key) {
+                Some(token_code) => *token_code,
+                None => self.reserved_tokens.size() + INTERNAL_SEPARATOR_OFFSET,
+            };
 
-                Ok(())
-            }
-            _ if IDENTIFIER.is_match(token)
-                || NUMBER.is_match(token)
-                || STRING_CHAR.is_match(token) =>
-            {
-                let (table, key_name) = if IDENTIFIER.is_match(token) {
-                    (&mut self.identifier_table, IDENTIFIER_NAME)
-                } else {
-                    (&mut self.constant_table, CONSTANT_NAME)
-                };
+            self.token_list.push(Pair {
+                key: token_code,
+                value: *RESERVED_TOKEN_VALUE,
+            });
 
-                // only add to table if element doesn't exist
-                let mut value = *table.get(&table_key).unwrap_or(&-1);
-                if value == -1 {
-                    value = table.insert(table_key);
-                }
+            return Ok(());
+        } else if IDENTIFIER.is_match(token)
+            || NUMBER.is_match(token)
+            || STRING_CHAR.is_match(token)
+        {
+            // check if token is an identifier or a constant
+            let (table, offset) = if IDENTIFIER.is_match(token) {
+                (&mut self.identifier_table, IDENTIFIER_OFFSET)
+            } else {
+                (&mut self.constant_table, CONSTANT_OFFSET)
+            };
 
-                self.token_list.push(Pair {
-                    key: String::from(key_name),
-                    value,
-                });
+            // only add to table if element doesn't exist
+            let value = match table.get(&table_key) {
+                Some(value) => *value,
+                None => table.insert(table_key),
+            };
 
-                Ok(())
-            }
-            _ => {
-                let error = format!("undefined token: {}", token);
-                Err(error)
-            }
+            let id_const_code = self.reserved_tokens.size() + offset;
+            self.token_list.push(Pair {
+                key: id_const_code,
+                value,
+            });
+
+            return Ok(());
         }
+
+        let error = format!("undefined token: {}", token);
+        Err(error)
     }
 }

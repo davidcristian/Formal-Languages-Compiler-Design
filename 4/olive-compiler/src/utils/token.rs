@@ -1,4 +1,5 @@
 use super::scanner::Scanner;
+use crate::models::hash_map::HashMap;
 
 pub trait Token {
     fn is_of(&self, current_char: &char, next_char: Option<&char>) -> bool;
@@ -29,10 +30,10 @@ impl Token for CommentToken {
 }
 
 pub struct ReservedToken {
-    reserved_tokens: Vec<String>,
+    reserved_tokens: HashMap<String, usize>,
 }
 impl ReservedToken {
-    pub fn new(reserved_tokens: &Vec<String>) -> Self {
+    pub fn new(reserved_tokens: &HashMap<String, usize>) -> Self {
         Self {
             reserved_tokens: reserved_tokens.clone(),
         }

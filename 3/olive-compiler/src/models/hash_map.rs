@@ -2,7 +2,7 @@ use std::hash::Hasher;
 
 const INITIAL_CAPACITY: usize = 16;
 const RESIZE_FACTOR: usize = 2;
-const LOAD_FACTOR: f64 = 0.75;
+const LOAD_FACTOR: f64 = 0.6;
 
 #[derive(Clone)]
 struct Entry<K, V> {
@@ -134,6 +134,26 @@ where
         None
     }
 
+    // returns true if the hash table contains the given key
+    // Complexity analysis:
+    // Best: O(1)
+    // Worst: O(n)
+    // Average: O(1)
+    pub fn contains(&self, key: &K) -> bool {
+        let mut index = self.hash1(key);
+        let hash2_value = self.hash2(key);
+
+        while let Some(entry) = &self.table[index] {
+            if !entry.deleted && entry.key == *key {
+                return true;
+            }
+
+            index = (index + hash2_value) % self.capacity;
+        }
+
+        false
+    }
+
     // removes the key-value pair for the given key
     // Complexity analysis:
     // Best: O(1)
@@ -165,6 +185,19 @@ where
         self.size = 0;
     }
 
+    // returns a clone of the hash table
+    // Complexity analysis:
+    // Best: O(n)
+    // Worst: O(n)
+    // Average: O(n)
+    pub fn clone(&self) -> Self {
+        Self {
+            table: self.table.clone(),
+            capacity: self.capacity,
+            size: self.size,
+        }
+    }
+
     // prints the content of the hash table
     // Complexity analysis:
     // Best: O(n)
@@ -174,10 +207,10 @@ where
         for (index, entry) in self.table.iter().enumerate() {
             match entry {
                 Some(e) if !e.deleted => {
-                    println!("Index {}: Key: {:?}, Value: {:?}", index, e.key, e.value)
+                    println!("Bucket {:2} => K: {:?}, V: {:?}", index, e.key, e.value)
                 }
-                // Some(e) if e.deleted => println!("Index {}: [Deleted]", index),
-                //_ => println!("Index {}: [Empty]", index),
+                // Some(e) if e.deleted => println!("Bucket {:2} => [Deleted]", index),
+                //_ => println!("Bucket {:2} => [Empty]", index),
                 _ => {}
             }
         }
