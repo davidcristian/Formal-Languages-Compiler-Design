@@ -1,14 +1,14 @@
 use super::scanner::Scanner;
 
 pub trait Token {
-    fn is_of(&self, current_char: char, next_char: Option<&char>) -> bool;
+    fn is_of(&self, current_char: &char, next_char: Option<&char>) -> bool;
     fn consume(&self, scanner: &mut Scanner) -> Option<String>;
 }
 
 pub struct StringCharToken;
 impl Token for StringCharToken {
-    fn is_of(&self, current_char: char, _: Option<&char>) -> bool {
-        current_char == '"' || current_char == '\''
+    fn is_of(&self, current_char: &char, _: Option<&char>) -> bool {
+        current_char == &'"' || current_char == &'\''
     }
 
     fn consume(&self, scanner: &mut Scanner) -> Option<String> {
@@ -18,8 +18,8 @@ impl Token for StringCharToken {
 
 pub struct CommentToken;
 impl Token for CommentToken {
-    fn is_of(&self, current_char: char, next_char: Option<&char>) -> bool {
-        current_char == '-' && next_char == Some(&'-')
+    fn is_of(&self, current_char: &char, next_char: Option<&char>) -> bool {
+        current_char == &'-' && next_char == Some(&'-')
     }
 
     fn consume(&self, scanner: &mut Scanner) -> Option<String> {
@@ -39,7 +39,7 @@ impl ReservedToken {
     }
 }
 impl Token for ReservedToken {
-    fn is_of(&self, current_char: char, _: Option<&char>) -> bool {
+    fn is_of(&self, current_char: &char, _: Option<&char>) -> bool {
         self.reserved_tokens.contains(&current_char.to_string())
     }
 
@@ -50,7 +50,7 @@ impl Token for ReservedToken {
 
 pub struct UnclassifiedToken;
 impl Token for UnclassifiedToken {
-    fn is_of(&self, _: char, _: Option<&char>) -> bool {
+    fn is_of(&self, _: &char, _: Option<&char>) -> bool {
         true
     }
 

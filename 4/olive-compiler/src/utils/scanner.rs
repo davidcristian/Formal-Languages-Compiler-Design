@@ -1,14 +1,29 @@
+use lazy_static::lazy_static;
 use regex::Regex;
+
 use std::fs::File;
-use std::io::{self, BufRead};
+use std::io::{self, BufRead, BufReader};
 
 use super::token::*;
 use crate::models::pair::Pair;
 use crate::models::table::Table;
 
+// TODO:
+// - fix triple reserved_tokens clone (use refs)
+// - make consume functions private and pass
+//   references to them instead of the scanner
+// - add comments
+
 const INTERNAL_SEPARATOR: &str = "\\n";
 const IDENTIFIER_NAME: &str = "id";
 const CONSTANT_NAME: &str = "constant";
+
+lazy_static! {
+    // these expressions are correct, unwrap() is safe; if not, the compiler will panic
+    static ref IDENTIFIER: Regex = Regex::new(r"^([A-Za-z]+)$").unwrap();
+    static ref NUMBER: Regex = Regex::new(r"^(((\+|-)?[1-9][0-9]*)|(0))$").unwrap();
+    static ref STRING_CHAR: Regex = Regex::new(r#"^("[^"]*"|'[^']')$"#).unwrap();
+}
 
 pub struct Scanner {
     reserved_tokens: Vec<String>,
@@ -22,27 +37,49 @@ pub struct Scanner {
 }
 
 impl Scanner {
-    pub fn new(token_file_path: &str) -> Self {
-        Self {
-            reserved_tokens: Self::parse_token_file(token_file_path),
-            raw_line: vec![],
-            line_index: 0,
+    pub fn new(token_file_path: &str) -> Result<Self, String> {
+        match Self::parse_token_file(token_file_path) {
+            Ok(tokens) => Ok(Self {
+                reserved_tokens: tokens,
+                raw_line: vec![],
+                line_index: 0,
 
-            token_list: vec![],
-            identifier_table: Table::new(),
-            constant_table: Table::new(),
+                token_list: vec![],
+                identifier_table: Table::new(),
+                constant_table: Table::new(),
+            }),
+            Err(e) => Err(e),
         }
     }
 
-    fn parse_token_file(file_path: &str) -> Vec<String> {
+    fn parse_token_file(file_path: &str) -> Result<Vec<String>, String> {
         println!("Reading '{}'", &file_path);
-        let token_file = File::open(file_path).expect("could not open token file");
-        let token_reader = io::BufReader::new(token_file);
+        let token_file = match File::open(file_path) {
+            Ok(file) => file,
+            Err(e) => {
+                let error = format!("could not open token file: {}", e.to_string());
+                return Err(error);
+            }
+        };
 
-        token_reader
-            .lines()
-            .map(|line| line.expect("could not read token line"))
-            .collect()
+        let token_reader = BufReader::new(token_file);
+        let mut tokens = Vec::new();
+
+        for (line_index, line) in token_reader.lines().enumerate() {
+            match line {
+                Ok(line) => tokens.push(line),
+                Err(e) => {
+                    let error = format!(
+                        "could not read token file line {}: {}",
+                        line_index + 1,
+                        e.to_string()
+                    );
+                    return Err(error);
+                }
+            }
+        }
+
+        Ok(tokens)
     }
 
     pub fn display(&self) {
@@ -63,35 +100,56 @@ impl Scanner {
 
     pub fn scan(&mut self, file_path: &str) -> Result<(), String> {
         println!("Scanning '{}'", file_path);
-        let program_file = File::open(file_path).expect("could not open program file");
-        let program_reader = io::BufReader::new(program_file);
+        let program_file = match File::open(file_path) {
+            Ok(file) => file,
+            Err(e) => {
+                let error = format!("could not open program file: {}", e.to_string());
+                return Err(error);
+            }
+        };
 
+        let program_reader = io::BufReader::new(program_file);
         program_reader
             .lines()
             .enumerate()
-            .map(|(line_number, line)| {
-                let line = line.expect("could not read program line");
-                self.raw_line = line.chars().collect();
+            .map(|(line_index, line)| {
+                self.raw_line = match line {
+                    Ok(line) => line.chars().collect(),
+                    Err(e) => {
+                        let error = format!(
+                            "could not read program file line {}: {}",
+                            line_index + 1,
+                            e.to_string()
+                        );
+                        return Err(error);
+                    }
+                };
 
                 self.line_index = 0;
-                self.parse_line(line_number + 1)
+                self.parse_line(&line_index)
             })
             .collect()
     }
 
-    fn parse_line(&mut self, line_number: usize) -> Result<(), String> {
+    fn parse_line(&mut self, line_index: &usize) -> Result<(), String> {
         let mut is_empty = true;
 
         while let Some(token) = self.next_token() {
             is_empty = false;
-            if !self.classify_token(&token) {
-                let error = format!("Undefined token on line {}: {}", line_number, token);
-                return Err(error);
+            match self.classify_token(&token) {
+                Ok(_) => {}
+                Err(e) => {
+                    let error = format!("Lexical error on line {} => {}", line_index + 1, e);
+                    return Err(error);
+                }
             }
         }
 
         if !is_empty {
-            self.classify_token(INTERNAL_SEPARATOR);
+            if let Err(_) = self.classify_token(INTERNAL_SEPARATOR) {
+                let error = format!("Invalid internal separator");
+                return Err(error);
+            }
         }
 
         Ok(())
@@ -103,7 +161,7 @@ impl Scanner {
             return None;
         }
 
-        let current_char = self.raw_line[self.line_index];
+        let current_char = &self.raw_line[self.line_index];
         let next_char = self.raw_line.get(self.line_index + 1);
 
         let token_types: Vec<Box<dyn Token>> = vec![
@@ -134,7 +192,7 @@ impl Scanner {
 
     pub fn consume_string_char(&mut self) -> String {
         let quote_type = self.raw_line[self.line_index];
-        let mut token = quote_type.to_string();
+        let mut token = String::from(quote_type);
 
         self.line_index += 1;
         self.capture_token_stream(|&ch| {
@@ -185,50 +243,51 @@ impl Scanner {
         token
     }
 
-    fn classify_token(&mut self, token: &str) -> bool {
+    fn classify_token(&mut self, token: &str) -> Result<(), String> {
         // Rules:
         // 1. Is it a reserved word or a symbol? : self.tokens
         // 2. Is it an identifier? : uppercase and lowercase letters
         // 3. Is it a constant? : valid number, string, or char
         // 4. None of the above, lexical error
 
-        let identifier = Regex::new(r"^([A-Za-z]+)$").unwrap();
-        let number = Regex::new(r"^(((\+|-)?[1-9][0-9]*)|(0))$").unwrap();
-        let string_char = Regex::new(r#"^("[^"]*"|'[^']')$"#).unwrap();
+        let table_key = String::from(token);
+        match token {
+            _ if self.reserved_tokens.contains(&table_key) || table_key == INTERNAL_SEPARATOR => {
+                // check if token is a reserved word or a symbol
+                self.token_list.push(Pair {
+                    key: table_key,
+                    value: -1,
+                });
 
-        let table_key = token.to_string();
-        if self.reserved_tokens.contains(&table_key) || table_key == INTERNAL_SEPARATOR {
-            // check if token is a reserved word or a symbol
-            self.token_list.push(Pair {
-                key: table_key,
-                value: -1,
-            });
-
-            return true;
-        } else if identifier.is_match(token)
-            || number.is_match(token)
-            || string_char.is_match(token)
-        {
-            let (table, key_name) = if identifier.is_match(token) {
-                (&mut self.identifier_table, IDENTIFIER_NAME)
-            } else {
-                (&mut self.constant_table, CONSTANT_NAME)
-            };
-
-            // only add to table if element doesn't exist
-            let mut value = *table.get(&table_key).unwrap_or(&-1);
-            if value == -1 {
-                value = table.insert(table_key);
+                Ok(())
             }
+            _ if IDENTIFIER.is_match(token)
+                || NUMBER.is_match(token)
+                || STRING_CHAR.is_match(token) =>
+            {
+                let (table, key_name) = if IDENTIFIER.is_match(token) {
+                    (&mut self.identifier_table, IDENTIFIER_NAME)
+                } else {
+                    (&mut self.constant_table, CONSTANT_NAME)
+                };
 
-            self.token_list.push(Pair {
-                key: String::from(key_name),
-                value,
-            });
+                // only add to table if element doesn't exist
+                let mut value = *table.get(&table_key).unwrap_or(&-1);
+                if value == -1 {
+                    value = table.insert(table_key);
+                }
 
-            return true;
+                self.token_list.push(Pair {
+                    key: String::from(key_name),
+                    value,
+                });
+
+                Ok(())
+            }
+            _ => {
+                let error = format!("undefined token: {}", token);
+                Err(error)
+            }
         }
-
-        false
     }
 }

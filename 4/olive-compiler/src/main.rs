@@ -30,9 +30,21 @@ fn main() {
         get_program_path(&args[1])
     };
 
-    let mut scanner = Scanner::new(TOKEN_FILE_PATH);
+    let mut scanner = match Scanner::new(TOKEN_FILE_PATH) {
+        Ok(scanner) => scanner,
+        Err(e) => {
+            println!("{}", e);
+            return;
+        }
+    };
+
     match scanner.scan(program.as_str()) {
         Ok(_) => scanner.display(),
-        Err(e) => println!("{}", e),
+        Err(e) => {
+            println!("{}", e);
+            return;
+        }
     }
+
+    println!("\nProgram scanned successfully!");
 }
