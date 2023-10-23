@@ -200,6 +200,7 @@ impl Scanner {
             ch != quote_type
         });
 
+        self.line_index += 1;
         token
     }
 
