@@ -13,7 +13,8 @@ use crate::models::table::Table;
 // - fix triple reserved_tokens clone (use refs)
 // - make consume functions private and pass
 //   references to them instead of the scanner
-// - remove value field from ST and use bucket index instead in token list
+// - move classify token func into token trait
+// - switch back to char by char parsing and handle newlines like python?
 // - add comments
 
 const RESERVED_TOKEN_VALUE: &usize = &0;
@@ -94,7 +95,7 @@ impl Scanner {
 
         println!("\nToken list:");
         for entry in &self.token_list {
-            println!("K: {:2}, V: {:2}", entry.key, entry.value);
+            println!("({:2}, {:2})", entry.key, entry.value);
         }
         println!("Token list size: {}", self.token_list.len());
 
