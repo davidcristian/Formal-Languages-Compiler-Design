@@ -2,7 +2,7 @@ use lazy_static::lazy_static;
 use regex::Regex;
 
 use std::fs::{self, File};
-use std::io::{BufRead, BufReader};
+use std::io::{BufRead, BufReader, Write};
 
 use super::token::*;
 use crate::models::hash_map::HashMap;
@@ -10,10 +10,8 @@ use crate::models::pair::Pair;
 use crate::models::table::Table;
 
 // TODO:
-// - fix triple reserved_tokens clone by using references instead
+// - remove reserved_tokens clone in token.rs
 // - make consume functions private and pass references to them instead of the scanner
-// - move classify token function into the token trait
-// - add comments
 
 const RESERVED_TOKEN_VALUE: &usize = &0;
 const INTERNAL_SEPARATOR_OFFSET: &usize = &3;
@@ -89,7 +87,7 @@ impl Scanner {
 
     pub fn display(&self) {
         println!("\nReserved tokens:");
-        self.reserved_tokens.display();
+        println!("{}", self.reserved_tokens.to_string());
         println!("Reserved tokens size: {}", self.reserved_tokens.size());
 
         println!("\nToken list:");
@@ -99,12 +97,45 @@ impl Scanner {
         println!("Token list size: {}", self.token_list.len());
 
         println!("\nIdentifier table:");
-        self.identifier_table.display();
+        println!("{}", self.identifier_table.to_string());
         println!("Identifier table size: {}", self.identifier_table.size());
 
         println!("\nConstant table:");
-        self.constant_table.display();
+        println!("{}", self.constant_table.to_string());
         println!("Constant table size: {}", self.constant_table.size());
+    }
+
+    pub fn write(&self, file_path: &str) -> Result<(), String> {
+        let mut file = match File::create(file_path) {
+            Ok(file) => file,
+            Err(e) => {
+                let error = format!("could not create output file: {}", e.to_string());
+                return Err(error);
+            }
+        };
+
+        let mut output = String::new();
+
+        output.push_str("Token list:\n");
+        for entry in &self.token_list {
+            output.push_str(&format!("({:2}, {:2})\n", entry.key, entry.value));
+        }
+
+        output.push_str("\nIdentifier table:\n");
+        output.push_str(&self.identifier_table.to_string());
+        output.push_str("\n");
+
+        output.push_str("\nConstant table:\n");
+        output.push_str(&self.constant_table.to_string());
+        output.push_str("\n");
+
+        match file.write_all(output.as_bytes()) {
+            Ok(_) => Ok(()),
+            Err(e) => {
+                let error = format!("could not write to output file: {}", e.to_string());
+                Err(error)
+            }
+        }
     }
 
     pub fn scan(&mut self, file_path: &str) -> Result<(), String> {
@@ -127,7 +158,7 @@ impl Scanner {
             match self.classify_token(&token) {
                 Ok(_) => {}
                 Err(e) => {
-                    let error = format!("Lexical error on line {} => {}", self.line_index, e);
+                    let error = format!("\nLexical error on line {} => {}", self.line_index, e);
                     return Err(error);
                 }
             }
@@ -161,16 +192,20 @@ impl Scanner {
         None
     }
 
-    fn capture_token_stream<F: FnMut(&char) -> bool>(&mut self, mut cond: F) {
-        while self.position < self.raw_program.len() && cond(&self.raw_program[self.position]) {
-            self.position += 1;
+    fn capture_token_stream<F: FnMut(&char) -> bool>(&self, mut cond: F) -> usize {
+        let mut position = self.position;
+
+        while position < self.raw_program.len() && cond(&self.raw_program[position]) {
+            position += 1;
         }
+
+        position
     }
 
     fn consume_whitespace(&mut self) {
         // count newlines and add them to the line index
         let mut newlines = 0;
-        self.capture_token_stream(|&ch| {
+        self.position = self.capture_token_stream(|&ch| {
             if ch == '\n' {
                 newlines += 1;
             }
@@ -179,11 +214,8 @@ impl Scanner {
         });
 
         // add a separator token if there was at least one newline
-        if newlines > 0 && self.token_list.len() > 0 {
-            self.token_list.push(Pair {
-                key: self.reserved_tokens.size() + INTERNAL_SEPARATOR_OFFSET,
-                value: *RESERVED_TOKEN_VALUE,
-            });
+        if newlines > 0 {
+            self.add_separator_token();
         }
 
         self.line_index += newlines;
@@ -194,7 +226,7 @@ impl Scanner {
         let mut token = String::from(quote_type);
 
         self.position += 1;
-        self.capture_token_stream(|&ch| {
+        self.position = self.capture_token_stream(|&ch| {
             token.push(ch);
             ch != quote_type
         });
@@ -204,21 +236,19 @@ impl Scanner {
     }
 
     pub fn consume_comment(&mut self) -> String {
-        self.capture_token_stream(|&ch| ch != '\n');
-
+        self.position = self.capture_token_stream(|&ch| ch != '\n');
         String::from("")
     }
 
     pub fn consume_reserved_token(&mut self) -> String {
-        let reserved_tokens = self.reserved_tokens.clone();
         let mut token = String::new();
 
         // handle separators and arithmetic operators while
         // considering the possibility of n-length tokens
         // that begin with the same character (ex: < and <=)
-        self.capture_token_stream(|&ch| {
+        self.position = self.capture_token_stream(|&ch| {
             let potential_token = format!("{}{}", token, ch);
-            if reserved_tokens.contains(&potential_token) {
+            if self.reserved_tokens.contains(&potential_token) {
                 token.push(ch);
                 true
             } else {
@@ -230,11 +260,10 @@ impl Scanner {
     }
 
     pub fn consume_general_token(&mut self) -> String {
-        let reserved_tokens = self.reserved_tokens.clone();
         let mut token = String::new();
 
-        self.capture_token_stream(|&ch| {
-            if ch.is_whitespace() || reserved_tokens.contains(&ch.to_string()) {
+        self.position = self.capture_token_stream(|&ch| {
+            if ch.is_whitespace() || self.reserved_tokens.contains(&ch.to_string()) {
                 false
             } else {
                 token.push(ch);
@@ -243,6 +272,17 @@ impl Scanner {
         });
 
         token
+    }
+
+    fn add_separator_token(&mut self) {
+        if self.token_list.is_empty() {
+            return;
+        }
+
+        self.token_list.push(Pair {
+            key: self.reserved_tokens.size() + INTERNAL_SEPARATOR_OFFSET,
+            value: *RESERVED_TOKEN_VALUE,
+        });
     }
 
     fn classify_token(&mut self, token: &str) -> Result<(), String> {

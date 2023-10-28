@@ -1,7 +1,7 @@
 mod models;
 mod utils;
 
-use std::env;
+use std::{env, fs};
 use utils::scanner::Scanner;
 
 const TOKEN_FILE_PATH: &str = "../../2/token.in";
@@ -9,12 +9,34 @@ const PROGRAM_FILE_PATH: &str = "../../1/";
 const PROGRAM_EXTENSION: &str = ".oli";
 const DEFAULT_PROGRAM: &str = "p3";
 
+const OUTPUT_DIR: &str = "output/";
+const OUTPUT_FILE_PATH: &str = "/tokens";
+const OUTPUT_EXTENSION: &str = ".out";
+
 fn get_program_path(program: &str) -> String {
     let mut program_path = String::from(PROGRAM_FILE_PATH);
     program_path.push_str(program);
     program_path.push_str(PROGRAM_EXTENSION);
 
     program_path
+}
+
+fn get_output_path(program: &str) -> Result<String, String> {
+    let mut output_path = String::from(OUTPUT_DIR);
+    output_path.push_str(program);
+
+    match fs::create_dir_all(&output_path) {
+        Ok(_) => {}
+        Err(e) => {
+            let error = format!("could not create output directory: {}", e);
+            return Err(error);
+        }
+    }
+
+    output_path.push_str(OUTPUT_FILE_PATH);
+    output_path.push_str(OUTPUT_EXTENSION);
+
+    Ok(output_path)
 }
 
 fn main() {
@@ -25,9 +47,9 @@ fn main() {
     }
 
     let program = if args.len() == 1 {
-        get_program_path(DEFAULT_PROGRAM)
+        DEFAULT_PROGRAM
     } else {
-        get_program_path(&args[1])
+        &args[1]
     };
 
     let mut scanner = match Scanner::new(TOKEN_FILE_PATH) {
@@ -38,7 +60,8 @@ fn main() {
         }
     };
 
-    match scanner.scan(program.as_str()) {
+    let program_path = get_program_path(program);
+    match scanner.scan(program_path.as_str()) {
         Ok(_) => scanner.display(),
         Err(e) => {
             println!("{}", e);
@@ -46,5 +69,22 @@ fn main() {
         }
     }
 
-    println!("\nProgram scanned successfully!");
+    let output_path = match get_output_path(program) {
+        Ok(output_path) => output_path,
+        Err(e) => {
+            println!("{}", e);
+            return;
+        }
+    };
+
+    match scanner.write(output_path.as_str()) {
+        Ok(_) => {}
+        Err(e) => {
+            println!("{}", e);
+            return;
+        }
+    }
+
+    println!("\nLexically correct!");
+    println!("Output written to {}", output_path)
 }

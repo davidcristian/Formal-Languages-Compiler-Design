@@ -198,21 +198,28 @@ where
         }
     }
 
-    // prints the content of the hash table
+    // converts the hash table to a string
     // Complexity analysis:
     // Best: O(n)
     // Worst: O(n)
     // Average: O(n)
-    pub fn display(&self) {
+    pub fn to_string(&self) -> String {
+        let mut values = vec![];
+
         for (index, entry) in self.table.iter().enumerate() {
             match entry {
                 Some(e) if !e.deleted => {
-                    println!("Bucket {:2} => K: {:?}, V: {:?}", index, e.key, e.value)
+                    let entry = format!("Bucket {:2} => K: {:?}, V: {:?}", index, e.key, e.value);
+                    values.push(entry);
+                    values.push(String::from("\n"));
                 }
                 // Some(e) if e.deleted => println!("Bucket {:2} => [Deleted]", index),
                 //_ => println!("Bucket {:2} => [Empty]", index),
                 _ => {}
             }
         }
+
+        values.pop();
+        values.join("")
     }
 }
