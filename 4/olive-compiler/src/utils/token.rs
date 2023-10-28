@@ -24,8 +24,7 @@ impl Token for CommentToken {
     }
 
     fn consume(&self, scanner: &mut Scanner) -> Option<String> {
-        scanner.consume_comment();
-        None
+        Some(scanner.consume_comment())
     }
 }
 

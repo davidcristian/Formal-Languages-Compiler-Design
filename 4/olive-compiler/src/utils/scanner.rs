@@ -1,8 +1,8 @@
 use lazy_static::lazy_static;
 use regex::Regex;
 
-use std::fs::File;
-use std::io::{self, BufRead, BufReader};
+use std::fs::{self, File};
+use std::io::{BufRead, BufReader};
 
 use super::token::*;
 use crate::models::hash_map::HashMap;
@@ -10,19 +10,16 @@ use crate::models::pair::Pair;
 use crate::models::table::Table;
 
 // TODO:
-// - fix triple reserved_tokens clone (use refs)
-// - make consume functions private and pass
-//   references to them instead of the scanner
-// - move classify token func into token trait
-// - switch back to char by char parsing and handle newlines like python?
+// - fix triple reserved_tokens clone by using references instead
+// - make consume functions private and pass references to them instead of the scanner
+// - move classify token function into the token trait
 // - add comments
 
 const RESERVED_TOKEN_VALUE: &usize = &0;
+const INTERNAL_SEPARATOR_OFFSET: &usize = &3;
+
 const IDENTIFIER_OFFSET: &usize = &1;
 const CONSTANT_OFFSET: &usize = &2;
-
-const INTERNAL_SEPARATOR_OFFSET: &usize = &3;
-const INTERNAL_SEPARATOR: &str = "\\n";
 
 lazy_static! {
     // these expressions are correct, unwrap() is safe; if not, the program will panic
@@ -33,7 +30,8 @@ lazy_static! {
 
 pub struct Scanner {
     reserved_tokens: HashMap<String, usize>,
-    raw_line: Vec<char>,
+    raw_program: Vec<char>,
+    position: usize,
     line_index: usize,
 
     // store the token list, identifier table, and constant table separately
@@ -47,7 +45,8 @@ impl Scanner {
         match Self::parse_token_file(token_file_path) {
             Ok(tokens) => Ok(Self {
                 reserved_tokens: tokens,
-                raw_line: vec![],
+                raw_program: vec![],
+                position: 0,
                 line_index: 0,
 
                 token_list: vec![],
@@ -110,55 +109,27 @@ impl Scanner {
 
     pub fn scan(&mut self, file_path: &str) -> Result<(), String> {
         println!("Scanning '{}'", file_path);
-        let program_file = match File::open(file_path) {
-            Ok(file) => file,
+        self.raw_program = match fs::read_to_string(file_path) {
+            Ok(program) => program.chars().collect(),
             Err(e) => {
-                let error = format!("could not open program file: {}", e.to_string());
+                let error = format!("could not read program file: {}", e.to_string());
                 return Err(error);
             }
         };
 
-        let program_reader = io::BufReader::new(program_file);
-        program_reader
-            .lines()
-            .enumerate()
-            .map(|(line_index, line)| {
-                self.raw_line = match line {
-                    Ok(line) => line.chars().collect(),
-                    Err(e) => {
-                        let error = format!(
-                            "could not read program file line {}: {}",
-                            line_index + 1,
-                            e.to_string()
-                        );
-                        return Err(error);
-                    }
-                };
-
-                self.line_index = 0;
-                self.parse_line(&line_index)
-            })
-            .collect()
+        self.position = 0;
+        self.line_index = 1;
+        self.parse_program()
     }
 
-    fn parse_line(&mut self, line_index: &usize) -> Result<(), String> {
-        let mut is_empty = true;
-
+    fn parse_program(&mut self) -> Result<(), String> {
         while let Some(token) = self.next_token() {
-            is_empty = false;
             match self.classify_token(&token) {
                 Ok(_) => {}
                 Err(e) => {
-                    let error = format!("Lexical error on line {} => {}", line_index + 1, e);
+                    let error = format!("Lexical error on line {} => {}", self.line_index, e);
                     return Err(error);
                 }
-            }
-        }
-
-        if !is_empty {
-            if let Err(_) = self.classify_token(INTERNAL_SEPARATOR) {
-                let error = format!("Invalid internal separator");
-                return Err(error);
             }
         }
 
@@ -167,12 +138,12 @@ impl Scanner {
 
     fn next_token(&mut self) -> Option<String> {
         self.consume_whitespace();
-        if self.line_index >= self.raw_line.len() {
+        if self.position >= self.raw_program.len() {
             return None;
         }
 
-        let current_char = &self.raw_line[self.line_index];
-        let next_char = self.raw_line.get(self.line_index + 1);
+        let current_char = &self.raw_program[self.position];
+        let next_char = self.raw_program.get(self.position + 1);
 
         let token_types: Vec<Box<dyn Token>> = vec![
             Box::new(StringCharToken {}),
@@ -191,31 +162,51 @@ impl Scanner {
     }
 
     fn capture_token_stream<F: FnMut(&char) -> bool>(&mut self, mut cond: F) {
-        while self.line_index < self.raw_line.len() && cond(&self.raw_line[self.line_index]) {
-            self.line_index += 1;
+        while self.position < self.raw_program.len() && cond(&self.raw_program[self.position]) {
+            self.position += 1;
         }
     }
 
     fn consume_whitespace(&mut self) {
-        self.capture_token_stream(|&ch| ch.is_whitespace());
+        // count newlines and add them to the line index
+        let mut newlines = 0;
+        self.capture_token_stream(|&ch| {
+            if ch == '\n' {
+                newlines += 1;
+            }
+
+            ch.is_whitespace()
+        });
+
+        // add a separator token if there was at least one newline
+        if newlines > 0 {
+            self.token_list.push(Pair {
+                key: self.reserved_tokens.size() + INTERNAL_SEPARATOR_OFFSET,
+                value: *RESERVED_TOKEN_VALUE,
+            });
+        }
+
+        self.line_index += newlines;
     }
 
     pub fn consume_string_char(&mut self) -> String {
-        let quote_type = self.raw_line[self.line_index];
+        let quote_type = self.raw_program[self.position];
         let mut token = String::from(quote_type);
 
-        self.line_index += 1;
+        self.position += 1;
         self.capture_token_stream(|&ch| {
             token.push(ch);
             ch != quote_type
         });
 
-        self.line_index += 1;
+        self.position += 1;
         token
     }
 
-    pub fn consume_comment(&mut self) {
+    pub fn consume_comment(&mut self) -> String {
         self.capture_token_stream(|&ch| ch != '\n');
+
+        String::from("")
     }
 
     pub fn consume_reserved_token(&mut self) -> String {
@@ -255,6 +246,11 @@ impl Scanner {
     }
 
     fn classify_token(&mut self, token: &str) -> Result<(), String> {
+        if token.is_empty() {
+            // likely a comment
+            return Ok(());
+        }
+
         // Rules:
         // 1. Is it a reserved word or a symbol? : self.tokens
         // 2. Is it an identifier? : uppercase and lowercase letters
@@ -262,15 +258,10 @@ impl Scanner {
         // 4. None of the above, lexical error
 
         let table_key = String::from(token);
-        if self.reserved_tokens.contains(&table_key) || table_key == INTERNAL_SEPARATOR {
+        if let Some(token_code) = self.reserved_tokens.get(&table_key) {
             // check if token is a reserved word or a symbol
-            let token_code = match self.reserved_tokens.get(&table_key) {
-                Some(token_code) => *token_code,
-                None => self.reserved_tokens.size() + INTERNAL_SEPARATOR_OFFSET,
-            };
-
             self.token_list.push(Pair {
-                key: token_code,
+                key: *token_code,
                 value: *RESERVED_TOKEN_VALUE,
             });
 
