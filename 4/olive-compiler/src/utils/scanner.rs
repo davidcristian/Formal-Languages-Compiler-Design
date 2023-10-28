@@ -179,7 +179,7 @@ impl Scanner {
         });
 
         // add a separator token if there was at least one newline
-        if newlines > 0 {
+        if newlines > 0 && self.token_list.len() > 0 {
             self.token_list.push(Pair {
                 key: self.reserved_tokens.size() + INTERNAL_SEPARATOR_OFFSET,
                 value: *RESERVED_TOKEN_VALUE,
