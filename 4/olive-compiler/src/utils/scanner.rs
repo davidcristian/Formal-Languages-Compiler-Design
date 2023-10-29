@@ -85,27 +85,7 @@ impl Scanner {
         Ok(tokens)
     }
 
-    pub fn display(&self) {
-        println!("\nReserved tokens:");
-        println!("{}", self.reserved_tokens.to_string());
-        println!("Reserved tokens size: {}", self.reserved_tokens.size());
-
-        println!("\nToken list:");
-        for entry in &self.token_list {
-            println!("({:2}, {:2})", entry.key, entry.value);
-        }
-        println!("Token list size: {}", self.token_list.len());
-
-        println!("\nIdentifier table:");
-        println!("{}", self.identifier_table.to_string());
-        println!("Identifier table size: {}", self.identifier_table.size());
-
-        println!("\nConstant table:");
-        println!("{}", self.constant_table.to_string());
-        println!("Constant table size: {}", self.constant_table.size());
-    }
-
-    pub fn write(&self, file_path: &str) -> Result<(), String> {
+    fn write_output(&self, file_path: &str, status: &str) -> Result<(), String> {
         let mut file = match File::create(file_path) {
             Ok(file) => file,
             Err(e) => {
@@ -115,18 +95,30 @@ impl Scanner {
         };
 
         let mut output = String::new();
+        let token_list = self
+            .token_list
+            .iter()
+            .map(|entry| format!("({:2}, {:2})", entry.key, entry.value))
+            .collect::<Vec<String>>()
+            .join("\n");
 
         output.push_str("Token list:\n");
-        for entry in &self.token_list {
-            output.push_str(&format!("({:2}, {:2})\n", entry.key, entry.value));
-        }
+        output.push_str(&token_list);
+        output.push_str("\nToken list size: ");
+        output.push_str(&self.token_list.len().to_string());
 
-        output.push_str("\nIdentifier table:\n");
+        output.push_str("\n\nIdentifier table:\n");
         output.push_str(&self.identifier_table.to_string());
-        output.push_str("\n");
+        output.push_str("\nIdentifier table size: ");
+        output.push_str(&self.identifier_table.size().to_string());
 
-        output.push_str("\nConstant table:\n");
+        output.push_str("\n\nConstant table:\n");
         output.push_str(&self.constant_table.to_string());
+        output.push_str("\nConstant table size: ");
+        output.push_str(&self.constant_table.size().to_string());
+
+        output.push_str("\n\n");
+        output.push_str(status);
         output.push_str("\n");
 
         match file.write_all(output.as_bytes()) {
@@ -138,9 +130,9 @@ impl Scanner {
         }
     }
 
-    pub fn scan(&mut self, file_path: &str) -> Result<(), String> {
-        println!("Scanning '{}'", file_path);
-        self.raw_program = match fs::read_to_string(file_path) {
+    pub fn scan(&mut self, input_file: &str, output_file: &str) -> Result<(), String> {
+        println!("Scanning '{}'", input_file);
+        self.raw_program = match fs::read_to_string(input_file) {
             Ok(program) => program.chars().collect(),
             Err(e) => {
                 let error = format!("could not read program file: {}", e.to_string());
@@ -150,7 +142,11 @@ impl Scanner {
 
         self.position = 0;
         self.line_index = 1;
-        self.parse_program()
+
+        match self.parse_program() {
+            Ok(_) => self.write_output(output_file, "Lexically correct!"),
+            Err(e) => self.write_output(output_file, e.as_str()),
+        }
     }
 
     fn parse_program(&mut self) -> Result<(), String> {
@@ -158,7 +154,7 @@ impl Scanner {
             match self.classify_token(&token) {
                 Ok(_) => {}
                 Err(e) => {
-                    let error = format!("\nLexical error on line {} => {}", self.line_index, e);
+                    let error = format!("Lexical error on line {} => {}", self.line_index, e);
                     return Err(error);
                 }
             }
@@ -185,7 +181,7 @@ impl Scanner {
 
         for token_type in token_types {
             if token_type.is_of(current_char, next_char) {
-                return token_type.consume(self);
+                return Some(token_type.consume(self));
             }
         }
 
@@ -194,7 +190,6 @@ impl Scanner {
 
     fn capture_token_stream<F: FnMut(&char) -> bool>(&self, mut cond: F) -> usize {
         let mut position = self.position;
-
         while position < self.raw_program.len() && cond(&self.raw_program[position]) {
             position += 1;
         }
@@ -323,9 +318,9 @@ impl Scanner {
                 None => table.insert(table_key),
             };
 
-            let id_const_code = self.reserved_tokens.size() + offset;
+            let token_code = self.reserved_tokens.size() + offset;
             self.token_list.push(Pair {
-                key: id_const_code,
+                key: token_code,
                 value,
             });
 

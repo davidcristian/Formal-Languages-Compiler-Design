@@ -3,7 +3,7 @@ use crate::models::hash_map::HashMap;
 
 pub trait Token {
     fn is_of(&self, current_char: &char, next_char: Option<&char>) -> bool;
-    fn consume(&self, scanner: &mut Scanner) -> Option<String>;
+    fn consume(&self, scanner: &mut Scanner) -> String;
 }
 
 pub struct StringCharToken;
@@ -12,8 +12,8 @@ impl Token for StringCharToken {
         current_char == &'"' || current_char == &'\''
     }
 
-    fn consume(&self, scanner: &mut Scanner) -> Option<String> {
-        Some(scanner.consume_string_char())
+    fn consume(&self, scanner: &mut Scanner) -> String {
+        scanner.consume_string_char()
     }
 }
 
@@ -23,8 +23,8 @@ impl Token for CommentToken {
         current_char == &'-' && next_char == Some(&'-')
     }
 
-    fn consume(&self, scanner: &mut Scanner) -> Option<String> {
-        Some(scanner.consume_comment())
+    fn consume(&self, scanner: &mut Scanner) -> String {
+        scanner.consume_comment()
     }
 }
 
@@ -43,8 +43,8 @@ impl Token for ReservedToken {
         self.reserved_tokens.contains(&current_char.to_string())
     }
 
-    fn consume(&self, scanner: &mut Scanner) -> Option<String> {
-        Some(scanner.consume_reserved_token())
+    fn consume(&self, scanner: &mut Scanner) -> String {
+        scanner.consume_reserved_token()
     }
 }
 
@@ -54,7 +54,7 @@ impl Token for UnclassifiedToken {
         true
     }
 
-    fn consume(&self, scanner: &mut Scanner) -> Option<String> {
-        Some(scanner.consume_general_token())
+    fn consume(&self, scanner: &mut Scanner) -> String {
+        scanner.consume_general_token()
     }
 }

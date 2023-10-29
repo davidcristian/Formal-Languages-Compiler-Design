@@ -52,23 +52,7 @@ fn main() {
         &args[1]
     };
 
-    let mut scanner = match Scanner::new(TOKEN_FILE_PATH) {
-        Ok(scanner) => scanner,
-        Err(e) => {
-            println!("{}", e);
-            return;
-        }
-    };
-
-    let program_path = get_program_path(program);
-    match scanner.scan(program_path.as_str()) {
-        Ok(_) => scanner.display(),
-        Err(e) => {
-            println!("{}", e);
-            return;
-        }
-    }
-
+    let input_path = get_program_path(program);
     let output_path = match get_output_path(program) {
         Ok(output_path) => output_path,
         Err(e) => {
@@ -77,7 +61,15 @@ fn main() {
         }
     };
 
-    match scanner.write(output_path.as_str()) {
+    let mut scanner = match Scanner::new(TOKEN_FILE_PATH) {
+        Ok(scanner) => scanner,
+        Err(e) => {
+            println!("{}", e);
+            return;
+        }
+    };
+
+    match scanner.scan(input_path.as_str(), output_path.as_str()) {
         Ok(_) => {}
         Err(e) => {
             println!("{}", e);
@@ -85,6 +77,5 @@ fn main() {
         }
     }
 
-    println!("\nLexically correct!");
-    println!("Output written to {}", output_path)
+    println!("\nOutput written to {}", output_path)
 }
