@@ -13,6 +13,7 @@ use hash_map::Table;
 // - remove reserved_tokens clone in token.rs
 // - make consume functions private and pass references to them instead of the scanner
 // - change the method for consuming reserved tokens to work with n-length tokens that do not have a common prefix
+// - add comments
 
 const RESERVED_TOKEN_VALUE: &usize = &0;
 const INTERNAL_SEPARATOR_OFFSET: &usize = &3;
