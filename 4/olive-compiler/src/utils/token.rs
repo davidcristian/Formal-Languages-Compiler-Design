@@ -1,5 +1,5 @@
 use super::scanner::Scanner;
-use crate::models::hash_map::HashMap;
+use hash_map::HashMap;
 
 pub trait Token {
     fn is_of(&self, current_char: &char, next_char: Option<&char>) -> bool;

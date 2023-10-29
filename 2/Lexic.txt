@@ -1,9 +1,9 @@
-Olive language specification
+Olive language specification (EBNF)
 
 Alphabet:
 a. Uppercase (A-Z) and lowercase (a-z) letters of the English alphabet
 b. Decimal digits (0-9)
-c. ASCII symbols
+c. ASCII symbols (32-126)
 
 Lexic:
 a. Special symbols, representing:
@@ -16,7 +16,7 @@ a. Special symbols, representing:
 - Reserved words: number char string array if else while input output
 
 b. Identifiers:
-A sequence which contains any combination of uppercase and lowercase letters. Maximum length of 255 characters.
+A sequence which contains any combination of uppercase and lowercase letters.
 
 identifier ::= letter{letter}
 letter ::= uppercase | lowercase
@@ -24,12 +24,14 @@ uppercase ::= "A".."Z"
 lowercase ::= "a".."z"
 
 digit ::= "0" | nonzero
-symbol ::= " " | "!" | "\"" | "#" | "$" | "%" | "&" | "'" | "(" | ")" | "*" | "+" | "," | "-" | "." | "/" | ":" | ";" | "<" | "=" | ">" | "?" | "@" | "[" | "\\" | "]" | "^" | "_" | "`" | "{" | "|" | "}" | "~"
+symbol ::= " ".."~"
 
 c. Constants:
+constant ::= number | char | string
+
 1. Integer:
 number ::= ["+" | "-"] nonzero{digit} | "0"
-nonzero ::= "1" | ... | "9"
+nonzero ::= "1".."9"
 
 2. Character:
 char ::= "'" (letter | digit | symbol) "'"

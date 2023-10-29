@@ -5,13 +5,14 @@ use std::fs::{self, File};
 use std::io::{BufRead, BufReader, Write};
 
 use super::token::*;
-use crate::models::hash_map::HashMap;
 use crate::models::pair::Pair;
-use crate::models::table::Table;
+use hash_map::HashMap;
+use hash_map::Table;
 
 // TODO:
 // - remove reserved_tokens clone in token.rs
 // - make consume functions private and pass references to them instead of the scanner
+// - change the method for consuming reserved tokens to work with n-length tokens that do not have a common prefix
 
 const RESERVED_TOKEN_VALUE: &usize = &0;
 const INTERNAL_SEPARATOR_OFFSET: &usize = &3;

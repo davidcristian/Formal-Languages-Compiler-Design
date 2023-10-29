@@ -1,10 +1,11 @@
 [package]
-name = "olive-compiler"
+name = "olive-compiler-scanner"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+hash_map = {path = "../../3/olive-compiler", package = "olive-compiler-hash-map"}
 lazy_static = "1.4.0"
 regex = "1.10.1"

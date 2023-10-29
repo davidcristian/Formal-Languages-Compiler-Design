@@ -1,3 +1,7 @@
+Olive language syntax (BNF)
+
+variable = identifier | identifier "[" expression "]"
+value ::= constant | variable
 program ::= stmtlist
 
 newlines ::= newline | newline newlines
@@ -7,7 +11,7 @@ decllist ::= declaration | declaration "," decllist
 declaration ::= identifier ":" type | identifier ":" type "=" expression
 
 primitive ::= "number" | "char" | "string"
-arraydecl ::= "array" "<" primitive ">" "(" number ")"
+arraydecl ::= "array" "<" primitive ">" "(" expression ")"
 type ::= primitive | arraydecl
 
 cmpdstmt ::= "{" stmtlist "}"
@@ -16,12 +20,12 @@ stmtlist ::= stmt | stmt newlines stmtlist
 stmt ::= simplstmt | structstmt
 simplstmt ::= assignstmt | iostmt | decllist
 
-assignstmt ::= identifier "=" expression | identifier "[" number "]" "=" expression
+assignstmt ::= identifier "=" expression | identifier "[" expression "]" "=" expression
 expression ::=  term | expression "+" term | expression "-" term
 term ::= factor | term "*" factor | term "/" factor | term "%" factor
-factor ::= "(" expression ")" | identifier | identifier "[" number "]" | number | char | string
+factor ::= "(" expression ")" | value
 
-iostmt ::= "input" "(" identifier ")" | "output" "(" identifier ")"
+iostmt ::= "input" "(" variable ")" | "output" "(" expression ")"
 structstmt ::= cmpdstmt | ifstmt | whilestmt
 
 ifstmt ::= "if" "(" conditions ")" cmpdstmt | "if" "(" conditions ")" cmpdstmt "else" cmpdstmt
