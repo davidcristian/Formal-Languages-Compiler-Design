@@ -12,7 +12,7 @@ struct Entry<K, V> {
 }
 
 pub struct HashMap<K, V> {
-    table: Vec<Option<Entry<K, V>>>,
+    data: Vec<Option<Entry<K, V>>>,
     capacity: usize,
     size: usize,
 }
@@ -23,10 +23,10 @@ where
     K: std::fmt::Debug + Clone + Eq + std::hash::Hash,
     V: std::fmt::Debug + Clone,
 {
-    // creates a new empty hash table
+    // creates a new empty hash map
     pub fn new() -> Self {
         Self {
-            table: vec![None; INITIAL_CAPACITY],
+            data: vec![None; INITIAL_CAPACITY],
             capacity: INITIAL_CAPACITY,
             size: 0,
         }
@@ -55,7 +55,7 @@ where
         self.size = 0;
         self.capacity *= RESIZE_FACTOR;
 
-        let old_table = std::mem::replace(&mut self.table, vec![None; self.capacity]);
+        let old_table = std::mem::replace(&mut self.data, vec![None; self.capacity]);
         for entry in old_table.into_iter() {
             if let Some(e) = entry {
                 if !e.deleted {
@@ -65,7 +65,7 @@ where
         }
     }
 
-    // returns the current size of the hash table
+    // returns the current size of the hash map
     // Complexity analysis:
     // Best: O(1)
     // Worst: O(1)
@@ -74,7 +74,7 @@ where
         self.size
     }
 
-    // inserts a key-value pair into the hash table
+    // inserts a key-value pair into the hash map
     // Complexity analysis:
     // Best: O(1)
     // Worst: O(n)
@@ -90,7 +90,7 @@ where
         let mut increment_size = true;
 
         // find the next available index using double hashing
-        while let Some(entry) = &self.table[index] {
+        while let Some(entry) = &self.data[index] {
             // deleted entries or entries with the same key are overwritten
             if entry.deleted {
                 break;
@@ -103,7 +103,7 @@ where
             index = (index + hash2_value) % self.capacity;
         }
 
-        self.table[index] = Some(Entry {
+        self.data[index] = Some(Entry {
             key,
             value,
             deleted: false,
@@ -123,7 +123,7 @@ where
         let mut index = self.hash1(key);
         let hash2_value = self.hash2(key);
 
-        while let Some(entry) = &self.table[index] {
+        while let Some(entry) = &self.data[index] {
             if !entry.deleted && entry.key == *key {
                 return Some(&entry.value);
             }
@@ -134,7 +134,7 @@ where
         None
     }
 
-    // returns true if the hash table contains the given key
+    // returns true if the hash map contains the given key
     // Complexity analysis:
     // Best: O(1)
     // Worst: O(n)
@@ -143,7 +143,7 @@ where
         let mut index = self.hash1(key);
         let hash2_value = self.hash2(key);
 
-        while let Some(entry) = &self.table[index] {
+        while let Some(entry) = &self.data[index] {
             if !entry.deleted && entry.key == *key {
                 return true;
             }
@@ -163,7 +163,7 @@ where
         let mut index = self.hash1(key);
         let hash2_value = self.hash2(key);
 
-        while let Some(entry) = &mut self.table[index] {
+        while let Some(entry) = &mut self.data[index] {
             if !entry.deleted && entry.key == *key {
                 entry.deleted = true;
 
@@ -175,30 +175,30 @@ where
         }
     }
 
-    // clears the hash table
+    // clears the hash map
     // Complexity analysis:
     // Best: O(n)
     // Worst: O(n)
     // Average: O(n)
     pub fn clear(&mut self) {
-        self.table = vec![None; self.capacity];
+        self.data = vec![None; self.capacity];
         self.size = 0;
     }
 
-    // returns a clone of the hash table
+    // returns a clone of the hash map
     // Complexity analysis:
     // Best: O(n)
     // Worst: O(n)
     // Average: O(n)
     pub fn clone(&self) -> Self {
         Self {
-            table: self.table.clone(),
+            data: self.data.clone(),
             capacity: self.capacity,
             size: self.size,
         }
     }
 
-    // converts the hash table to a string
+    // converts the hash map to a string
     // Complexity analysis:
     // Best: O(n)
     // Worst: O(n)
@@ -206,7 +206,7 @@ where
     pub fn to_string(&self) -> String {
         let mut values = vec![];
 
-        for (index, entry) in self.table.iter().enumerate() {
+        for (index, entry) in self.data.iter().enumerate() {
             match entry {
                 Some(e) if !e.deleted => {
                     let entry = format!("Bucket {:2} => K: {:?}, V: {:?}", index, e.key, e.value);

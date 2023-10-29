@@ -55,7 +55,7 @@ where
         }
     }
 
-    pub fn display(&self) {
-        self.table.display();
+    pub fn to_string(&self) -> String {
+        self.table.to_string()
     }
 }
