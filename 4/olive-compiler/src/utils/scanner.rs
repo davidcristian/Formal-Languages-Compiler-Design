@@ -246,7 +246,14 @@ impl Scanner {
         // that have a common suffix (ex: <, <=, or <==)
         self.position = self.capture_token_stream(|&ch| {
             let potential_token = format!("{}{}", token, ch);
-            if self.reserved_tokens.contains(&potential_token) || ch.is_ascii_digit() {
+            let first_char = match potential_token.chars().next() {
+                Some(ch) => ch,
+                None => '\0',
+            };
+
+            if self.reserved_tokens.contains(&potential_token)
+                || ("+-".contains(first_char) && ch.is_ascii_digit())
+            {
                 token.push(ch);
                 true
             } else {
