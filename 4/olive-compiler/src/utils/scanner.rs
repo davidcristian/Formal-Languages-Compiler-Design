@@ -240,12 +240,13 @@ impl Scanner {
     pub fn consume_reserved_token(&mut self) -> String {
         let mut token = String::new();
 
-        // handle separators and arithmetic operators while
+        // handle separators and arithmetic operators,
+        // including numbers that begin with + or -, while
         // considering the possibility of n-length tokens
-        // that begin with the same character (ex: < and <=)
+        // that have a common suffix (ex: <, <=, or <==)
         self.position = self.capture_token_stream(|&ch| {
             let potential_token = format!("{}{}", token, ch);
-            if self.reserved_tokens.contains(&potential_token) {
+            if self.reserved_tokens.contains(&potential_token) || ch.is_ascii_digit() {
                 token.push(ch);
                 true
             } else {
