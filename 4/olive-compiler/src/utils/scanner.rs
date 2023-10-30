@@ -16,10 +16,13 @@ use hash_map::Table;
 // - add comments
 
 const RESERVED_TOKEN_VALUE: &usize = &0;
-const INTERNAL_SEPARATOR_OFFSET: &usize = &3;
-
 const IDENTIFIER_OFFSET: &usize = &1;
 const CONSTANT_OFFSET: &usize = &2;
+
+const INTERNAL_SEPARATOR_OFFSET: &usize = &3;
+// internal separators are not added if a newline is encountered
+// and the last token is part of the INTERNAL_SEP_IGNORED list
+const INTERNAL_SEP_IGNORED: &[&str] = &["{"];
 
 lazy_static! {
     // these expressions are correct, unwrap() is safe; if not, the program will panic
@@ -30,29 +33,47 @@ lazy_static! {
 
 pub struct Scanner {
     reserved_tokens: HashMap<String, usize>,
-    raw_program: Vec<char>,
-    position: usize,
-    line_index: usize,
+    ignored_sep_list: Vec<usize>,
 
     // store the token list, identifier table, and constant table separately
     token_list: Vec<Pair<usize, usize>>,
     identifier_table: Table<String>,
     constant_table: Table<String>,
+
+    raw_program: Vec<char>,
+    position: usize,
+    line_index: usize,
 }
 
 impl Scanner {
     pub fn new(token_file_path: &str) -> Result<Self, String> {
         match Self::parse_token_file(token_file_path) {
-            Ok(tokens) => Ok(Self {
-                reserved_tokens: tokens,
-                raw_program: vec![],
-                position: 0,
-                line_index: 0,
+            Ok(tokens) => {
+                let mut scanner = Self {
+                    reserved_tokens: tokens,
+                    ignored_sep_list: vec![],
 
-                token_list: vec![],
-                identifier_table: Table::new(),
-                constant_table: Table::new(),
-            }),
+                    token_list: vec![],
+                    identifier_table: Table::new(),
+                    constant_table: Table::new(),
+
+                    raw_program: vec![],
+                    position: 0,
+                    line_index: 0,
+                };
+
+                // iterate ignored tokens for the internal separator and add value from reserved_tokens
+                for &token in INTERNAL_SEP_IGNORED {
+                    if let Some(value) = scanner.reserved_tokens.get(&token.to_string()) {
+                        scanner.ignored_sep_list.push(*value);
+                    } else {
+                        let error = format!("undefined token in const array: {}", token);
+                        return Err(error);
+                    }
+                }
+
+                Ok(scanner)
+            }
             Err(e) => Err(e),
         }
     }
@@ -280,7 +301,13 @@ impl Scanner {
     }
 
     fn add_separator_token(&mut self) {
-        if self.token_list.is_empty() {
+        let last_token_code = match self.token_list.last() {
+            Some(pair) => pair.key,
+            None => return,
+        };
+
+        // check if the last token is part of the INTERNAL_SEP_IGNORED list
+        if self.ignored_sep_list.contains(&last_token_code) {
             return;
         }
 

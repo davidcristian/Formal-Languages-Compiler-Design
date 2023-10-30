@@ -39,7 +39,6 @@ Token list:
 (32,  4)
 (16,  0)
 (19,  0)
-(34,  0)
 (32,  4)
 ( 6,  0)
 (32,  2)
@@ -53,7 +52,6 @@ Token list:
 (32,  4)
 (16,  0)
 (19,  0)
-(34,  0)
 (32,  4)
 ( 6,  0)
 (32,  3)
@@ -65,7 +63,7 @@ Token list:
 (32,  4)
 (16,  0)
 (34,  0)
-Token list size: 66
+Token list size: 64
 
 Identifier table:
 Bucket  3 => K: "a", V: 1
