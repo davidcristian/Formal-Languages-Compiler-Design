@@ -1,4 +1,3 @@
-mod models;
 mod utils;
 
 use std::{env, fs};

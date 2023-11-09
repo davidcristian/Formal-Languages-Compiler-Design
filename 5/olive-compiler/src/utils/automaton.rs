@@ -1,5 +1,4 @@
-// TODO: use hash map from 3/
-use std::collections::HashMap;
+use hash_map::HashMap;
 
 pub struct Automaton {
     alphabet: Vec<char>,
@@ -8,6 +7,7 @@ pub struct Automaton {
     transitions: HashMap<(usize, char), usize>,
 }
 
+#[allow(dead_code)]
 impl Automaton {
     pub fn new(file_path: &str) -> Result<Self, String> {
         let mut automaton = Self {
@@ -41,7 +41,14 @@ impl Automaton {
                 return Err(error);
             }
         };
-        self.alphabet = alphabet.chars().collect();
+        for symbol in alphabet.chars() {
+            if self.alphabet.contains(&symbol) {
+                let error = format!("duplicate character '{}' in alphabet", symbol);
+                return Err(error);
+            }
+
+            self.alphabet.push(symbol);
+        }
 
         // read initial state
         let initial_state = match lines.next() {
@@ -136,7 +143,6 @@ impl Automaton {
         self.final_states.contains(&current_state)
     }
 
-    #[allow(dead_code)]
     pub fn display(&self) {
         println!("Alphabet: {:?}", self.alphabet);
         println!("Initial state: {}", self.initial_state);

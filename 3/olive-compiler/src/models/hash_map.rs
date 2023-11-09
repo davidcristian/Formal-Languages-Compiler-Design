@@ -59,7 +59,7 @@ where
         for entry in old_table.into_iter() {
             if let Some(e) = entry {
                 if !e.deleted {
-                    self.put(e.key, e.value);
+                    self.insert(e.key, e.value);
                 }
             }
         }
@@ -79,7 +79,7 @@ where
     // Best: O(1)
     // Worst: O(n)
     // Average: O(1)
-    pub fn put(&mut self, key: K, value: V) {
+    pub fn insert(&mut self, key: K, value: V) {
         // check if we need to resize
         if (self.size as f64 / self.capacity as f64) >= LOAD_FACTOR {
             self.resize();
@@ -221,5 +221,54 @@ where
 
         values.pop();
         values.join("")
+    }
+}
+
+// iterator implementation for the HashMap
+
+impl<'a, K, V> HashMap<K, V> {
+    // returns an iterator over the data in the hash map
+    pub fn iter(&'a self) -> HashMapIter<'a, K, V> {
+        HashMapIter {
+            data: &self.data,
+            index: 0,
+        }
+    }
+}
+
+impl<'a, K, V> IntoIterator for &'a HashMap<K, V> {
+    type Item = (&'a K, &'a V);
+    type IntoIter = HashMapIter<'a, K, V>;
+
+    // returns an iterator over the hash map
+    fn into_iter(self) -> Self::IntoIter {
+        self.iter()
+    }
+}
+
+// iterator definition for the hash map
+
+pub struct HashMapIter<'a, K, V> {
+    data: &'a Vec<Option<Entry<K, V>>>,
+    index: usize,
+}
+
+impl<'a, K, V> Iterator for HashMapIter<'a, K, V> {
+    type Item = (&'a K, &'a V);
+
+    // returns the next key-value pair in the hash map
+    fn next(&mut self) -> Option<Self::Item> {
+        while self.index < self.data.len() {
+            let entry_option = &self.data[self.index];
+            self.index += 1;
+
+            if let Some(entry) = entry_option {
+                if !entry.deleted {
+                    return Some((&entry.key, &entry.value));
+                }
+            }
+        }
+
+        None
     }
 }

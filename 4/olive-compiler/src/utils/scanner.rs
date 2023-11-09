@@ -5,7 +5,6 @@ use std::fs::{self, File};
 use std::io::{BufRead, BufReader, Write};
 
 use super::token::*;
-use crate::models::pair::Pair;
 use hash_map::HashMap;
 use hash_map::Table;
 
@@ -36,7 +35,7 @@ pub struct Scanner {
     ignored_sep_list: Vec<usize>,
 
     // store the token list, identifier table, and constant table separately
-    token_list: Vec<Pair<usize, usize>>,
+    token_list: Vec<(usize, usize)>,
     identifier_table: Table<String>,
     constant_table: Table<String>,
 
@@ -93,7 +92,7 @@ impl Scanner {
 
         for (line_index, line) in token_reader.lines().enumerate() {
             match line {
-                Ok(line) => tokens.put(line, line_index + 1),
+                Ok(line) => tokens.insert(line, line_index + 1),
                 Err(e) => {
                     let error = format!(
                         "could not read token file line {}: {}",
@@ -121,7 +120,7 @@ impl Scanner {
         let token_list = self
             .token_list
             .iter()
-            .map(|entry| format!("({:2}, {:2})", entry.key, entry.value))
+            .map(|entry| format!("({:2}, {:2})", entry.0, entry.1))
             .collect::<Vec<String>>()
             .join("\n");
 
@@ -302,7 +301,7 @@ impl Scanner {
 
     fn add_separator_token(&mut self) {
         let last_token_code = match self.token_list.last() {
-            Some(pair) => pair.key,
+            Some(pair) => pair.0,
             None => return,
         };
 
@@ -311,10 +310,10 @@ impl Scanner {
             return;
         }
 
-        self.token_list.push(Pair {
-            key: self.reserved_tokens.size() + INTERNAL_SEPARATOR_OFFSET,
-            value: *RESERVED_TOKEN_VALUE,
-        });
+        self.token_list.push((
+            self.reserved_tokens.size() + INTERNAL_SEPARATOR_OFFSET,
+            *RESERVED_TOKEN_VALUE,
+        ));
     }
 
     fn classify_token(&mut self, token: &str) -> Result<(), String> {
@@ -332,10 +331,7 @@ impl Scanner {
         let table_key = String::from(token);
         if let Some(token_code) = self.reserved_tokens.get(&table_key) {
             // check if token is a reserved word or a symbol
-            self.token_list.push(Pair {
-                key: *token_code,
-                value: *RESERVED_TOKEN_VALUE,
-            });
+            self.token_list.push((*token_code, *RESERVED_TOKEN_VALUE));
 
             return Ok(());
         } else if IDENTIFIER.is_match(token)
@@ -352,14 +348,11 @@ impl Scanner {
             // only add to table if element doesn't exist
             let value = match table.get(&table_key) {
                 Some(value) => *value,
-                None => table.insert(table_key),
+                None => table.put(table_key),
             };
 
             let token_code = self.reserved_tokens.size() + offset;
-            self.token_list.push(Pair {
-                key: token_code,
-                value,
-            });
+            self.token_list.push((token_code, value));
 
             return Ok(());
         }

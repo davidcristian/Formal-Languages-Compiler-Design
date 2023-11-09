@@ -1,4 +1,4 @@
-use super::hash_map::HashMap;
+use super::hash_map::{HashMap, HashMapIter};
 
 pub struct Table<K> {
     table: HashMap<K, usize>,
@@ -21,15 +21,15 @@ where
         self.table.size()
     }
 
-    pub fn insert(&mut self, key: K) -> usize {
-        self.table.put(key, self.current_index);
+    pub fn put(&mut self, key: K) -> usize {
+        self.table.insert(key, self.current_index);
         self.current_index += 1;
 
         self.current_index - 1
     }
 
-    pub fn put(&mut self, key: K, value: usize) {
-        self.table.put(key, value);
+    pub fn insert(&mut self, key: K, value: usize) {
+        self.table.insert(key, value);
     }
 
     pub fn get(&self, key: &K) -> Option<&usize> {
@@ -57,5 +57,24 @@ where
 
     pub fn to_string(&self) -> String {
         self.table.to_string()
+    }
+}
+
+// iterator implementation for the Table
+
+impl<'a, K> Table<K> {
+    // returns an iterator over the data in the table
+    pub fn iter(&'a self) -> HashMapIter<'a, K, usize> {
+        self.table.iter()
+    }
+}
+
+impl<'a, K> IntoIterator for &'a Table<K> {
+    type Item = (&'a K, &'a usize);
+    type IntoIter = HashMapIter<'a, K, usize>;
+
+    // returns an iterator over the table
+    fn into_iter(self) -> Self::IntoIter {
+        self.table.iter()
     }
 }
