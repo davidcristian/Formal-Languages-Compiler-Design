@@ -19,3 +19,5 @@
 ### 3. [Symbol Table](3)
 
 ### 4. [Scanner](4)
+
+### 5 . [Deterministic Finite Automata](5)

@@ -7,5 +7,6 @@ edition = "2021"
 
 [dependencies]
 hash_map = {path = "../../3/olive-compiler", package = "olive-compiler-hash-map"}
+automata = {path = "../../5/olive-compiler", package = "olive-compiler-automata"}
 lazy_static = "1.4.0"
 regex = "1.10.1"

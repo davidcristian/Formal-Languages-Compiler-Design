@@ -5,6 +5,7 @@ use std::fs::{self, File};
 use std::io::{BufRead, BufReader, Write};
 
 use super::token::*;
+use automata::Automaton;
 use hash_map::HashMap;
 use hash_map::Table;
 
@@ -13,6 +14,7 @@ use hash_map::Table;
 // - make consume functions private and pass references to them instead of the scanner
 // - change the method for consuming reserved tokens to work with n-length tokens that do not have a common prefix
 // - add comments
+// - actually just rewrite this whole thing without reading from token.in
 
 const RESERVED_TOKEN_VALUE: &usize = &0;
 const IDENTIFIER_OFFSET: &usize = &1;
@@ -25,8 +27,8 @@ const INTERNAL_SEP_IGNORED: &[&str] = &["{"];
 
 lazy_static! {
     // these expressions are correct, unwrap() is safe; if not, the program will panic
-    static ref IDENTIFIER: Regex = Regex::new(r"^([A-Za-z]+)$").unwrap();
-    static ref NUMBER: Regex = Regex::new(r"^(((\+|-)?[1-9][0-9]*)|(0))$").unwrap();
+    // static ref IDENTIFIER: Regex = Regex::new(r"^([A-Za-z]+)$").unwrap();
+    // static ref NUMBER: Regex = Regex::new(r"^(((\+|-)?[1-9][0-9]*)|(0))$").unwrap();
     static ref STRING_CHAR: Regex = Regex::new(r#"^("[^"]*"|'[^']')$"#).unwrap();
 }
 
@@ -42,10 +44,30 @@ pub struct Scanner {
     raw_program: Vec<char>,
     position: usize,
     line_index: usize,
+
+    identifier: Automaton,
+    number: Automaton,
 }
 
 impl Scanner {
     pub fn new(token_file_path: &str) -> Result<Self, String> {
+        let identifier_automaton =
+            match Automaton::new("../../5/olive-compiler/input/identifier.dfa") {
+                Ok(automaton) => automaton,
+                Err(e) => {
+                    let error = format!("[identifier] {}", e);
+                    return Err(error);
+                }
+            };
+
+        let number_automaton = match Automaton::new("../../5/olive-compiler/input/number.dfa") {
+            Ok(automaton) => automaton,
+            Err(e) => {
+                let error = format!("[number] {}", e);
+                return Err(error);
+            }
+        };
+
         match Self::parse_token_file(token_file_path) {
             Ok(tokens) => {
                 let mut scanner = Self {
@@ -59,6 +81,9 @@ impl Scanner {
                     raw_program: vec![],
                     position: 0,
                     line_index: 0,
+
+                    identifier: identifier_automaton,
+                    number: number_automaton,
                 };
 
                 // iterate ignored tokens for the internal separator and add value from reserved_tokens
@@ -334,12 +359,12 @@ impl Scanner {
             self.token_list.push((*token_code, *RESERVED_TOKEN_VALUE));
 
             return Ok(());
-        } else if IDENTIFIER.is_match(token)
-            || NUMBER.is_match(token)
+        } else if self.identifier.validate(token)
+            || self.number.validate(token)
             || STRING_CHAR.is_match(token)
         {
             // check if token is an identifier or a constant
-            let (table, offset) = if IDENTIFIER.is_match(token) {
+            let (table, offset) = if self.identifier.validate(token) {
                 (&mut self.identifier_table, IDENTIFIER_OFFSET)
             } else {
                 (&mut self.constant_table, CONSTANT_OFFSET)
