@@ -1,14 +1,15 @@
+use super::hasher::Djb2Hasher;
 use std::hash::Hasher;
 
 const INITIAL_CAPACITY: usize = 16;
 const RESIZE_FACTOR: usize = 2;
-const LOAD_FACTOR: f64 = 0.5;
+const LOAD_FACTOR: f64 = 0.75;
 
 #[derive(Clone)]
 struct Entry<K, V> {
     key: K,
     value: V,
-    deleted: bool,
+    probe_count: usize,
 }
 
 pub struct HashMap<K, V> {
@@ -19,8 +20,8 @@ pub struct HashMap<K, V> {
 
 impl<K, V> HashMap<K, V>
 where
-    K: std::fmt::Debug + Clone + Eq + std::hash::Hash,
-    V: std::fmt::Debug + Clone,
+    K: Clone + Eq + std::hash::Hash,
+    V: Clone,
 {
     // creates a new empty hash map
     pub fn new() -> Self {
@@ -31,21 +32,14 @@ where
         }
     }
 
-    // first hash function
-    fn hash1(&self, key: &K) -> usize {
-        let mut hasher = std::collections::hash_map::DefaultHasher::new();
+    // hash using the djb2 algorithm
+    fn hash(&self, key: &K) -> usize {
+        let mut hasher = Djb2Hasher::new();
         key.hash(&mut hasher);
         (hasher.finish() as usize) % self.capacity
     }
 
-    // second hash function
-    fn hash2(&self, key: &K) -> usize {
-        let mut hasher = std::collections::hash_map::DefaultHasher::new();
-        key.hash(&mut hasher);
-        1 + ((hasher.finish() as usize) % (self.capacity - 1))
-    }
-
-    // resizes the table to increase its current capacity by RESIZE_FACTOR
+    // resizes the hash map to increase its current capacity by RESIZE_FACTOR
     // Complexity analysis:
     // Best: O(n)
     // Worst: O(n)
@@ -54,13 +48,9 @@ where
         self.size = 0;
         self.capacity *= RESIZE_FACTOR;
 
-        let old_table = std::mem::replace(&mut self.data, vec![None; self.capacity]);
-        for entry in old_table.into_iter() {
-            if let Some(e) = entry {
-                if !e.deleted {
-                    self.insert(e.key, e.value);
-                }
-            }
+        let old_data = std::mem::replace(&mut self.data, vec![None; self.capacity]);
+        for entry in old_data.into_iter().flatten() {
+            self.insert(entry.key, entry.value);
         }
     }
 
@@ -84,32 +74,40 @@ where
             self.resize();
         }
 
-        let mut index = self.hash1(&key);
-        let hash2_value = self.hash2(&key);
-        let mut increment_size = true;
-
-        // find the next available index using double hashing
-        while let Some(entry) = &self.data[index] {
-            // deleted entries or entries with the same key are overwritten
-            if entry.deleted {
-                break;
-            }
-            if entry.key == key {
-                increment_size = false;
-                break;
-            }
-
-            index = (index + hash2_value) % self.capacity;
-        }
-
-        self.data[index] = Some(Entry {
+        let mut index = self.hash(&key);
+        let mut entry = Entry {
             key,
             value,
-            deleted: false,
-        });
+            probe_count: 0,
+        };
 
-        if increment_size {
-            self.size += 1;
+        loop {
+            match &mut self.data[index] {
+                Some(existing_entry) => {
+                    // if the probe count of the existing entry is less than that
+                    // of the entry to be inserted, swap the entries
+                    if existing_entry.probe_count < entry.probe_count {
+                        std::mem::swap(existing_entry, &mut entry);
+                    }
+
+                    // if the key matches, update the value and do not increment the size
+                    if existing_entry.key == entry.key {
+                        existing_entry.value = entry.value;
+                        return;
+                    }
+                }
+                None => {
+                    // Found an empty slot, place the entry here
+                    self.data[index] = Some(entry);
+                    self.size += 1;
+
+                    return;
+                }
+            }
+
+            // keep looking for an empty slot
+            entry.probe_count += 1;
+            index = (index + 1) % self.capacity;
         }
     }
 
@@ -119,15 +117,24 @@ where
     // Worst: O(n)
     // Average: O(1)
     pub fn get(&self, key: &K) -> Option<&V> {
-        let mut index = self.hash1(key);
-        let hash2_value = self.hash2(key);
+        let mut index = self.hash(key);
+        let mut probe_count = 0;
 
+        // keep looking for the entry until we find an empty slot or the probe count exceeds
         while let Some(entry) = &self.data[index] {
-            if !entry.deleted && entry.key == *key {
+            // stop the search if the probe count exceeds that of the entry's probe count
+            if probe_count > entry.probe_count {
+                break;
+            }
+
+            // return the value if the key matches
+            if entry.key == *key {
                 return Some(&entry.value);
             }
 
-            index = (index + hash2_value) % self.capacity;
+            // keep looking
+            index = (index + 1) % self.capacity;
+            probe_count += 1;
         }
 
         None
@@ -139,15 +146,24 @@ where
     // Worst: O(n)
     // Average: O(1)
     pub fn contains(&self, key: &K) -> bool {
-        let mut index = self.hash1(key);
-        let hash2_value = self.hash2(key);
+        let mut index = self.hash(key);
+        let mut probe_count = 0;
 
+        // keep looking for the entry until we find an empty slot or the probe count exceeds
         while let Some(entry) = &self.data[index] {
-            if !entry.deleted && entry.key == *key {
+            // stop the search if the probe count exceeds that of the entry's probe count
+            if probe_count > entry.probe_count {
+                return false;
+            }
+
+            // return true if the key matches
+            if entry.key == *key {
                 return true;
             }
 
-            index = (index + hash2_value) % self.capacity;
+            // keep looking
+            index = (index + 1) % self.capacity;
+            probe_count += 1;
         }
 
         false
@@ -159,18 +175,26 @@ where
     // Worst: O(n)
     // Average: O(1)
     pub fn remove(&mut self, key: &K) {
-        let mut index = self.hash1(key);
-        let hash2_value = self.hash2(key);
-
-        while let Some(entry) = &mut self.data[index] {
-            if !entry.deleted && entry.key == *key {
-                entry.deleted = true;
-
+        let mut index = self.hash(key);
+        while let Some(entry) = &self.data[index] {
+            if entry.key == *key {
+                // remove the entry
+                self.data[index] = None;
                 self.size -= 1;
-                break;
+
+                // reinsert subsequent entries
+                let mut next_index = (index + 1) % self.capacity;
+                while let Some(next_entry) = self.data[next_index].take() {
+                    self.insert(next_entry.key, next_entry.value);
+                    self.size -= 1; // the size was incremented by the insert method
+
+                    next_index = (next_index + 1) % self.capacity;
+                }
+
+                return;
             }
 
-            index = (index + hash2_value) % self.capacity;
+            index = (index + 1) % self.capacity;
         }
     }
 
@@ -195,31 +219,6 @@ where
             capacity: self.capacity,
             size: self.size,
         }
-    }
-
-    // converts the hash map to a string
-    // Complexity analysis:
-    // Best: O(n)
-    // Worst: O(n)
-    // Average: O(n)
-    pub fn to_string(&self) -> String {
-        let mut values = vec![];
-
-        for (index, entry) in self.data.iter().enumerate() {
-            match entry {
-                Some(e) if !e.deleted => {
-                    let entry = format!("Bucket {:2} => K: {:?}, V: {:?}", index, e.key, e.value);
-                    values.push(entry);
-                    values.push(String::from("\n"));
-                }
-                // Some(e) if e.deleted => println!("Bucket {:2} => [Deleted]", index),
-                //_ => println!("Bucket {:2} => [Empty]", index),
-                _ => {}
-            }
-        }
-
-        values.pop();
-        values.join("")
     }
 }
 
@@ -258,13 +257,11 @@ impl<'a, K, V> Iterator for HashMapIter<'a, K, V> {
     // returns the next key-value pair in the hash map
     fn next(&mut self) -> Option<Self::Item> {
         while self.index < self.data.len() {
-            let entry_option = &self.data[self.index];
-            self.index += 1;
-
-            if let Some(entry) = entry_option {
-                if !entry.deleted {
-                    return Some((&entry.key, &entry.value));
-                }
+            if let Some(entry) = &self.data[self.index] {
+                self.index += 1;
+                return Some((&entry.key, &entry.value));
+            } else {
+                self.index += 1;
             }
         }
 

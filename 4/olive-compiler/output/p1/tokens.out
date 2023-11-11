@@ -66,14 +66,13 @@ Token list:
 Token list size: 64
 
 Identifier table:
-Bucket  3 => K: "a", V: 1
-Bucket  7 => K: "max", V: 4
-Bucket 10 => K: "b", V: 2
-Bucket 12 => K: "c", V: 3
+K: "a", V: 1
+K: "b", V: 2
+K: "c", V: 3
+K: "max", V: 4
 Identifier table size: 4
 
 Constant table:
-
 Constant table size: 0
 
 Lexically correct!

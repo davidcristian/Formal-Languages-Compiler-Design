@@ -7,7 +7,7 @@ pub struct Table<K> {
 
 impl<K> Table<K>
 where
-    K: std::fmt::Debug + Clone + Eq + std::hash::Hash,
+    K: Clone + Eq + std::hash::Hash,
 {
     pub fn new() -> Self {
         Self {
@@ -52,10 +52,6 @@ where
             table: self.table.clone(),
             current_index: self.current_index,
         }
-    }
-
-    pub fn to_string(&self) -> String {
-        self.table.to_string()
     }
 }
 

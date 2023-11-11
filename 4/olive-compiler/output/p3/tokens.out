@@ -52,14 +52,14 @@ Token list:
 Token list size: 50
 
 Identifier table:
-Bucket  1 => K: "n", V: 2
-Bucket  6 => K: "sum", V: 3
-Bucket 14 => K: "num", V: 1
+K: "n", V: 2
+K: "num", V: 1
+K: "sum", V: 3
 Identifier table size: 3
 
 Constant table:
-Bucket  5 => K: "0", V: 1
-Bucket  7 => K: "1", V: 2
+K: "0", V: 1
+K: "1", V: 2
 Constant table size: 2
 
 Lexically correct!

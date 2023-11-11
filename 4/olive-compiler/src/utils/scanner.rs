@@ -158,13 +158,17 @@ impl Scanner {
         output.push_str(&self.token_list.len().to_string());
 
         output.push_str("\n\nIdentifier table:\n");
-        output.push_str(&self.identifier_table.to_string());
-        output.push_str("\nIdentifier table size: ");
+        for (key, value) in &self.identifier_table {
+            output.push_str(&format!("K: {:?}, V: {}\n", key, value));
+        }
+        output.push_str("Identifier table size: ");
         output.push_str(&self.identifier_table.size().to_string());
 
         output.push_str("\n\nConstant table:\n");
-        output.push_str(&self.constant_table.to_string());
-        output.push_str("\nConstant table size: ");
+        for (key, value) in &self.constant_table {
+            output.push_str(&format!("K: {:?}, V: {}\n", key, value));
+        }
+        output.push_str("Constant table size: ");
         output.push_str(&self.constant_table.size().to_string());
 
         output.push_str("\n\n");
