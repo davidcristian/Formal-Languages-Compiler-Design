@@ -28,10 +28,8 @@ const INTERNAL_SEP_IGNORED: &[&str] = &["{"];
 lazy_static! {
     // these expressions are correct, unwrap() is safe; if not, the program will panic
     // deprecated in favor of deterministic finite automata
-    // static ref IDENTIFIER: Regex = Regex::new(r"^([A-Za-z]+)$").unwrap();
-    // static ref NUMBER: Regex = Regex::new(r"^(((\+|-)?[1-9][0-9]*)|(0))$").unwrap();
-
-    // to be replaced in the future with the existing automata
+    static ref IDENTIFIER: Regex = Regex::new(r"^([A-Za-z]+)$").unwrap();
+    static ref NUMBER: Regex = Regex::new(r"^(((\+|-)?[1-9][0-9]*)|(0))$").unwrap();
     static ref STRING_CHAR: Regex = Regex::new(r#"^("[^"]*"|'[^']')$"#).unwrap();
 }
 
@@ -50,6 +48,8 @@ pub struct Scanner {
 
     identifier: Automaton,
     number: Automaton,
+    string: Automaton,
+    char: Automaton,
 }
 
 impl Scanner {
@@ -71,6 +71,22 @@ impl Scanner {
             }
         };
 
+        let string_automaton = match Automaton::new("../../5/olive-compiler/input/string.dfa") {
+            Ok(automaton) => automaton,
+            Err(e) => {
+                let error = format!("[string] {}", e);
+                return Err(error);
+            }
+        };
+
+        let char_automaton = match Automaton::new("../../5/olive-compiler/input/char.dfa") {
+            Ok(automaton) => automaton,
+            Err(e) => {
+                let error = format!("[char] {}", e);
+                return Err(error);
+            }
+        };
+
         match Self::parse_token_file(token_file_path) {
             Ok(tokens) => {
                 let mut scanner = Self {
@@ -87,6 +103,8 @@ impl Scanner {
 
                     identifier: identifier_automaton,
                     number: number_automaton,
+                    string: string_automaton,
+                    char: char_automaton,
                 };
 
                 // iterate ignored tokens for the internal separator and add value from reserved_tokens
@@ -368,7 +386,8 @@ impl Scanner {
             return Ok(());
         } else if self.identifier.validate(token)
             || self.number.validate(token)
-            || STRING_CHAR.is_match(token)
+            || self.string.validate(token)
+            || self.char.validate(token)
         {
             // check if token is an identifier or a constant
             let (table, offset) = if self.identifier.validate(token) {
