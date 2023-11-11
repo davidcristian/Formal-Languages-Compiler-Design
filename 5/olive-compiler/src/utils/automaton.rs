@@ -127,7 +127,15 @@ impl Automaton {
 
         // read transitions
         for line in lines {
-            let parts: Vec<&str> = line.split_whitespace().collect();
+            let mut parts: Vec<&str> = line.split(" ").collect();
+            // allow whitespace symbol in transitions
+            if parts.len() == 4 {
+                if parts[1].is_empty() && parts[2].is_empty() {
+                    parts.remove(1);
+                    parts[1] = " ";
+                }
+            }
+
             if parts.len() != 3 {
                 let err = format!("invalid transition: {}", line);
                 return Err(err);

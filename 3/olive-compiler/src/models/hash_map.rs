@@ -2,7 +2,7 @@ use std::hash::Hasher;
 
 const INITIAL_CAPACITY: usize = 16;
 const RESIZE_FACTOR: usize = 2;
-const LOAD_FACTOR: f64 = 0.6;
+const LOAD_FACTOR: f64 = 0.5;
 
 #[derive(Clone)]
 struct Entry<K, V> {
@@ -17,7 +17,6 @@ pub struct HashMap<K, V> {
     size: usize,
 }
 
-#[allow(dead_code)]
 impl<K, V> HashMap<K, V>
 where
     K: std::fmt::Debug + Clone + Eq + std::hash::Hash,

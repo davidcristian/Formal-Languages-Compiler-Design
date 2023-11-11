@@ -5,7 +5,6 @@ pub struct Table<K> {
     current_index: usize,
 }
 
-#[allow(dead_code)]
 impl<K> Table<K>
 where
     K: std::fmt::Debug + Clone + Eq + std::hash::Hash,

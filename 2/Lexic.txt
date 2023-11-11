@@ -20,22 +20,24 @@ A sequence which contains any combination of uppercase and lowercase letters.
 
 identifier ::= letter{letter}
 letter ::= uppercase | lowercase
+
 uppercase ::= "A".."Z"
 lowercase ::= "a".."z"
 
-digit ::= "0" | nonzero
-symbol ::= " ".."~"
+symbol ::= " ".."!" | "#".."[" | "]".."~"
+escape ::= "\" ( '"' | "\" )
 
 c. Constants:
 constant ::= number | char | string
 
 1. Integer:
 number ::= ["+" | "-"] nonzero{digit} | "0"
+digit ::= "0" | nonzero
 nonzero ::= "1".."9"
 
 2. Character:
-char ::= "'" (letter | digit | symbol) "'"
+char ::= "'" character "'"
 
 3. String:
 string ::= '"' {character} '"'
-character ::= letter | digit | symbol
+character ::= letter | digit | symbol | escape

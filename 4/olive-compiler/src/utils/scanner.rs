@@ -27,8 +27,11 @@ const INTERNAL_SEP_IGNORED: &[&str] = &["{"];
 
 lazy_static! {
     // these expressions are correct, unwrap() is safe; if not, the program will panic
+    // deprecated in favor of deterministic finite automata
     // static ref IDENTIFIER: Regex = Regex::new(r"^([A-Za-z]+)$").unwrap();
     // static ref NUMBER: Regex = Regex::new(r"^(((\+|-)?[1-9][0-9]*)|(0))$").unwrap();
+
+    // to be replaced in the future with the existing automata
     static ref STRING_CHAR: Regex = Regex::new(r#"^("[^"]*"|'[^']')$"#).unwrap();
 }
 
