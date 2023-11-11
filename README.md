@@ -20,4 +20,4 @@
 
 ### 4. [Scanner](4)
 
-### 5 . [Deterministic Finite Automata](5)
+### 5. [Deterministic Finite Automata](5)
