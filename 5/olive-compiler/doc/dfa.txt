@@ -1,0 +1,12 @@
+file = alphabet newline initial newline final newline transitions
+
+alphabet = " ".."~"
+initial = state
+final = state {space state}
+
+transitions = transition {newline transition}
+transition = state space state
+
+state = "0".."9"
+space ::= " "
+newline ::= [CR]LF
