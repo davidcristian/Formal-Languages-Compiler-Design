@@ -1,7 +1,11 @@
 use hash_map::HashMap;
 use std::collections::HashSet as Set;
 
+use std::fs::File;
+use std::io::{self, BufRead, BufReader, Lines};
+
 use super::state::{NewState, State};
+type InputLine = Option<Result<String, io::Error>>;
 
 pub struct Automaton {
     alphabet: Set<char>,
@@ -47,24 +51,112 @@ impl Automaton {
         &self.transitions
     }
 
+    pub fn validate(&self, sequence: &str) -> bool {
+        let mut current_state = self.initial_state;
+        for symbol in sequence.chars() {
+            if let Some(&next_state) = self.transitions.get(&(current_state, symbol)) {
+                current_state = next_state;
+            } else {
+                return false;
+            }
+        }
+
+        self.final_states.contains(&current_state)
+    }
+
     fn parse_file(&mut self, file_path: &str) -> Result<(), String> {
-        let file = match std::fs::read_to_string(file_path) {
+        let file = match File::open(file_path) {
             Ok(file) => file,
             Err(e) => {
-                let error = format!("could not read finite automaton file: {}", e.to_string());
+                let error = format!("could not open finite automaton file: {}", e.to_string());
                 return Err(error);
             }
         };
-        let mut lines = file.lines();
+        let reader = BufReader::new(file);
+        let mut lines = reader.lines();
 
-        // read alphabet
-        let alphabet = match lines.next() {
+        // parse alphabet
+        match self.parse_alphabet(lines.next()) {
+            Ok(_) => (),
+            Err(e) => return Err(e),
+        }
+
+        // parse states
+        match self.parse_states(lines.next()) {
+            Ok(_) => (),
+            Err(e) => return Err(e),
+        }
+
+        // parse initial state
+        match self.parse_initial_state(lines.next()) {
+            Ok(_) => (),
+            Err(e) => return Err(e),
+        }
+
+        // parse final states
+        match self.parse_final_states(lines.next()) {
+            Ok(_) => (),
+            Err(e) => return Err(e),
+        }
+
+        // parse transitions
+        match self.parse_transitions(&mut lines) {
+            Ok(_) => (),
+            Err(e) => return Err(e),
+        }
+
+        // check if the automaton is consistent
+        // i.e. all states in the set of states are used in transitions
+        match self.consistency_check() {
+            Ok(_) => (),
+            Err(e) => return Err(e),
+        }
+
+        Ok(())
+    }
+
+    fn extract_line_data(&self, line: InputLine) -> Option<String> {
+        // we will ignore the errors from the reader in this function
+        // because the lack of data will be caught in the parse functions
+        // i.e. parse_alphabet, parse_states, etc.
+
+        match line {
+            Some(line) => match line {
+                Ok(line) => Some(line),
+                Err(_) => None,
+            },
+            None => None,
+        }
+    }
+
+    fn get_next_line(&self, lines: &mut Lines<BufReader<File>>) -> Result<Option<String>, String> {
+        // we are no longer ignoring errors from the reader in this function
+        // because the lack of data is a serious error that should be handled;
+        // i.e. a missing line breaks the entire definition of the automaton
+
+        match lines.next() {
+            Some(line) => match line {
+                Ok(line) => Ok(Some(line)),
+                Err(e) => {
+                    let error = format!("could not read finite automaton file: {}", e.to_string());
+                    Err(error)
+                }
+            },
+            None => Ok(None),
+        }
+    }
+
+    fn parse_alphabet(&mut self, alphabet: InputLine) -> Result<(), String> {
+        // check if alphabet is missing
+        let alphabet = match self.extract_line_data(alphabet) {
             Some(alphabet) => alphabet,
             None => {
                 let error = format!("invalid finite automaton file: missing alphabet");
                 return Err(error);
             }
         };
+
+        // add each symbol to the alphabet
         for symbol in alphabet.chars() {
             match self.alphabet.insert(symbol) {
                 true => (),
@@ -75,15 +167,22 @@ impl Automaton {
             }
         }
 
-        // read states
-        let states = match lines.next() {
+        Ok(())
+    }
+
+    fn parse_states(&mut self, states: InputLine) -> Result<(), String> {
+        // check if set of states is missing
+        let states = match self.extract_line_data(states) {
             Some(states) => states,
             None => {
                 let error = format!("invalid finite automaton file: missing set of states");
                 return Err(error);
             }
         };
+
+        // add each state to the set of states
         for state in states.split_whitespace() {
+            // parse state
             let state = match state.parse::<State>() {
                 Ok(state) => state,
                 Err(e) => {
@@ -92,6 +191,7 @@ impl Automaton {
                 }
             };
 
+            // insert state if it doesn't already exist
             match self.states.insert(state) {
                 true => (),
                 false => {
@@ -101,14 +201,20 @@ impl Automaton {
             }
         }
 
-        // read initial state
-        let initial_state = match lines.next() {
+        Ok(())
+    }
+
+    fn parse_initial_state(&mut self, initial_state: InputLine) -> Result<(), String> {
+        // check if initial state is missing
+        let initial_state = match self.extract_line_data(initial_state) {
             Some(initial_state) => initial_state,
             None => {
                 let error = format!("invalid finite automaton file: missing initial state");
                 return Err(error);
             }
         };
+
+        // parse initial state
         self.initial_state = match initial_state.parse::<State>() {
             Ok(initial_state) => initial_state,
             Err(e) => {
@@ -127,15 +233,22 @@ impl Automaton {
             return Err(error);
         }
 
-        // read final states
-        let final_states = match lines.next() {
+        Ok(())
+    }
+
+    fn parse_final_states(&mut self, final_states: InputLine) -> Result<(), String> {
+        // check if final states are missing
+        let final_states = match self.extract_line_data(final_states) {
             Some(final_states) => final_states,
             None => {
                 let error = format!("invalid finite automaton file: missing final states");
                 return Err(error);
             }
         };
+
+        // add each final state to the set of final states
         for final_state in final_states.split_whitespace() {
+            // parse final state
             let final_state = match final_state.parse::<State>() {
                 Ok(final_state) => final_state,
                 Err(e) => {
@@ -160,8 +273,26 @@ impl Automaton {
             }
         }
 
-        // read transitions
-        for line in lines {
+        Ok(())
+    }
+
+    fn parse_transitions(
+        &mut self,
+        transitions: &mut Lines<BufReader<File>>,
+    ) -> Result<(), String> {
+        loop {
+            // get the next line from the reader
+            let line = match self.get_next_line(transitions) {
+                Ok(line) => line,
+                Err(e) => return Err(e),
+            };
+
+            // check if the end of the file has been reached
+            let line = match line {
+                Some(line) => line,
+                None => break,
+            };
+
             let mut parts: Vec<&str> = line.split(" ").collect();
             // allow whitespace symbol in transitions
             if parts.len() == 4 {
@@ -170,12 +301,13 @@ impl Automaton {
                     parts[1] = " ";
                 }
             }
-
+            // check if transition is invalid
             if parts.len() != 3 {
                 let err = format!("invalid transition: {}", line);
                 return Err(err);
             }
 
+            // parse start state
             let start_state = match parts[0].parse::<State>() {
                 Ok(start_state) => start_state,
                 Err(e) => {
@@ -183,15 +315,18 @@ impl Automaton {
                     return Err(error);
                 }
             };
+            // check if start state is in set of states
             if !self.states.contains(&start_state) {
                 let error = format!("start state '{}' not in set of states", start_state);
                 return Err(error);
             }
 
+            // parse symbol
             if parts[1].len() != 1 {
                 let error = format!("invalid symbol '{}' for transition '{}'", parts[1], line);
                 return Err(error);
             }
+            // check if symbol is empty
             let symbol = match parts[1].chars().next() {
                 Some(symbol) => symbol,
                 None => {
@@ -199,6 +334,7 @@ impl Automaton {
                     return Err(error);
                 }
             };
+            // check if symbol is in alphabet
             if !self.alphabet.contains(&symbol) {
                 let error = format!(
                     "character '{}' missing from alphabet for transition '{}'",
@@ -207,6 +343,7 @@ impl Automaton {
                 return Err(error);
             }
 
+            // parse end state
             let end_state = match parts[2].parse::<State>() {
                 Ok(end_state) => end_state,
                 Err(e) => {
@@ -214,6 +351,7 @@ impl Automaton {
                     return Err(error);
                 }
             };
+            // check if end state is in set of states
             if !self.states.contains(&end_state) {
                 let error = format!("end state '{}' not in set of states", end_state);
                 return Err(error);
@@ -225,6 +363,7 @@ impl Automaton {
                 return Err(error);
             }
 
+            // insert transition
             self.transitions.insert((start_state, symbol), end_state);
         }
 
@@ -234,8 +373,10 @@ impl Automaton {
             return Err(error);
         }
 
-        // extra consistency check below
+        Ok(())
+    }
 
+    fn consistency_check(&self) -> Result<(), String> {
         // check if all states in the set of states are used in transitions
         for state in &self.states {
             let mut found = false;
@@ -247,24 +388,11 @@ impl Automaton {
             }
 
             if !found {
-                let error = format!("unused state '{}' in set of states", state);
+                let error = format!("unused state '{}' in the set of states", state);
                 return Err(error);
             }
         }
 
         Ok(())
-    }
-
-    pub fn validate(&self, sequence: &str) -> bool {
-        let mut current_state = self.initial_state;
-        for symbol in sequence.chars() {
-            if let Some(&next_state) = self.transitions.get(&(current_state, symbol)) {
-                current_state = next_state;
-            } else {
-                return false;
-            }
-        }
-
-        self.final_states.contains(&current_state)
     }
 }
