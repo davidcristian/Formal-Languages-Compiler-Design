@@ -1,14 +1,14 @@
 DFA file specification (EBNF)
 
-file = alphabet newline initial newline final newline transitions
+file ::= alphabet newline initial newline final newline transitions
 
-alphabet = " ".."~"
-initial = state
-final = state {space state}
+alphabet ::= " ".."~"
+initial ::= state
+final ::= state {space state}
 
-transitions = transition {newline transition}
-transition = state space state
+transitions ::= transition {newline transition}
+transition ::= state space state
 
-state = "0".."9"
+state ::= "0".."9"
 space ::= " "
 newline ::= [CR] LF

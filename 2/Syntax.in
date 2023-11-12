@@ -1,6 +1,6 @@
 Olive language syntax (BNF)
 
-variable = identifier | identifier "[" expression "]"
+variable ::= identifier | identifier "[" expression "]"
 value ::= constant | variable
 program ::= stmtlist
 
