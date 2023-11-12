@@ -13,6 +13,8 @@ use hash_map::Table;
 // - remove reserved_tokens clone in token.rs
 // - make consume functions private and pass references to them instead of the scanner
 // - change the method for consuming reserved tokens to work with n-length tokens that do not have a common prefix
+// - handle escaped quote_type and backslash in consume_string_char
+//
 // - add comments
 // - actually just rewrite this whole thing without reading from token.in
 
