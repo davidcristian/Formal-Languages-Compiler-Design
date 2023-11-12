@@ -9,4 +9,4 @@ transition = state space state
 
 state = "0".."9"
 space ::= " "
-newline ::= [CR]LF
+newline ::= [CR] LF
