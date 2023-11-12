@@ -33,4 +33,58 @@ fn test_all() {
 
     table.clear();
     assert_eq!(table.size(), 0);
+
+    let mut table3 = Table::new();
+
+    for i in 0..1_000_000 {
+        let key = format!("key{}", i);
+        table3.put(key);
+    }
+
+    assert_eq!(table3.size(), 1_000_000);
+
+    for i in 0..1_000_000 {
+        let key = format!("key{}", i);
+        let i = i + 1;
+        assert_eq!(table3.get(&key), Some(&i));
+    }
+
+    for i in 0..500_000 {
+        let key = format!("key{}", i);
+        table3.remove(&key);
+    }
+
+    assert_eq!(table3.size(), 500_000);
+
+    for i in 0..500_000 {
+        let key = format!("key{}", i);
+        assert_eq!(table3.get(&key), None);
+    }
+
+    for i in 500_000..1_000_000 {
+        let key = format!("key{}", i);
+        let i = i + 1;
+        assert_eq!(table3.get(&key), Some(&i));
+    }
+
+    for i in 750_000..1_000_000 {
+        let key = format!("key{}", i);
+        table3.remove(&key);
+    }
+
+    assert_eq!(table3.size(), 250_000);
+
+    for i in 750_000..1_000_000 {
+        let key = format!("key{}", i);
+        assert_eq!(table3.get(&key), None);
+    }
+
+    for i in 500_000..750_000 {
+        let key = format!("key{}", i);
+        let i = i + 1;
+        assert_eq!(table3.get(&key), Some(&i));
+    }
+
+    table3.clear();
+    assert_eq!(table3.size(), 0);
 }

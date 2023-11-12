@@ -81,34 +81,27 @@ where
             probe_count: 0,
         };
 
-        loop {
-            match &mut self.data[index] {
-                Some(existing_entry) => {
-                    // if the probe count of the existing entry is less than that
-                    // of the entry to be inserted, swap the entries
-                    if existing_entry.probe_count < entry.probe_count {
-                        std::mem::swap(existing_entry, &mut entry);
-                    }
+        while let Some(existing_entry) = &mut self.data[index] {
+            // if the probe count of the existing entry is less than that
+            // of the entry to be inserted, swap the entries
+            if existing_entry.probe_count < entry.probe_count {
+                std::mem::swap(existing_entry, &mut entry);
+            }
 
-                    // if the key matches, update the value and do not increment the size
-                    if existing_entry.key == entry.key {
-                        existing_entry.value = entry.value;
-                        return;
-                    }
-                }
-                None => {
-                    // Found an empty slot, place the entry here
-                    self.data[index] = Some(entry);
-                    self.size += 1;
-
-                    return;
-                }
+            // if the key matches, update the value and do not increment the size
+            if existing_entry.key == entry.key {
+                existing_entry.value = entry.value;
+                return;
             }
 
             // keep looking for an empty slot
             entry.probe_count += 1;
             index = (index + 1) % self.capacity;
         }
+
+        // found an empty slot, place the entry here
+        self.data[index] = Some(entry);
+        self.size += 1;
     }
 
     // returns the value for the given key
@@ -133,8 +126,8 @@ where
             }
 
             // keep looking
-            index = (index + 1) % self.capacity;
             probe_count += 1;
+            index = (index + 1) % self.capacity;
         }
 
         None
@@ -146,27 +139,7 @@ where
     // Worst: O(n)
     // Average: O(1)
     pub fn contains(&self, key: &K) -> bool {
-        let mut index = self.hash(key);
-        let mut probe_count = 0;
-
-        // keep looking for the entry until we find an empty slot or the probe count exceeds
-        while let Some(entry) = &self.data[index] {
-            // stop the search if the probe count exceeds that of the entry's probe count
-            if probe_count > entry.probe_count {
-                return false;
-            }
-
-            // return true if the key matches
-            if entry.key == *key {
-                return true;
-            }
-
-            // keep looking
-            index = (index + 1) % self.capacity;
-            probe_count += 1;
-        }
-
-        false
+        self.get(key).is_some()
     }
 
     // removes the key-value pair for the given key
@@ -176,24 +149,44 @@ where
     // Average: O(1)
     pub fn remove(&mut self, key: &K) {
         let mut index = self.hash(key);
+        let mut probe_count = 0;
+
         while let Some(entry) = &self.data[index] {
+            if probe_count > entry.probe_count {
+                break;
+            }
+
             if entry.key == *key {
                 // remove the entry
                 self.data[index] = None;
                 self.size -= 1;
 
-                // reinsert subsequent entries
+                // move subsequent entries to fill the gap
                 let mut next_index = (index + 1) % self.capacity;
-                while let Some(next_entry) = self.data[next_index].take() {
-                    self.insert(next_entry.key, next_entry.value);
-                    self.size -= 1; // the size was incremented by the insert method
+                while let Some(mut next_entry) = self.data[next_index].take() {
+                    // reset the probe count
+                    next_entry.probe_count = 0;
 
+                    // find a new spot for the entry
+                    let mut new_index = self.hash(&next_entry.key);
+                    while let Some(existing_entry) = &mut self.data[new_index] {
+                        if existing_entry.probe_count < next_entry.probe_count {
+                            std::mem::swap(existing_entry, &mut next_entry);
+                        }
+
+                        next_entry.probe_count += 1;
+                        new_index = (new_index + 1) % self.capacity;
+                    }
+
+                    // place the entry in the new spot
+                    self.data[new_index] = Some(next_entry);
                     next_index = (next_index + 1) % self.capacity;
                 }
 
                 return;
             }
 
+            probe_count += 1;
             index = (index + 1) % self.capacity;
         }
     }

@@ -33,4 +33,55 @@ fn test_all() {
 
     map.clear();
     assert_eq!(map.size(), 0);
+
+    let mut map3 = HashMap::new();
+
+    for i in 0..1_000_000 {
+        let key = format!("key{}", i);
+        map3.insert(key, i);
+    }
+
+    assert_eq!(map3.size(), 1_000_000);
+
+    for i in 0..1_000_000 {
+        let key = format!("key{}", i);
+        assert_eq!(map3.get(&key), Some(&i));
+    }
+
+    for i in 0..500_000 {
+        let key = format!("key{}", i);
+        map3.remove(&key);
+    }
+
+    assert_eq!(map3.size(), 500_000);
+
+    for i in 0..500_000 {
+        let key = format!("key{}", i);
+        assert_eq!(map3.get(&key), None);
+    }
+
+    for i in 500_000..1_000_000 {
+        let key = format!("key{}", i);
+        assert_eq!(map3.get(&key), Some(&i));
+    }
+
+    for i in 750_000..1_000_000 {
+        let key = format!("key{}", i);
+        map3.remove(&key);
+    }
+
+    assert_eq!(map3.size(), 250_000);
+
+    for i in 750_000..1_000_000 {
+        let key = format!("key{}", i);
+        assert_eq!(map3.get(&key), None);
+    }
+
+    for i in 500_000..750_000 {
+        let key = format!("key{}", i);
+        assert_eq!(map3.get(&key), Some(&i));
+    }
+
+    map3.clear();
+    assert_eq!(map3.size(), 0);
 }
