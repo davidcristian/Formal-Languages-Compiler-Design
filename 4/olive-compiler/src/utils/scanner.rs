@@ -30,7 +30,9 @@ lazy_static! {
     // deprecated in favor of deterministic finite automata
     static ref IDENTIFIER: Regex = Regex::new(r"^([A-Za-z]+)$").unwrap();
     static ref NUMBER: Regex = Regex::new(r"^(((\+|-)?[1-9][0-9]*)|(0))$").unwrap();
-    static ref STRING_CHAR: Regex = Regex::new(r#"^("[^"]*"|'[^']')$"#).unwrap();
+
+    static ref STRING: Regex = Regex::new(r#"^"(([^"\\])|(\\["\\]))*"$"#).unwrap();
+    static ref CHAR: Regex = Regex::new(r#"^'(([^'\\])|(\\['\\]))'$"#).unwrap();
 }
 
 pub struct Scanner {

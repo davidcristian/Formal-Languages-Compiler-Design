@@ -66,13 +66,13 @@ fn test_char() {
     let good_chars = vec!["'a'", "' '", r#"'\''"#, r#"'\\'"#];
     let bad_chars = vec!["'ab'", "''", r#"'''"#, r#"'\'"#];
 
-    let string = Automaton::new("input/char.dfa").unwrap();
+    let char = Automaton::new("input/char.dfa").unwrap();
 
     for value in good_chars {
-        assert!(string.validate(value));
+        assert!(char.validate(value));
     }
 
     for value in bad_chars {
-        assert!(!string.validate(value));
+        assert!(!char.validate(value));
     }
 }
