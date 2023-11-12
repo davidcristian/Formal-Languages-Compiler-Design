@@ -1,8 +1,9 @@
+mod models;
 mod tests;
 mod utils;
 mod view;
 
-use view::text_menu::Menu;
+use view::menu::Menu;
 
 fn main() {
     // create a new menu and show it

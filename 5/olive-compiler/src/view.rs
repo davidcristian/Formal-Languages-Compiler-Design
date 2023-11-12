@@ -1,1 +1,1 @@
-pub mod text_menu;
+pub mod menu;

@@ -1,12 +1,11 @@
 use hash_map::HashMap;
 use std::collections::HashSet as Set;
 
-pub type State = usize;
+use super::state::{NewState, State};
 
 pub struct Automaton {
-    states: Set<State>,
-
     alphabet: Set<char>,
+    states: Set<State>,
     initial_state: State,
     final_states: Set<State>,
     transitions: HashMap<(State, char), State>,
@@ -15,10 +14,9 @@ pub struct Automaton {
 impl Automaton {
     pub fn new(file_path: &str) -> Result<Self, String> {
         let mut automaton = Self {
-            states: Set::new(),
-
             alphabet: Set::new(),
-            initial_state: 0,
+            states: Set::new(),
+            initial_state: State::new(),
             final_states: Set::new(),
             transitions: HashMap::new(),
         };
@@ -29,12 +27,12 @@ impl Automaton {
         }
     }
 
-    pub fn get_states(&self) -> &Set<State> {
-        &self.states
-    }
-
     pub fn get_alphabet(&self) -> &Set<char> {
         &self.alphabet
+    }
+
+    pub fn get_states(&self) -> &Set<State> {
+        &self.states
     }
 
     pub fn get_initial_state(&self) -> &State {
@@ -77,6 +75,32 @@ impl Automaton {
             }
         }
 
+        // read states
+        let states = match lines.next() {
+            Some(states) => states,
+            None => {
+                let error = format!("invalid finite automaton file: missing set of states");
+                return Err(error);
+            }
+        };
+        for state in states.split_whitespace() {
+            let state = match state.parse::<State>() {
+                Ok(state) => state,
+                Err(e) => {
+                    let error = format!("invalid state '{}': {}", state, e.to_string());
+                    return Err(error);
+                }
+            };
+
+            match self.states.insert(state) {
+                true => (),
+                false => {
+                    let error = format!("duplicate state '{}' in set of states", state);
+                    return Err(error);
+                }
+            }
+        }
+
         // read initial state
         let initial_state = match lines.next() {
             Some(initial_state) => initial_state,
@@ -88,13 +112,20 @@ impl Automaton {
         self.initial_state = match initial_state.parse::<State>() {
             Ok(initial_state) => initial_state,
             Err(e) => {
-                let error = format!("invalid initial state: {}", e.to_string());
+                let error = format!(
+                    "invalid initial state '{}': {}",
+                    initial_state,
+                    e.to_string()
+                );
                 return Err(error);
             }
         };
 
-        // add initial state to set of states
-        self.states.insert(self.initial_state);
+        // check if initial state is in set of states
+        if !self.states.contains(&self.initial_state) {
+            let error = format!("initial state '{}' not in set of states", initial_state);
+            return Err(error);
+        }
 
         // read final states
         let final_states = match lines.next() {
@@ -113,6 +144,13 @@ impl Automaton {
                 }
             };
 
+            // check if final state is in set of states
+            if !self.states.contains(&final_state) {
+                let error = format!("final state '{}' not in set of states", final_state);
+                return Err(error);
+            }
+
+            // insert final state if it doesn't already exist
             match self.final_states.insert(final_state) {
                 true => (),
                 false => {
@@ -120,9 +158,6 @@ impl Automaton {
                     return Err(error);
                 }
             }
-
-            // add final state to set of states
-            self.states.insert(final_state);
         }
 
         // read transitions
@@ -148,6 +183,10 @@ impl Automaton {
                     return Err(error);
                 }
             };
+            if !self.states.contains(&start_state) {
+                let error = format!("start state '{}' not in set of states", start_state);
+                return Err(error);
+            }
 
             if parts[1].len() != 1 {
                 let error = format!("invalid symbol '{}' for transition '{}'", parts[1], line);
@@ -175,18 +214,42 @@ impl Automaton {
                     return Err(error);
                 }
             };
+            if !self.states.contains(&end_state) {
+                let error = format!("end state '{}' not in set of states", end_state);
+                return Err(error);
+            }
 
-            // check if transition already exists
-            if let Some(_) = self.transitions.get(&(start_state, symbol)) {
+            // check if transition for (start_state, symbol) already exists
+            if self.transitions.get(&(start_state, symbol)).is_some() {
                 let error = format!("duplicate transition key for transition '{}'", line);
                 return Err(error);
             }
 
             self.transitions.insert((start_state, symbol), end_state);
+        }
 
-            // add start and end states to set of states
-            self.states.insert(start_state);
-            self.states.insert(end_state);
+        // check if there are no transitions
+        if self.transitions.size() == 0 {
+            let error = format!("invalid finite automaton file: missing transitions");
+            return Err(error);
+        }
+
+        // extra consistency check below
+
+        // check if all states in the set of states are used in transitions
+        for state in &self.states {
+            let mut found = false;
+            for ((start_state, _), end_state) in &self.transitions {
+                if start_state == state || end_state == state {
+                    found = true;
+                    break;
+                }
+            }
+
+            if !found {
+                let error = format!("unused state '{}' in set of states", state);
+                return Err(error);
+            }
         }
 
         Ok(())

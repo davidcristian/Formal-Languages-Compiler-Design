@@ -1,3 +1,3 @@
-mod utils;
+mod models;
 
-pub use utils::automaton::Automaton;
+pub use models::automaton::Automaton;

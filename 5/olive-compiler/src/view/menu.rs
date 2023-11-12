@@ -1,4 +1,5 @@
-use crate::utils::automaton::{Automaton, State};
+use crate::models::automaton::Automaton;
+use crate::models::state::State;
 use crate::utils::input::{get_dfa_folder, get_dfa_path, read_string, read_usize};
 
 pub struct Menu {}

@@ -1,5 +1,5 @@
 #[allow(unused_imports)]
-use crate::utils::automaton::Automaton;
+use crate::models::automaton::Automaton;
 
 #[test]
 fn test_identifier() {
