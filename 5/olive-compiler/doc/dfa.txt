@@ -2,13 +2,15 @@ DFA file specification (EBNF)
 
 file ::= alphabet newline states newline initial newline final newline transitions
 
-alphabet ::= " ".."~"
+alphabet ::= character {character}
+character ::= " ".."~"
+
 states ::= state {space state}
 initial ::= state
 final ::= states
 
 transitions ::= transition {newline transition}
-transition ::= state space state
+transition ::= state space character space state
 
 state ::= "0".."9"
 space ::= " "

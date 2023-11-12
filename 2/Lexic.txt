@@ -18,7 +18,7 @@ a. Special symbols, representing:
 b. Identifiers:
 A sequence which contains any combination of uppercase and lowercase letters.
 
-identifier ::= letter{letter}
+identifier ::= letter {letter}
 letter ::= uppercase | lowercase
 
 uppercase ::= "A".."Z"
@@ -31,7 +31,7 @@ c. Constants:
 constant ::= number | char | string
 
 1. Integer:
-number ::= ["+" | "-"] nonzero{digit} | "0"
+number ::= (["+" | "-"] nonzero {digit}) | "0"
 digit ::= "0" | nonzero
 nonzero ::= "1".."9"
 
