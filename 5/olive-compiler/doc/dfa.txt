@@ -1,3 +1,5 @@
+DFA file specification (EBNF)
+
 file = alphabet newline initial newline final newline transitions
 
 alphabet = " ".."~"
