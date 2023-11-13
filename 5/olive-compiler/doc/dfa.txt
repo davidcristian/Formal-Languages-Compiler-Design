@@ -12,6 +12,10 @@ final ::= states
 transitions ::= transition {newline transition}
 transition ::= state space character space state
 
-state ::= "0".."9"
+state ::= (nonzero {digit}) | "0"
+
+digit ::= "0" | nonzero
+nonzero ::= "1".."9"
+
 space ::= " "
 newline ::= [CR] LF
