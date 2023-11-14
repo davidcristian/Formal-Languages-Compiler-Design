@@ -10,6 +10,12 @@ impl NewState for usize {
     }
 }
 
+impl NewState for String {
+    fn new() -> Self {
+        String::from("0")
+    }
+}
+
 impl NewState for char {
     fn new() -> Self {
         '0'

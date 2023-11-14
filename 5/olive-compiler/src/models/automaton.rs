@@ -13,6 +13,8 @@ pub struct Automaton {
     initial_state: State,
     final_states: Set<State>,
     transitions: HashMap<(State, char), State>,
+
+    used_states: Set<State>,
 }
 
 impl Automaton {
@@ -23,6 +25,8 @@ impl Automaton {
             initial_state: State::new(),
             final_states: Set::new(),
             transitions: HashMap::new(),
+
+            used_states: Set::new(),
         };
 
         match automaton.parse_file(file_path) {
@@ -131,7 +135,7 @@ impl Automaton {
 
     fn get_next_line(&self, lines: &mut Lines<BufReader<File>>) -> Result<Option<String>, String> {
         // we are no longer ignoring errors from the reader in this function
-        // because the lack of data is a serious error that should be handled;
+        // because the lack of data is a serious error that should be handled
         // i.e. a missing line breaks the entire definition of the automaton
 
         match lines.next() {
@@ -233,6 +237,7 @@ impl Automaton {
             return Err(error);
         }
 
+        self.used_states.insert(self.initial_state);
         Ok(())
     }
 
@@ -265,7 +270,9 @@ impl Automaton {
 
             // insert final state if it doesn't already exist
             match self.final_states.insert(final_state) {
-                true => (),
+                true => {
+                    self.used_states.insert(final_state);
+                }
                 false => {
                     let error = format!("duplicate final state '{}'", final_state);
                     return Err(error);
@@ -365,6 +372,8 @@ impl Automaton {
 
             // insert transition
             self.transitions.insert((start_state, symbol), end_state);
+            self.used_states.insert(start_state);
+            self.used_states.insert(end_state);
         }
 
         // check if there are no transitions
@@ -379,15 +388,7 @@ impl Automaton {
     fn consistency_check(&self) -> Result<(), String> {
         // check if all states in the set of states are used in transitions
         for state in &self.states {
-            let mut found = false;
-            for ((start_state, _), end_state) in &self.transitions {
-                if start_state == state || end_state == state {
-                    found = true;
-                    break;
-                }
-            }
-
-            if !found {
+            if !self.used_states.contains(state) {
                 let error = format!("unused state '{}' in the set of states", state);
                 return Err(error);
             }
