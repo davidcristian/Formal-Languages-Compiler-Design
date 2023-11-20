@@ -58,16 +58,15 @@ pub struct Scanner {
 
 impl Scanner {
     pub fn new(token_file_path: &str) -> Result<Self, String> {
-        let identifier_automaton =
-            match Automaton::new("../../5/olive-compiler/input/identifier.dfa") {
-                Ok(automaton) => automaton,
-                Err(e) => {
-                    let error = format!("[identifier] {}", e);
-                    return Err(error);
-                }
-            };
+        let identifier_automaton = match Automaton::new("../automata/input/identifier.dfa") {
+            Ok(automaton) => automaton,
+            Err(e) => {
+                let error = format!("[identifier] {}", e);
+                return Err(error);
+            }
+        };
 
-        let number_automaton = match Automaton::new("../../5/olive-compiler/input/number.dfa") {
+        let number_automaton = match Automaton::new("../automata/input/number.dfa") {
             Ok(automaton) => automaton,
             Err(e) => {
                 let error = format!("[number] {}", e);
@@ -75,7 +74,7 @@ impl Scanner {
             }
         };
 
-        let string_automaton = match Automaton::new("../../5/olive-compiler/input/string.dfa") {
+        let string_automaton = match Automaton::new("../automata/input/string.dfa") {
             Ok(automaton) => automaton,
             Err(e) => {
                 let error = format!("[string] {}", e);
@@ -83,7 +82,7 @@ impl Scanner {
             }
         };
 
-        let char_automaton = match Automaton::new("../../5/olive-compiler/input/char.dfa") {
+        let char_automaton = match Automaton::new("../automata/input/char.dfa") {
             Ok(automaton) => automaton,
             Err(e) => {
                 let error = format!("[char] {}", e);

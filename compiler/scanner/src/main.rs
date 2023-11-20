@@ -3,8 +3,8 @@ mod utils;
 use std::{env, fs};
 use utils::scanner::Scanner;
 
-const TOKEN_FILE_PATH: &str = "../../2/token.in";
-const PROGRAM_FILE_PATH: &str = "../../1/";
+const TOKEN_FILE_PATH: &str = "../../doc/language/token.in";
+const PROGRAM_FILE_PATH: &str = "../../doc/programs/";
 const PROGRAM_EXTENSION: &str = ".oli";
 const DEFAULT_PROGRAM: &str = "p3";
 

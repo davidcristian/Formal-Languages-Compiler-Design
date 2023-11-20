@@ -1,9 +1,9 @@
 [package]
-name = "olive-compiler-automata"
+name = "automata"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-hash_map = {path = "../../3/olive-compiler", package = "olive-compiler-hash-map"}
+hash_map = {path = "../hash-map", package = "hash-map"}
