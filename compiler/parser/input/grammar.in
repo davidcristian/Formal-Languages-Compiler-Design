@@ -1,0 +1,50 @@
+Letter Symbol Escape NonZero Digit NumberConstant Character CharConstant StringConstant Constant Identifier Variable ArrayVariable Value Program NewLines DeclarationList Declaration Primitive ArrayDeclaration Type CompoundStatement StatementList Statement AssignStatement Expression Term Factor IOStatement IfStatement WhileStatement Conditions Condition SimpleCondition Relation
+  ! " # $ % & ' ( ) * + , - . / 0 1 2 3 4 5 6 7 8 9 : ; < = > ? @ A B C D E F G H I J K L M N O P Q R S T U V W X Y Z [ \ ] ^ _ ` a b c d e f g h i j k l m n o p q r s t u v w x y z { | } ~ number char string array input output if else while <= == != >= && || \r\n \n \" \\
+Program
+
+Letter -> A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z | a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p | q | r | s | t | u | v | w | x | y | z
+Symbol ->   | ! | # | $ | % | & | ' | ( | ) | * | + | , | - | . | / | : | ; | < | = | > | ? | @ | [ | ] | ^ | _ | ` | { | | | } | ~
+Escape -> \" | \\
+
+NonZero -> 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
+Digit -> 0 | NonZero
+NumberConstant -> + NonZero Digit | - NonZero Digit | NonZero Digit | Digit
+
+Character -> Letter | Digit | Symbol | Escape
+CharConstant -> ' Character '
+StringConstant -> " Character "
+
+Constant -> NumberConstant | CharConstant | StringConstant
+Identifier -> Letter | Letter Identifier
+
+Variable -> Identifier | ArrayVariable
+ArrayVariable -> Identifier [ Expression ]
+Value -> Constant | Variable
+
+Program -> StatementList
+NewLines -> \r\n | \n | \r\n NewLines | \n NewLines
+
+DeclarationList -> Declaration | Declaration , DeclarationList
+Declaration -> Identifier : Type | Identifier : Type = Expression
+
+Primitive -> number | char | string
+ArrayDeclaration -> array < Primitive > ( Expression )
+Type -> Primitive | ArrayDeclaration
+
+CompoundStatement -> { StatementList }
+StatementList -> Statement | Statement NewLines StatementList
+Statement -> AssignStatement | IOStatement | DeclarationList | IfStatement | WhileStatement
+
+AssignStatement -> Identifier = Expression | Identifier [ Expression ] = Expression
+Expression -> Term | Expression + Term | Expression - Term
+Term -> Factor | Term * Factor | Term / Factor | Term % Factor
+Factor -> ( Expression ) | Value
+
+IOStatement -> input ( Variable ) | output ( Expression )
+IfStatement -> if ( Conditions ) CompoundStatement | if ( Conditions ) CompoundStatement else CompoundStatement
+WhileStatement -> while ( Conditions ) CompoundStatement
+
+Conditions -> Condition | Condition || Conditions
+Condition -> SimpleCondition | SimpleCondition && Condition
+SimpleCondition -> Expression Relation Expression
+Relation -> < | <= | == | != | >= | >

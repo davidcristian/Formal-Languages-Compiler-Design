@@ -119,6 +119,7 @@ impl Automaton {
         Ok(())
     }
 
+    // TODO: move this function to the utils project
     fn extract_line_data(&self, line: InputLine) -> Option<String> {
         // we will ignore the errors from the reader in this function
         // because the lack of data will be caught in the parse functions
@@ -133,6 +134,7 @@ impl Automaton {
         }
     }
 
+    // TODO: move this function to the utils project
     fn get_next_line(&self, lines: &mut Lines<BufReader<File>>) -> Result<Option<String>, String> {
         // we are no longer ignoring errors from the reader in this function
         // because the lack of data is a serious error that should be handled
@@ -310,8 +312,8 @@ impl Automaton {
             }
             // check if transition is invalid
             if parts.len() != 3 {
-                let err = format!("invalid transition: {}", line);
-                return Err(err);
+                let error = format!("invalid transition: {}", line);
+                return Err(error);
             }
 
             // parse start state
