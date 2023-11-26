@@ -11,9 +11,11 @@ a. Special symbols, representing:
 - Assignment: =
 - Comparison: == != < > <= >=
 - Logical: && ||
-- Separators: whitespace ( ) [ ] { } : ,
+- Separators: whitespace ( ) [ ] { } < > : ,
 - Comments: --
-- Reserved words: number char string array if else while input output
+- Char: '
+- String: "
+- Reserved words: number char string array input output if else while
 
 b. Identifiers:
 A sequence which contains any combination of uppercase and lowercase letters.

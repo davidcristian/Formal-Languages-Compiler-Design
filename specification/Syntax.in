@@ -1,37 +1,51 @@
-Olive language syntax (BNF)
+# Olive language syntax
+# - The lines up to "program" are EBNF
+# - The rest of the lines are BNF
 
-variable ::= identifier | identifier "[" expression "]"
+letter ::= "A".."Z" | "a".."z
+symbol ::= " ".."!" | "#".."[" | "]".."~"
+escape ::= "\" ('"' | "\")
+
+non_zero ::= "1".."9"
+digit ::= "0" | non_zero
+number_constant ::= (["+" | "-"] non_zero {digit}) | "0"
+
+character ::= letter | digit | symbol | escape
+character_list ::= {character}
+char_constant ::= "'" character "'"
+string_constant ::= '"' character_list '"'
+
+constant ::= number_constant | char_constant | string_constant
+identifier ::= letter {letter}
+
+program ::= statement_list
+new_lines ::= "\r\n" | "\n" | "\r\n" new_lines | "\n" new_lines
+
+variable ::= Identifier | array_variable
+array_variable =  identifier "[" expression "]"
 value ::= constant | variable
-program ::= stmtlist
 
-newlines ::= newline | newline newlines
-newline ::= CR LF | LF
-
-decllist ::= declaration | declaration "," decllist
+declaration_list ::= declaration | declaration "," declaration_list
 declaration ::= identifier ":" type | identifier ":" type "=" expression
 
 primitive ::= "number" | "char" | "string"
-arraydecl ::= "array" "<" primitive ">" "(" expression ")"
-type ::= primitive | arraydecl
+array_declaration ::= "array" "<" primitive ">" "(" expression ")"
+type ::= primitive | array_declaration
 
-cmpdstmt ::= "{" stmtlist "}"
-stmtlist ::= stmt | stmt newlines stmtlist
+compound_statement ::= "{" statement_list "}"
+statement_list ::= statement | statement new_lines statement_list
+statement ::= assign_statement | io_statement | declaration_list | if_statement | while_statement
 
-stmt ::= simplstmt | structstmt
-simplstmt ::= assignstmt | iostmt | decllist
-
-assignstmt ::= identifier "=" expression | identifier "[" expression "]" "=" expression
+assign_statement ::= identifier "=" expression | identifier "[" expression "]" "=" expression
 expression ::=  term | expression "+" term | expression "-" term
 term ::= factor | term "*" factor | term "/" factor | term "%" factor
 factor ::= "(" expression ")" | value
 
-iostmt ::= "input" "(" variable ")" | "output" "(" expression ")"
-structstmt ::= cmpdstmt | ifstmt | whilestmt
-
-ifstmt ::= "if" "(" conditions ")" cmpdstmt | "if" "(" conditions ")" cmpdstmt "else" cmpdstmt
-whilestmt ::= "while" "(" conditions ")" cmpdstmt
+io_statement ::= "input" "(" variable ")" | "output" "(" expression ")"
+if_statement ::= "if" "(" conditions ")" compound_statement | "if" "(" conditions ")" compound_statement "else" compound_statement
+while_statement ::= "while" "(" conditions ")" compound_statement
 
 conditions ::= condition | condition "||" conditions
-condition ::= simplcond | simplcond "&&" condition
-simplcond ::= expression relation expression
-relation ::= "<" | "<=" | "==" | "!=" | ">=" | ">"
+condition ::= simple_condition | simple_condition "&&" condition
+simple_condition ::= expression relation expression
+relation ::= "==" | "!=" | "<" | ">" | "<=" | ">="
