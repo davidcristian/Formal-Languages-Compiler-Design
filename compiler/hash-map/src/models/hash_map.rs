@@ -138,7 +138,7 @@ where
     // Best: O(1)
     // Worst: O(n)
     // Average: O(1)
-    pub fn contains(&self, key: &K) -> bool {
+    pub fn contains_key(&self, key: &K) -> bool {
         self.get(key).is_some()
     }
 

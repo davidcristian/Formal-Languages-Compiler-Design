@@ -1,11 +1,20 @@
 use hash_map::HashMap;
+use lazy_static::lazy_static;
 use std::collections::HashSet as Set;
 
 use std::fs::File;
-use std::io::{self, BufRead, BufReader, Lines};
+use std::io::{BufReader, Lines};
+use utils::{extract_line_data, get_next_line, open_file, InputLine};
 
 use super::state::{NewState, State};
-type InputLine = Option<Result<String, io::Error>>;
+
+lazy_static! {
+    static ref ESCAPES: HashMap<&'static str, char> = {
+        let mut map = HashMap::new();
+        map.insert(r"\s", ' ');
+        map
+    };
+}
 
 pub struct Automaton {
     alphabet: Set<char>,
@@ -69,15 +78,10 @@ impl Automaton {
     }
 
     fn parse_file(&mut self, file_path: &str) -> Result<(), String> {
-        let file = match File::open(file_path) {
-            Ok(file) => file,
-            Err(e) => {
-                let error = format!("could not open finite automaton file: {}", e.to_string());
-                return Err(error);
-            }
+        let mut lines = match open_file(file_path) {
+            Ok(lines) => lines,
+            Err(e) => return Err(e),
         };
-        let reader = BufReader::new(file);
-        let mut lines = reader.lines();
 
         // parse alphabet
         match self.parse_alphabet(lines.next()) {
@@ -119,42 +123,9 @@ impl Automaton {
         Ok(())
     }
 
-    // TODO: move this function to the utils project
-    fn extract_line_data(&self, line: InputLine) -> Option<String> {
-        // we will ignore the errors from the reader in this function
-        // because the lack of data will be caught in the parse functions
-        // i.e. parse_alphabet, parse_states, etc.
-
-        match line {
-            Some(line) => match line {
-                Ok(line) => Some(line),
-                Err(_) => None,
-            },
-            None => None,
-        }
-    }
-
-    // TODO: move this function to the utils project
-    fn get_next_line(&self, lines: &mut Lines<BufReader<File>>) -> Result<Option<String>, String> {
-        // we are no longer ignoring errors from the reader in this function
-        // because the lack of data is a serious error that should be handled
-        // i.e. a missing line breaks the entire definition of the automaton
-
-        match lines.next() {
-            Some(line) => match line {
-                Ok(line) => Ok(Some(line)),
-                Err(e) => {
-                    let error = format!("could not read finite automaton file: {}", e.to_string());
-                    Err(error)
-                }
-            },
-            None => Ok(None),
-        }
-    }
-
     fn parse_alphabet(&mut self, alphabet: InputLine) -> Result<(), String> {
         // check if alphabet is missing
-        let alphabet = match self.extract_line_data(alphabet) {
+        let alphabet = match extract_line_data(alphabet) {
             Some(alphabet) => alphabet,
             None => {
                 let error = format!("invalid finite automaton file: missing alphabet");
@@ -163,8 +134,28 @@ impl Automaton {
         };
 
         // add each symbol to the alphabet
-        for symbol in alphabet.chars() {
-            match self.alphabet.insert(symbol) {
+        for symbol in alphabet.split_whitespace() {
+            let value = if let Some(&escape) = ESCAPES.get(&symbol) {
+                escape
+            } else {
+                let mut chars = symbol.chars();
+                let symbol = match chars.next() {
+                    Some(symbol) => symbol,
+                    None => {
+                        let error = format!("empty symbol in alphabet");
+                        return Err(error);
+                    }
+                };
+
+                if chars.next().is_some() {
+                    let error = format!("invalid symbol '{}' in alphabet", symbol);
+                    return Err(error);
+                }
+
+                symbol
+            };
+
+            match self.alphabet.insert(value) {
                 true => (),
                 false => {
                     let error = format!("duplicate symbol '{}' in alphabet", symbol);
@@ -178,7 +169,7 @@ impl Automaton {
 
     fn parse_states(&mut self, states: InputLine) -> Result<(), String> {
         // check if set of states is missing
-        let states = match self.extract_line_data(states) {
+        let states = match extract_line_data(states) {
             Some(states) => states,
             None => {
                 let error = format!("invalid finite automaton file: missing set of states");
@@ -212,7 +203,7 @@ impl Automaton {
 
     fn parse_initial_state(&mut self, initial_state: InputLine) -> Result<(), String> {
         // check if initial state is missing
-        let initial_state = match self.extract_line_data(initial_state) {
+        let initial_state = match extract_line_data(initial_state) {
             Some(initial_state) => initial_state,
             None => {
                 let error = format!("invalid finite automaton file: missing initial state");
@@ -245,7 +236,7 @@ impl Automaton {
 
     fn parse_final_states(&mut self, final_states: InputLine) -> Result<(), String> {
         // check if final states are missing
-        let final_states = match self.extract_line_data(final_states) {
+        let final_states = match extract_line_data(final_states) {
             Some(final_states) => final_states,
             None => {
                 let error = format!("invalid finite automaton file: missing final states");
@@ -291,7 +282,7 @@ impl Automaton {
     ) -> Result<(), String> {
         loop {
             // get the next line from the reader
-            let line = match self.get_next_line(transitions) {
+            let line = match get_next_line(transitions) {
                 Ok(line) => line,
                 Err(e) => return Err(e),
             };
@@ -302,14 +293,12 @@ impl Automaton {
                 None => break,
             };
 
-            let mut parts: Vec<&str> = line.split(" ").collect();
-            // allow whitespace symbol in transitions
-            if parts.len() == 4 {
-                if parts[1].is_empty() && parts[2].is_empty() {
-                    parts.remove(1);
-                    parts[1] = " ";
-                }
+            // skip empty lines
+            if line.is_empty() {
+                continue;
             }
+
+            let mut parts: Vec<String> = line.split_whitespace().map(String::from).collect();
             // check if transition is invalid
             if parts.len() != 3 {
                 let error = format!("invalid transition: {}", line);
@@ -328,6 +317,10 @@ impl Automaton {
             if !self.states.contains(&start_state) {
                 let error = format!("start state '{}' not in set of states", start_state);
                 return Err(error);
+            }
+
+            if let Some(&escape) = ESCAPES.get(&parts[1].as_str()) {
+                parts[1] = String::from(escape);
             }
 
             // parse symbol

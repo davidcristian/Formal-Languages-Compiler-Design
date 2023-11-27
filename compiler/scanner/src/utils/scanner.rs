@@ -324,7 +324,7 @@ impl Scanner {
                 None => '\0',
             };
 
-            if self.reserved_tokens.contains(&potential_token)
+            if self.reserved_tokens.contains_key(&potential_token)
                 || ("+-".contains(first_char) && ch.is_ascii_digit())
             {
                 token.push(ch);
@@ -341,7 +341,7 @@ impl Scanner {
         let mut token = String::new();
 
         self.position = self.capture_token_stream(|&ch| {
-            if ch.is_whitespace() || self.reserved_tokens.contains(&ch.to_string()) {
+            if ch.is_whitespace() || self.reserved_tokens.contains_key(&ch.to_string()) {
                 false
             } else {
                 token.push(ch);

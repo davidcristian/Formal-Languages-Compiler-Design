@@ -7,3 +7,5 @@ edition = "2021"
 
 [dependencies]
 hash_map = {path = "../hash-map", package = "hash-map"}
+utils = {path = "../utils", package = "utils"}
+lazy_static = "1.4.0"

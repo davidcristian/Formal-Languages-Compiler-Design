@@ -62,7 +62,7 @@ pub fn read_string(prompt: &str) -> String {
         }
     };
 
-    input.trim().to_string()
+    String::from(input.trim())
 }
 
 fn print_prompt(prompt: &str) -> Result<(), String> {

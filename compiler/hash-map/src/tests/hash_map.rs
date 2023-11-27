@@ -28,8 +28,8 @@ fn test_all() {
     assert_eq!(map2.size(), 1);
     assert_eq!(map.size(), 2);
 
-    assert!(map.contains(&"a"));
-    assert!(map2.contains(&"b"));
+    assert!(map.contains_key(&"a"));
+    assert!(map2.contains_key(&"b"));
 
     map.clear();
     assert_eq!(map.size(), 0);

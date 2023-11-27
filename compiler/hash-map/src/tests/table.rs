@@ -28,8 +28,8 @@ fn test_all() {
     assert_eq!(table2.size(), 1);
     assert_eq!(table.size(), 2);
 
-    assert!(table.contains(&"a"));
-    assert!(table2.contains(&"b"));
+    assert!(table.contains_key(&"a"));
+    assert!(table2.contains_key(&"b"));
 
     table.clear();
     assert_eq!(table.size(), 0);

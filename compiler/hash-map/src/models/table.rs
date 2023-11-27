@@ -35,8 +35,8 @@ where
         self.table.get(key)
     }
 
-    pub fn contains(&self, key: &K) -> bool {
-        self.table.contains(key)
+    pub fn contains_key(&self, key: &K) -> bool {
+        self.table.contains_key(key)
     }
 
     pub fn remove(&mut self, key: &K) {

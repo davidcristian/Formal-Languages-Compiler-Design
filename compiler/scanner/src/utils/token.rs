@@ -40,7 +40,7 @@ impl ReservedToken {
 }
 impl Token for ReservedToken {
     fn is_of(&self, current_char: &char, _: Option<&char>) -> bool {
-        self.reserved_tokens.contains(&current_char.to_string())
+        self.reserved_tokens.contains_key(&current_char.to_string())
     }
 
     fn consume(&self, scanner: &mut Scanner) -> String {
