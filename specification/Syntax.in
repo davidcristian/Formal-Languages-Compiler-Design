@@ -36,7 +36,7 @@ compound_statement ::= "{" statement_list "}"
 statement_list ::= statement | statement new_lines statement_list
 statement ::= assign_statement | io_statement | declaration_list | if_statement | while_statement
 
-assign_statement ::= identifier "=" expression | identifier "[" expression "]" "=" expression
+assign_statement ::= variable "=" expression
 expression ::=  term | expression "+" term | expression "-" term
 term ::= factor | term "*" factor | term "/" factor | term "%" factor
 factor ::= "(" expression ")" | value

@@ -4,11 +4,11 @@ use crate::models::hash_map::HashMap;
 #[test]
 fn test_all() {
     let mut map = HashMap::new();
-    assert_eq!(map.size(), 0);
+    assert_eq!(map.len(), 0);
 
     map.insert("a", 1);
     map.insert("b", 2);
-    assert_eq!(map.size(), 2);
+    assert_eq!(map.len(), 2);
 
     assert_eq!(map.get(&"a"), Some(&1));
     assert_eq!(map.get(&"b"), Some(&2));
@@ -16,23 +16,14 @@ fn test_all() {
 
     map.remove(&"a");
     assert_eq!(map.get(&"a"), None);
-    assert_eq!(map.size(), 1);
+    assert_eq!(map.len(), 1);
 
     map.insert("a", 3);
     assert_eq!(map.get(&"a"), Some(&3));
     assert_eq!(map.get(&"b"), Some(&2));
 
-    let mut map2 = map.clone();
-    map2.remove(&"a");
-
-    assert_eq!(map2.size(), 1);
-    assert_eq!(map.size(), 2);
-
-    assert!(map.contains_key(&"a"));
-    assert!(map2.contains_key(&"b"));
-
     map.clear();
-    assert_eq!(map.size(), 0);
+    assert_eq!(map.len(), 0);
 
     let mut map3 = HashMap::new();
 
@@ -41,7 +32,7 @@ fn test_all() {
         map3.insert(key, i);
     }
 
-    assert_eq!(map3.size(), 1_000_000);
+    assert_eq!(map3.len(), 1_000_000);
 
     for i in 0..1_000_000 {
         let key = format!("key{}", i);
@@ -53,7 +44,7 @@ fn test_all() {
         map3.remove(&key);
     }
 
-    assert_eq!(map3.size(), 500_000);
+    assert_eq!(map3.len(), 500_000);
 
     for i in 0..500_000 {
         let key = format!("key{}", i);
@@ -70,7 +61,7 @@ fn test_all() {
         map3.remove(&key);
     }
 
-    assert_eq!(map3.size(), 250_000);
+    assert_eq!(map3.len(), 250_000);
 
     for i in 750_000..1_000_000 {
         let key = format!("key{}", i);
@@ -83,5 +74,5 @@ fn test_all() {
     }
 
     map3.clear();
-    assert_eq!(map3.size(), 0);
+    assert_eq!(map3.len(), 0);
 }

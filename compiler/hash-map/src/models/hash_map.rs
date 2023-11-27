@@ -1,11 +1,11 @@
 use super::hasher::Djb2Hasher;
+use crate::utils::vector::vector;
 use std::hash::Hasher;
 
 const INITIAL_CAPACITY: usize = 16;
 const RESIZE_FACTOR: usize = 2;
 const LOAD_FACTOR: f64 = 0.75;
 
-#[derive(Clone)]
 struct Entry<K, V> {
     key: K,
     value: V,
@@ -20,13 +20,12 @@ pub struct HashMap<K, V> {
 
 impl<K, V> HashMap<K, V>
 where
-    K: Clone + Eq + std::hash::Hash,
-    V: Clone,
+    K: Eq + std::hash::Hash,
 {
     // creates a new empty hash map
     pub fn new() -> Self {
         Self {
-            data: vec![None; INITIAL_CAPACITY],
+            data: vector(INITIAL_CAPACITY),
             capacity: INITIAL_CAPACITY,
             size: 0,
         }
@@ -48,7 +47,7 @@ where
         self.size = 0;
         self.capacity *= RESIZE_FACTOR;
 
-        let old_data = std::mem::replace(&mut self.data, vec![None; self.capacity]);
+        let old_data = std::mem::replace(&mut self.data, vector(self.capacity));
         for entry in old_data.into_iter().flatten() {
             self.insert(entry.key, entry.value);
         }
@@ -59,7 +58,7 @@ where
     // Best: O(1)
     // Worst: O(1)
     // Average: O(1)
-    pub fn size(&self) -> usize {
+    pub fn len(&self) -> usize {
         self.size
     }
 
@@ -197,21 +196,23 @@ where
     // Worst: O(n)
     // Average: O(n)
     pub fn clear(&mut self) {
-        self.data = vec![None; self.capacity];
+        self.data = vector(self.capacity);
         self.size = 0;
     }
+}
 
-    // returns a clone of the hash map
-    // Complexity analysis:
-    // Best: O(n)
-    // Worst: O(n)
-    // Average: O(n)
-    pub fn clone(&self) -> Self {
-        Self {
-            data: self.data.clone(),
-            capacity: self.capacity,
-            size: self.size,
+// from implementation for the HashMap
+impl<K, V, I> From<I> for HashMap<K, V>
+where
+    K: Eq + std::hash::Hash,
+    I: IntoIterator<Item = (K, V)>,
+{
+    fn from(iter: I) -> Self {
+        let mut map = HashMap::new();
+        for (key, value) in iter {
+            map.insert(key, value);
         }
+        map
     }
 }
 

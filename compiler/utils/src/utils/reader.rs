@@ -12,6 +12,7 @@ pub fn open_file(file_path: &str) -> Result<Lines<BufReader<File>>, String> {
             return Err(error);
         }
     };
+
     let reader = BufReader::new(file);
     let lines = reader.lines();
 
@@ -41,7 +42,7 @@ pub fn get_next_line(lines: &mut Lines<BufReader<File>>) -> Result<Option<String
         Some(line) => match line {
             Ok(line) => Ok(Some(line)),
             Err(e) => {
-                let error = format!("could not read grammar file: {}", e.to_string());
+                let error = format!("could not read line from file: {}", e.to_string());
                 Err(error)
             }
         },

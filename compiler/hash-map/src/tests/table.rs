@@ -4,11 +4,11 @@ use crate::models::table::Table;
 #[test]
 fn test_all() {
     let mut table = Table::new();
-    assert_eq!(table.size(), 0);
+    assert_eq!(table.len(), 0);
 
     table.put("a");
     table.put("b");
-    assert_eq!(table.size(), 2);
+    assert_eq!(table.len(), 2);
 
     assert_eq!(table.get(&"a"), Some(&1));
     assert_eq!(table.get(&"b"), Some(&2));
@@ -16,23 +16,14 @@ fn test_all() {
 
     table.remove(&"a");
     assert_eq!(table.get(&"a"), None);
-    assert_eq!(table.size(), 1);
+    assert_eq!(table.len(), 1);
 
     table.insert("a", 3);
     assert_eq!(table.get(&"a"), Some(&3));
     assert_eq!(table.get(&"b"), Some(&2));
 
-    let mut table2 = table.clone();
-    table2.remove(&"a");
-
-    assert_eq!(table2.size(), 1);
-    assert_eq!(table.size(), 2);
-
-    assert!(table.contains_key(&"a"));
-    assert!(table2.contains_key(&"b"));
-
     table.clear();
-    assert_eq!(table.size(), 0);
+    assert_eq!(table.len(), 0);
 
     let mut table3 = Table::new();
 
@@ -41,7 +32,7 @@ fn test_all() {
         table3.put(key);
     }
 
-    assert_eq!(table3.size(), 1_000_000);
+    assert_eq!(table3.len(), 1_000_000);
 
     for i in 0..1_000_000 {
         let key = format!("key{}", i);
@@ -54,7 +45,7 @@ fn test_all() {
         table3.remove(&key);
     }
 
-    assert_eq!(table3.size(), 500_000);
+    assert_eq!(table3.len(), 500_000);
 
     for i in 0..500_000 {
         let key = format!("key{}", i);
@@ -72,7 +63,7 @@ fn test_all() {
         table3.remove(&key);
     }
 
-    assert_eq!(table3.size(), 250_000);
+    assert_eq!(table3.len(), 250_000);
 
     for i in 750_000..1_000_000 {
         let key = format!("key{}", i);
@@ -86,5 +77,5 @@ fn test_all() {
     }
 
     table3.clear();
-    assert_eq!(table3.size(), 0);
+    assert_eq!(table3.len(), 0);
 }

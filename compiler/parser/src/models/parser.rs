@@ -277,7 +277,7 @@ impl Parser {
         }
 
         // check if there are no productions
-        if self.productions.size() == 0 {
+        if self.productions.len() == 0 {
             let error = format!("invalid grammar file: missing productions");
             return Err(error);
         }

@@ -16,8 +16,8 @@ where
         }
     }
 
-    pub fn size(&self) -> usize {
-        self.table.size()
+    pub fn len(&self) -> usize {
+        self.table.len()
     }
 
     pub fn put(&mut self, key: K) -> usize {
@@ -45,13 +45,6 @@ where
 
     pub fn clear(&mut self) {
         self.table.clear();
-    }
-
-    pub fn clone(&self) -> Self {
-        Self {
-            table: self.table.clone(),
-            current_index: self.current_index,
-        }
     }
 }
 

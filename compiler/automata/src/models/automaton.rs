@@ -372,7 +372,7 @@ impl Automaton {
         }
 
         // check if there are no transitions
-        if self.transitions.size() == 0 {
+        if self.transitions.len() == 0 {
             let error = format!("invalid finite automaton file: missing transitions");
             return Err(error);
         }

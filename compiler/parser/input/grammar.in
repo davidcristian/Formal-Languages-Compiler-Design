@@ -36,7 +36,7 @@ CompoundStatement -> { StatementList }
 StatementList -> Statement | Statement NewLines StatementList
 Statement -> AssignStatement | IOStatement | DeclarationList | IfStatement | WhileStatement
 
-AssignStatement -> Identifier = Expression | Identifier [ Expression ] = Expression
+AssignStatement -> Variable = Expression
 Expression -> Term | Expression + Term | Expression - Term
 Term -> Factor | Term * Factor | Term / Factor | Term % Factor
 Factor -> ( Expression ) | Value
