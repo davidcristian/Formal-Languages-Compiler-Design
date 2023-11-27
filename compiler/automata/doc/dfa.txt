@@ -18,4 +18,4 @@ digit ::= "0" | nonzero
 nonzero ::= "1".."9"
 
 space ::= " "
-newline ::= [CR] LF
+newline ::= "\n" | newline
