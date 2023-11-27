@@ -1,7 +1,7 @@
-mod utils;
+mod models;
 
+use models::scanner::Scanner;
 use std::{env, fs};
-use utils::scanner::Scanner;
 
 const TOKEN_FILE_PATH: &str = "../../specification/token.in";
 const PROGRAM_FILE_PATH: &str = "../../programs/";
