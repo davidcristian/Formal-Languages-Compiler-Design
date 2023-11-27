@@ -24,8 +24,8 @@ number
 char
 string
 array
+input
+output
 if
 else
 while
-input
-output
