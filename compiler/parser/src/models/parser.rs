@@ -54,7 +54,6 @@ impl Parser {
         &self.productions
     }
 
-    #[allow(dead_code)]
     pub fn get_production(&self, non_terminal: &str) -> Option<&Vec<String>> {
         self.productions.get(&String::from(non_terminal))
     }

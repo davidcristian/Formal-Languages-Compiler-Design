@@ -1,4 +1,3 @@
-#![allow(dead_code)]
 use std::io::{self, Write};
 
 const DFA_FILE_PATH: &str = "input/";

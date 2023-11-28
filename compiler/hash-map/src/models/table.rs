@@ -21,10 +21,15 @@ where
     }
 
     pub fn put(&mut self, key: K) -> usize {
-        self.table.insert(key, self.current_index);
-        self.current_index += 1;
+        if let Some(value) = self.table.get(&key) {
+            return *value;
+        }
 
-        self.current_index - 1
+        let index = self.current_index;
+        self.table.insert(key, index);
+
+        self.current_index += 1;
+        index
     }
 
     pub fn insert(&mut self, key: K, value: usize) {
