@@ -21,7 +21,16 @@ pub fn write_scan_result(
     let mut output = String::new();
     let tokens = token_list
         .iter()
-        .map(|entry| format!("({:2}, {:2})", entry.key(), entry.value()))
+        .map(|entry| {
+            // println!(
+            //     "{:2}, {:2} -> {}",
+            //     entry.key(),
+            //     entry.value(),
+            //     entry.get_inner().replace("\n", "\\n").replace("\0", "\\0")
+            // );
+
+            format!("({:2}, {:2})", entry.key(), entry.value())
+        })
         .collect::<Vec<String>>()
         .join("\n");
 
