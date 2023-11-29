@@ -1,5 +1,4 @@
 use super::automata::Automata;
-use crate::utils::constants::EOF_CHAR;
 
 #[derive(Clone, Copy, PartialEq, Eq)]
 pub enum TokenKind {
@@ -62,20 +61,16 @@ pub struct Token {
 }
 
 impl Token {
-    pub fn new(kind: TokenKind) -> Self {
+    pub fn new(kind: TokenKind, inner: &str) -> Self {
         Self {
             kind,
-            inner: String::from(*EOF_CHAR),
+            inner: String::from(inner),
             position: 0,
         }
     }
 
     pub fn unknown(inner: &str) -> Self {
-        Self {
-            kind: TokenKind::Unknown,
-            inner: String::from(inner),
-            position: 0,
-        }
+        Self::new(TokenKind::Unknown, inner)
     }
 
     pub fn get_kind(&self) -> TokenKind {

@@ -4,7 +4,7 @@ use super::automata::Automata;
 use hash_map::Table;
 
 use super::token::{Token, TokenKind};
-use crate::utils::constants::{EOF_CHAR, LINE_COMMENT, NEWLINE};
+use crate::utils::constants::{EOF_CHAR, LINE_COMMENT, NEW_LINE};
 use crate::utils::writer::write_scan_result;
 
 pub struct Scanner {
@@ -126,75 +126,67 @@ impl Scanner {
             return None;
         }
 
+        // we are relying on Unknown tokens to be consumed
+        // so that we can catch lexical errors for tokens
+        // that do not pass the DFA => they are still Unknown
+
         // start parsing the token
         self.advance(1);
         let kind = match current {
             // Special Symbols and Operators
-            '+' => {
-                if self.current().is_ascii_digit() {
-                    TokenKind::Unknown
-                } else {
-                    TokenKind::Plus
-                }
-            }
-            '-' => {
-                if self.current().is_ascii_digit() {
-                    TokenKind::Unknown
-                } else {
-                    TokenKind::Minus
-                }
-            }
+            '+' => match self.current().is_ascii_digit() {
+                true => TokenKind::Unknown,
+                false => TokenKind::Plus,
+            },
+            '-' => match self.current().is_ascii_digit() {
+                true => TokenKind::Unknown,
+                false => TokenKind::Minus,
+            },
             '*' => TokenKind::Multiply,
             '/' => TokenKind::Divide,
             '%' => TokenKind::Modulo,
-            '=' => {
-                if self.current() == &'=' {
+            '=' => match self.current() {
+                &'=' => {
                     self.advance(1);
                     TokenKind::Equal
-                } else {
-                    TokenKind::Assign
                 }
-            }
-            '!' => {
-                if self.current() == &'=' {
+                _ => TokenKind::Assign,
+            },
+            '!' => match self.current() {
+                &'=' => {
                     self.advance(1);
                     TokenKind::NotEqual
-                } else {
-                    TokenKind::Unknown
                 }
-            }
-            '<' => {
-                if self.current() == &'=' {
+                _ => TokenKind::Unknown,
+            },
+            '<' => match self.current() {
+                &'=' => {
                     self.advance(1);
                     TokenKind::LessEqual
-                } else {
-                    TokenKind::Less
                 }
-            }
-            '>' => {
-                if self.current() == &'=' {
+                _ => TokenKind::Less,
+            },
+            '>' => match self.current() {
+                &'=' => {
                     self.advance(1);
                     TokenKind::GreaterEqual
-                } else {
-                    TokenKind::Greater
                 }
-            }
-            '&' => {
-                if self.current() == &'&' {
+                _ => TokenKind::Greater,
+            },
+            '&' => match self.current() {
+                &'&' => {
                     self.advance(1);
                     TokenKind::And
-                } else {
-                    TokenKind::Unknown
                 }
-            }
-            '|' => {
-                if self.current() == &'|' {
+                _ => TokenKind::Unknown,
+            },
+            '|' => match self.current() {
+                &'|' => {
                     self.advance(1);
                     TokenKind::Or
-                } else {
-                    TokenKind::Unknown
                 }
-            }
+                _ => TokenKind::Unknown,
+            },
 
             // Separators
             '(' => TokenKind::ParenOpen,
@@ -216,7 +208,7 @@ impl Scanner {
         let token = match kind {
             TokenKind::Unknown => self.consume_general(&current),
             TokenKind::Char | TokenKind::String => self.consume_literal(&current),
-            _ => Token::new(kind),
+            _ => Token::new(kind, &String::from(current)),
         };
 
         Some(token)
@@ -282,7 +274,7 @@ impl Scanner {
         }
 
         // keep reading until we reach a newline or EOF
-        while self.current() != NEWLINE && self.current() != EOF_CHAR {
+        while self.current() != NEW_LINE && self.current() != EOF_CHAR {
             self.advance(1);
         }
 
@@ -295,7 +287,7 @@ impl Scanner {
 
         // keep reading until we reach a non-whitespace character
         while self.current().is_whitespace() {
-            if self.current() == NEWLINE {
+            if self.current() == NEW_LINE {
                 newlines += 1;
             }
 
@@ -323,7 +315,7 @@ impl Scanner {
                 TokenKind::NewLine => return,
                 TokenKind::BraceOpen => return,
                 _ => {
-                    let token = Token::new(TokenKind::NewLine);
+                    let token = Token::new(TokenKind::NewLine, &String::from(*NEW_LINE));
                     self.token_list.push(token);
                 }
             }
