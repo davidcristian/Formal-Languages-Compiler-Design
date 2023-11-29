@@ -8,7 +8,8 @@ use utils::{extract_line_data, get_next_line, open_file, InputLine};
 
 lazy_static! {
     static ref ESCAPES: HashMap<&'static str, &'static str> =
-        HashMap::from([(r"ε", ""), (r"\s", " "), (r"\p", "|")]);
+        HashMap::from([(r"\s", " "), (r"\p", "|")]);
+        // (r"ε", "")
 }
 
 pub struct Parser {
