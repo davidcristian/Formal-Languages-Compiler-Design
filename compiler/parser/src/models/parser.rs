@@ -70,11 +70,11 @@ impl Parser {
 
             // iterate over each derivation
             // example: ["a A", "a C"] from "S -> a A | a C"
-            for production in productions {
+            for derivation in productions {
                 // get the symbols from the derivation
                 // example: ["a", "A"] from "a A", and ["a", "C"] from "a C"
                 let symbols: Vec<String> =
-                    production.split_whitespace().map(String::from).collect();
+                    derivation.split_whitespace().map(String::from).collect();
 
                 // check if each symbol is a terminal or a non-terminal
                 for symbol in &symbols {
