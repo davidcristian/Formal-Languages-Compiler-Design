@@ -48,7 +48,7 @@ pub enum TokenKind {
     // Special Tokens
     NewLine, // These are implicit statement separators (like Python)
 
-    // Actual Literals (indexes are not used)
+    // Actual Literals (enum indexes are not used from here on)
     Number,
     Char,
     String,

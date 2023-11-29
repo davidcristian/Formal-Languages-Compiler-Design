@@ -99,7 +99,7 @@ impl Scanner {
         // keep reading tokens until we reach EOF
         while let Some(token) = self.next_token() {
             match token.get_kind() {
-                // lexical error
+                // unknown tokens produce lexical errors
                 TokenKind::Unknown => {
                     let error = format!(
                         "Lexical error on line {} => undefined token: {}",
@@ -127,8 +127,8 @@ impl Scanner {
         }
 
         // we are relying on Unknown tokens to be consumed
-        // so that we can catch lexical errors for tokens
-        // that do not pass the DFA => they are still Unknown
+        // so that we can catch lexical errors after classifying
+        // them. Those do not pass the DFA remain Unknown tokens
 
         // start parsing the token
         self.advance(1);
@@ -296,8 +296,8 @@ impl Scanner {
 
         // add a statement separator token if we have newlines
         if newlines > 0 {
-            self.add_separator_token();
             self.current_line += newlines;
+            self.add_separator_token();
         }
     }
 
