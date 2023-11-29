@@ -2,8 +2,8 @@ DFA file specification (EBNF)
 
 file ::= alphabet newline states newline initial newline final newline transitions
 
-alphabet ::= character {character}
-character ::= " ".."~"
+alphabet ::= character {space character}
+character ::= "\s" | "!".."~"
 
 states ::= state {space state}
 initial ::= state
@@ -12,7 +12,7 @@ final ::= states
 transitions ::= transition {newline transition}
 transition ::= state space character space state
 
-state ::= (nonzero {digit}) | "0"
+state ::= nonzero {digit} | "0"
 
 digit ::= "0" | nonzero
 nonzero ::= "1".."9"

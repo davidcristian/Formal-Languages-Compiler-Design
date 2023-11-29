@@ -4,11 +4,11 @@
 
 letter ::= "A".."Z" | "a".."z
 symbol ::= " ".."!" | "#".."[" | "]".."~"
-escape ::= "\" ('"' | "\")
+escape ::= "\"" | "\\"
 
 non_zero ::= "1".."9"
 digit ::= "0" | non_zero
-number_constant ::= (["+" | "-"] non_zero {digit}) | "0"
+number_constant ::= ["+" | "-"] non_zero {digit} | "0"
 
 character ::= letter | digit | symbol | escape
 character_list ::= {character}

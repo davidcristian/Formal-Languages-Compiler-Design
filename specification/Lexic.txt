@@ -27,13 +27,13 @@ uppercase ::= "A".."Z"
 lowercase ::= "a".."z"
 
 symbol ::= " ".."!" | "#".."[" | "]".."~"
-escape ::= "\" ( '"' | "\" )
+escape ::= "\"" | "\\"
 
 c. Constants:
 constant ::= number | char | string
 
 1. Integer:
-number ::= (["+" | "-"] nonzero {digit}) | "0"
+number ::= ["+" | "-"] nonzero {digit} | "0"
 digit ::= "0" | nonzero
 nonzero ::= "1".."9"
 
