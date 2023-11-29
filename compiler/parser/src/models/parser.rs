@@ -7,13 +7,8 @@ use std::io::{BufReader, Lines};
 use utils::{extract_line_data, get_next_line, open_file, InputLine};
 
 lazy_static! {
-    static ref ESCAPES: HashMap<&'static str, &'static str> = {
-        let mut map = HashMap::new();
-        map.insert(r"ε", "");
-        map.insert(r"\s", " ");
-        map.insert(r"\p", "|");
-        map
-    };
+    static ref ESCAPES: HashMap<&'static str, &'static str> =
+        HashMap::from([(r"ε", ""), (r"\s", " "), (r"\p", "|")]);
 }
 
 pub struct Parser {
@@ -59,6 +54,11 @@ impl Parser {
     }
 
     pub fn is_context_free(&self) -> bool {
+        // check if the start symbol has productions
+        if !self.productions.contains_key(&self.start_symbol) {
+            return false;
+        }
+
         for (non_terminal, productions) in &self.productions {
             // ensure the left-hand side is a single non-terminal
             // example: "S" from "S -> a A | a C"
@@ -68,13 +68,13 @@ impl Parser {
                 return false;
             }
 
-            // iterate over each derivation
+            // iterate over each production
             // example: ["a A", "a C"] from "S -> a A | a C"
-            for derivation in productions {
-                // get the symbols from the derivation
+            for production in productions {
+                // get the symbols from the production
                 // example: ["a", "A"] from "a A", and ["a", "C"] from "a C"
                 let symbols: Vec<String> =
-                    derivation.split_whitespace().map(String::from).collect();
+                    production.split_whitespace().map(String::from).collect();
 
                 // check if each symbol is a terminal or a non-terminal
                 for symbol in &symbols {
@@ -163,7 +163,7 @@ impl Parser {
 
         // add each terminal to the set of terminals
         for terminal in terminals.split_whitespace() {
-            let value = if let Some(escape) = ESCAPES.get(&terminal) {
+            let value = if let Some(&escape) = ESCAPES.get(&terminal) {
                 escape
             } else {
                 terminal
@@ -245,32 +245,50 @@ impl Parser {
                 return Err(error);
             }
 
-            // check if the non-terminal already has a production
-            if self.productions.contains_key(&String::from(non_terminal)) {
-                let error = format!("duplicate production key for production: '{}'", line);
-                return Err(error);
-            }
-
             // check if the production is empty
             if productions.is_empty() {
                 let error = format!("empty production for line: '{}'", line);
                 return Err(error);
             }
 
-            // split the productions string into derivations
-            let productions: Vec<String> = productions
+            // split the productions string into productions
+            let mut productions: Vec<String> = productions
                 .split("|")
-                .map(|s| {
-                    let derivation = s.trim();
-                    if let Some(&escape) = ESCAPES.get(&derivation) {
-                        String::from(escape)
-                    } else {
-                        String::from(derivation)
-                    }
+                .map(|production| {
+                    // check for escapes in every symbol of the production
+                    production
+                        .trim()
+                        .split_whitespace()
+                        .map(|symbol| {
+                            if let Some(&escape) = ESCAPES.get(&symbol) {
+                                String::from(escape)
+                            } else {
+                                String::from(symbol)
+                            }
+                        })
+                        .collect::<Vec<String>>()
+                        .join(" ")
                 })
                 .collect();
 
-            // insert production
+            // extend with existing productions
+            if let Some(existing_productions) = self.productions.get(&String::from(non_terminal)) {
+                // check for duplicate productions
+                for production in existing_productions {
+                    if productions.contains(production) {
+                        let error = format!(
+                            "duplicate production '{}' for non-terminal '{}'",
+                            production, non_terminal
+                        );
+                        return Err(error);
+                    }
+
+                    // insert the production
+                    productions.push(String::from(production));
+                }
+            }
+
+            // insert the productions (overwriting the existing ones)
             self.productions
                 .insert(String::from(non_terminal), productions);
         }
