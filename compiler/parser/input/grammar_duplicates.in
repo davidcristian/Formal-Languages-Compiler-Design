@@ -1,5 +1,5 @@
 Letter Symbol Escape NonZero Digit NumberConstant Character CharacterList CharConstant StringConstant Constant Identifier Program NewLines Variable ArrayVariable Value DeclarationList Declaration Primitive ArrayDeclaration Type CompoundStatement StatementList Statement AssignStatement Expression Term Factor IOStatement IfStatement WhileStatement Conditions Condition SimpleCondition Relation
-\s ! " # $ % & ' ( ) * + , - . / 0 1 2 3 4 5 6 7 8 9 : ; < = > ? @ A B C D E F G H I J K L M N O P Q R S T U V W X Y Z [ \ ] ^ _ ` a b c d e f g h i j k l m n o p q r s t u v w x y z { \p } ~ number char string array input output if else while + - * / % = == != < > <= >= && || ( ) [ ] { } < > : , ' " \\ \" \n ε
+\s ! " # $ % & ' ( ) * + , - . / 0 1 2 3 4 5 6 7 8 9 : ; < = > ? @ A B C D E F G H I J K L M N O P Q R S T U V W X Y Z [ \ ] ^ _ ` a b c d e f g h i j k l m n o p q r s t u v w x y z { \p } ~ number char string array input output if else while + - * / % = == != < > <= >= && \d ( ) [ ] { } < > : , ' " \\ \" \n ε
 Program
 
 Letter -> A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z | a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p | q | r | s | t | u | v | w | x | y | z
@@ -37,15 +37,15 @@ StatementList -> Statement | Statement NewLines StatementList
 Statement -> AssignStatement | IOStatement | DeclarationList | IfStatement | WhileStatement
 
 AssignStatement -> Variable = Expression
-Expression -> Term | Expression + Term | Expression - Term
-Term -> Factor | Term * Factor | Term / Factor | Term % Factor
+Expression -> Term | Term + Expression | Term - Expression
+Term -> Factor | Factor * Term | Factor / Term | Factor % Term
 Factor -> ( Expression ) | Value
 
 IOStatement -> input ( Variable ) | output ( Expression )
 IfStatement -> if ( Conditions ) CompoundStatement | if ( Conditions ) CompoundStatement else CompoundStatement
 WhileStatement -> while ( Conditions ) CompoundStatement
 
-Conditions -> Condition | Condition || Conditions
+Conditions -> Condition | Condition \d Conditions
 Condition -> SimpleCondition | SimpleCondition && Condition
 SimpleCondition -> Expression Relation Expression
 Relation -> == | != | < | > | <= | >=

@@ -1,0 +1,11 @@
+S A A' B C C' D
+a b c ε
+S
+
+S -> a A | a C
+A -> B A'
+A' -> B A' | ε
+B -> b
+C -> a C | D C'
+C' -> D C' | ε
+D -> b

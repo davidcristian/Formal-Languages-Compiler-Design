@@ -7,9 +7,14 @@ use std::io::{BufReader, Lines};
 use utils::{extract_line_data, get_next_line, open_file, InputLine};
 
 lazy_static! {
-    static ref ESCAPES: HashMap<&'static str, &'static str> =
-        HashMap::from([(r"\s", " "), (r"\p", "|")]);
-        // (r"ε", "")
+    static ref ESCAPES: HashMap<&'static str, &'static str> = HashMap::from(
+        [
+            (r"\s", " "),   // space
+            (r"\p", "|"),   // pipe
+            (r"\d", "||"),  // disjunction (or)
+            // (r"ε", ""),  // empty string
+        ]
+    );
 }
 
 pub struct Parser {
@@ -52,6 +57,102 @@ impl Parser {
 
     pub fn get_production(&self, non_terminal: &str) -> Option<&Vec<String>> {
         self.productions.get(&String::from(non_terminal))
+    }
+
+    pub fn first(&self, symbol: &str) -> Set<String> {
+        let mut first_set = Set::new();
+
+        if self.terminals.contains(symbol) {
+            // if the symbol is a terminal, add it to the first set
+            first_set.insert(String::from(symbol));
+        } else if let Some(productions) = self.get_production(&String::from(symbol)) {
+            // if the symbol is a non-terminal, iterate through its productions
+            for production in productions {
+                let mut empty_string_derivable = false;
+
+                // iterate through each symbol in the production
+                for sym in production.split_whitespace() {
+                    let first_of_symbol = self.first(sym);
+
+                    // add all except ε
+                    for item in &first_of_symbol {
+                        if item != "ε" {
+                            first_set.insert(String::from(item));
+                        } else {
+                            empty_string_derivable = true;
+                        }
+                    }
+
+                    // stop if ε is not derivable from the current symbol
+                    if !empty_string_derivable {
+                        break;
+                    }
+                }
+
+                // if ε is derivable from the entire production, add it
+                if empty_string_derivable {
+                    first_set.insert(String::from("ε"));
+                }
+            }
+        }
+
+        first_set
+    }
+
+    pub fn follow(&self, symbol: &str) -> Set<String> {
+        let mut in_progress = Set::new();
+        self.follow_logic(symbol, &mut in_progress)
+    }
+
+    fn follow_logic(&self, symbol: &str, in_progress: &mut Set<String>) -> Set<String> {
+        // avoid infinite recursion
+        // example: follow(A) -> follow(B) -> follow(A) -> ...
+        if in_progress.contains(symbol) {
+            return Set::new();
+        }
+
+        in_progress.insert(String::from(symbol));
+        let mut follow_set = Set::new();
+
+        // rule 1: if the symbol is the start symbol, add '$' to its follow set
+        if symbol == self.start_symbol {
+            follow_set.insert(String::from("$"));
+        }
+
+        // iterate over all non-terminals and their productions
+        for (non_terminal, productions) in &self.productions {
+            // iterate over each production
+            for production in productions {
+                // get the symbols from the production
+                let symbols: Vec<&str> = production.split_whitespace().collect();
+
+                for (index, &sym) in symbols.iter().enumerate() {
+                    if sym == symbol {
+                        // rule 2: If there is a production A -> αBβ, then everything in first(β) except ε is in follow(B)
+                        if let Some(&beta) = symbols.get(index + 1) {
+                            let first_of_beta = self.first(beta);
+
+                            for item in &first_of_beta {
+                                if item != "ε" {
+                                    follow_set.insert(String::from(item));
+                                }
+                            }
+
+                            // rule 3: if β derives ε, add follow(A) to follow(B)
+                            if first_of_beta.contains("ε") {
+                                follow_set.extend(self.follow_logic(non_terminal, in_progress));
+                            }
+                        } else {
+                            // rule 3 (continued): if there is a production A -> αB, add follow(A) to follow(B)
+                            follow_set.extend(self.follow_logic(non_terminal, in_progress));
+                        }
+                    }
+                }
+            }
+        }
+
+        in_progress.remove(symbol);
+        follow_set
     }
 
     pub fn is_context_free(&self) -> bool {
@@ -273,7 +374,7 @@ impl Parser {
                 .collect();
 
             // extend with existing productions
-            if let Some(existing_productions) = self.productions.get(&String::from(non_terminal)) {
+            if let Some(existing_productions) = self.get_production(&String::from(non_terminal)) {
                 // check for duplicate productions
                 for production in existing_productions {
                     if productions.contains(production) {
