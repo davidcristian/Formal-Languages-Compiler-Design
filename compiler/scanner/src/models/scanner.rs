@@ -4,11 +4,12 @@ use super::automata::Automata;
 use hash_map::Table;
 
 use super::token::{Token, TokenKind};
-use crate::utils::constants::{EOF_CHAR, LINE_COMMENT, NEW_LINE};
+use crate::utils::constants::{EOF_CHAR, LINE_COMMENT, NEWLINE_CHAR, NEWLINE_TOKEN};
 use crate::utils::writer::write_scan_result;
 
 pub struct Scanner {
     raw_program: Vec<char>,
+    final_result: String,
     position: usize,
     current_line: usize,
 
@@ -30,6 +31,7 @@ impl Scanner {
 
         let scanner = Self {
             raw_program: vec![],
+            final_result: String::new(),
             position: 0,
             current_line: 1,
 
@@ -40,6 +42,10 @@ impl Scanner {
         };
 
         Ok(scanner)
+    }
+
+    pub fn get_token_list(&self) -> &Vec<Token> {
+        &self.token_list
     }
 
     fn get_nth(&self, n: usize) -> &char {
@@ -61,7 +67,7 @@ impl Scanner {
         self.position += n;
     }
 
-    pub fn scan(&mut self, input_file: &str, output_file: &str) -> Result<(), String> {
+    pub fn scan(&mut self, input_file: &str) -> Result<(), String> {
         println!("Scanning '{}'", input_file);
         self.raw_program = match fs::read_to_string(input_file) {
             Ok(program) => program.replace("\r\n", "\n").chars().collect(),
@@ -74,21 +80,25 @@ impl Scanner {
         // reset the scanner
         self.position = 0;
         self.current_line = 1;
+        self.final_result.clear();
 
         self.token_list.clear();
         self.identifier_table.clear();
         self.constant_table.clear();
 
         // parse the program
-        let result = match self.parse_program() {
+        self.final_result = match self.parse_program() {
             Ok(_) => String::from("Lexically correct!"),
             Err(e) => e,
         };
 
-        // write the scan result to the output file
+        Ok(())
+    }
+
+    pub fn write_result(&self, output_file: &str) -> Result<(), String> {
         write_scan_result(
             output_file,
-            &result,
+            &self.final_result,
             &self.token_list,
             &self.identifier_table,
             &self.constant_table,
@@ -274,7 +284,7 @@ impl Scanner {
         }
 
         // keep reading until we reach a newline or EOF
-        while self.current() != NEW_LINE && self.current() != EOF_CHAR {
+        while self.current() != NEWLINE_CHAR && self.current() != EOF_CHAR {
             self.advance(1);
         }
 
@@ -287,7 +297,7 @@ impl Scanner {
 
         // keep reading until we reach a non-whitespace character
         while self.current().is_whitespace() {
-            if self.current() == NEW_LINE {
+            if self.current() == NEWLINE_CHAR {
                 newlines += 1;
             }
 
@@ -315,7 +325,7 @@ impl Scanner {
                 TokenKind::NewLine => return,
                 TokenKind::BraceOpen => return,
                 _ => {
-                    let token = Token::new(TokenKind::NewLine, &String::from(*NEW_LINE));
+                    let token = Token::new(TokenKind::NewLine, &String::from(NEWLINE_TOKEN));
                     self.token_list.push(token);
                 }
             }

@@ -68,7 +68,15 @@ fn main() {
         }
     };
 
-    match scanner.scan(input_path.as_str(), output_path.as_str()) {
+    match scanner.scan(input_path.as_str()) {
+        Ok(_) => {}
+        Err(e) => {
+            println!("{}", e);
+            return;
+        }
+    }
+
+    match scanner.write_result(output_path.as_str()) {
         Ok(_) => {}
         Err(e) => {
             println!("{}", e);

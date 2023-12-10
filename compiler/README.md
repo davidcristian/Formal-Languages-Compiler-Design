@@ -1,3 +1,3 @@
 # Information
 
-The entry point of the application is the `scanner` project.
+The entry point of the application is the `olive` project.

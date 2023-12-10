@@ -1,3 +1,4 @@
+use super::token::TokenKind;
 use automata::Automaton;
 
 pub struct Automata {
@@ -48,19 +49,33 @@ impl Automata {
         Ok(automata)
     }
 
-    pub fn is_identifier(&self, value: &str) -> bool {
+    fn is_identifier(&self, value: &str) -> bool {
         self.is_identifier.validate(value)
     }
 
-    pub fn is_number(&self, value: &str) -> bool {
+    fn is_number(&self, value: &str) -> bool {
         self.is_number.validate(value)
     }
 
-    pub fn is_char(&self, value: &str) -> bool {
+    fn is_char(&self, value: &str) -> bool {
         self.is_char.validate(value)
     }
 
-    pub fn is_string(&self, value: &str) -> bool {
+    fn is_string(&self, value: &str) -> bool {
         self.is_string.validate(value)
+    }
+
+    pub fn classify(&self, value: &str) -> TokenKind {
+        if self.is_identifier(value) {
+            TokenKind::Identifier
+        } else if self.is_number(value) {
+            TokenKind::Number
+        } else if self.is_char(value) {
+            TokenKind::Char
+        } else if self.is_string(value) {
+            TokenKind::String
+        } else {
+            TokenKind::Unknown
+        }
     }
 }

@@ -1,6 +1,45 @@
-use super::automata::Automata;
+use lazy_static::lazy_static;
 
-#[derive(Clone, Copy, PartialEq, Eq)]
+use super::automata::Automata;
+use hash_map::HashMap;
+
+lazy_static! {
+    static ref TOKENS: HashMap<&'static str, TokenKind> = HashMap::from([
+        ("+", TokenKind::Plus),
+        ("-", TokenKind::Minus),
+        ("*", TokenKind::Multiply),
+        ("/", TokenKind::Divide),
+        ("%", TokenKind::Modulo),
+        ("=", TokenKind::Assign),
+        ("==", TokenKind::Equal),
+        ("!=", TokenKind::NotEqual),
+        ("<", TokenKind::Less),
+        (">", TokenKind::Greater),
+        ("<=", TokenKind::LessEqual),
+        (">=", TokenKind::GreaterEqual),
+        ("&&", TokenKind::And),
+        ("||", TokenKind::Or),
+        ("(", TokenKind::ParenOpen),
+        (")", TokenKind::ParenClose),
+        ("[", TokenKind::BracketOpen),
+        ("]", TokenKind::BracketClose),
+        ("{", TokenKind::BraceOpen),
+        ("}", TokenKind::BraceClose),
+        (":", TokenKind::Colon),
+        (",", TokenKind::Comma),
+        ("number", TokenKind::KeywordNumber),
+        ("char", TokenKind::KeywordChar),
+        ("string", TokenKind::KeywordString),
+        ("array", TokenKind::KeywordArray),
+        ("input", TokenKind::KeywordInput),
+        ("output", TokenKind::KeywordOutput),
+        ("if", TokenKind::KeywordIf),
+        ("else", TokenKind::KeywordElse),
+        ("while", TokenKind::KeywordWhile),
+    ]);
+}
+
+#[derive(Clone, Copy, PartialEq, Eq, Hash, Debug)]
 pub enum TokenKind {
     Unknown, // Other
 
@@ -47,6 +86,7 @@ pub enum TokenKind {
 
     // Special Tokens
     NewLine, // These are implicit statement separators (like Python)
+    EOF,
 
     // Actual Literals (enum indexes are not used from here on)
     Number,
@@ -54,10 +94,28 @@ pub enum TokenKind {
     String,
 }
 
+impl From<&str> for TokenKind {
+    fn from(inner: &str) -> Self {
+        if let Some(kind) = TOKENS.get(&inner) {
+            return *kind;
+        }
+
+        TokenKind::Unknown
+    }
+}
+
+#[derive(Clone, PartialEq, Eq, Hash, Debug)]
 pub struct Token {
     kind: TokenKind,
     inner: String,
     position: usize,
+}
+
+impl From<&str> for Token {
+    fn from(inner: &str) -> Self {
+        let kind = TokenKind::from(inner);
+        Self::new(kind, inner)
+    }
 }
 
 impl Token {
@@ -104,30 +162,10 @@ impl Token {
             return;
         }
 
-        self.kind = match self.inner.as_str() {
-            "number" => TokenKind::KeywordNumber,
-            "char" => TokenKind::KeywordChar,
-            "string" => TokenKind::KeywordString,
-            "array" => TokenKind::KeywordArray,
-            "input" => TokenKind::KeywordInput,
-            "output" => TokenKind::KeywordOutput,
-            "if" => TokenKind::KeywordIf,
-            "else" => TokenKind::KeywordElse,
-            "while" => TokenKind::KeywordWhile,
-
-            _ => {
-                if automata.is_identifier(&self.inner) {
-                    TokenKind::Identifier
-                } else if automata.is_number(&self.inner) {
-                    TokenKind::Number
-                } else if automata.is_char(&self.inner) {
-                    TokenKind::Char
-                } else if automata.is_string(&self.inner) {
-                    TokenKind::String
-                } else {
-                    TokenKind::Unknown
-                }
-            }
+        self.kind = if let Some(kind) = TOKENS.get(&self.inner.as_str()) {
+            *kind
+        } else {
+            automata.classify(&self.inner)
         };
     }
 }

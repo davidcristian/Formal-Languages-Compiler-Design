@@ -1,16 +1,18 @@
 mod models;
 mod tests;
 
-use models::parser::Parser;
+use models::grammar::Grammar;
+use models::parser::LL1Parser;
+use scanner::Scanner;
 
 #[allow(dead_code)]
-fn print_first_follow(parser: &Parser) {
+fn print_first_follow(grammar: &Grammar) {
     // sort non-terminals by key
-    let mut non_terminals: Vec<&String> = parser.get_non_terminals().iter().collect();
+    let mut non_terminals: Vec<&String> = grammar.get_non_terminals().iter().collect();
     non_terminals.sort();
 
     // sort terminals by key but keep shorter terminals first
-    let mut terminals: Vec<&String> = parser.get_terminals().iter().collect();
+    let mut terminals: Vec<&String> = grammar.get_terminals().iter().collect();
     terminals.sort_by(|a, b| {
         if a.len() == b.len() {
             return a.cmp(b);
@@ -23,8 +25,8 @@ fn print_first_follow(parser: &Parser) {
 
     // calculate first and follow for each terminal
     for terminal in terminals.iter() {
-        let first = parser.first(terminal);
-        let follow = parser.follow(terminal);
+        let first = grammar.first(terminal);
+        let follow = grammar.follow(terminal);
         println!(
             "first('{}') = {}",
             terminal,
@@ -47,8 +49,8 @@ fn print_first_follow(parser: &Parser) {
 
     // calculate first and follow for each non-terminal
     for non_terminal in non_terminals.iter() {
-        let first = parser.first(non_terminal);
-        let follow = parser.follow(non_terminal);
+        let first = grammar.first(non_terminal);
+        let follow = grammar.follow(non_terminal);
         println!(
             "first('{}') = {}",
             non_terminal,
@@ -72,8 +74,8 @@ fn print_first_follow(parser: &Parser) {
 
 fn main() {
     println!("The LL(1) Parser is not implemented yet.");
-    let parser = match Parser::new("input/grammar.in") {
-        Ok(parser) => parser,
+    let grammar = match Grammar::new("input/grammar.in") {
+        Ok(grammar) => grammar,
         Err(e) => {
             println!("{}", e);
             return;
@@ -81,7 +83,7 @@ fn main() {
     };
 
     // sort non-terminals by key
-    let mut non_terminals: Vec<&String> = parser.get_non_terminals().iter().collect();
+    let mut non_terminals: Vec<&String> = grammar.get_non_terminals().iter().collect();
     non_terminals.sort();
 
     print!("\n{} Non-Terminals: ", non_terminals.len());
@@ -95,7 +97,7 @@ fn main() {
     );
 
     // sort terminals by key but keep shorter terminals first
-    let mut terminals: Vec<&String> = parser.get_terminals().iter().collect();
+    let mut terminals: Vec<&String> = grammar.get_terminals().iter().collect();
     terminals.sort_by(|a, b| {
         if a.len() == b.len() {
             return a.cmp(b);
@@ -116,10 +118,10 @@ fn main() {
             .join(", ")
     );
 
-    println!("\nStart Symbol: '{}'", parser.get_start_symbol());
+    println!("\nStart Symbol: '{}'", grammar.get_start_symbol());
 
     // sort productions by key
-    let mut productions: Vec<(&String, &Vec<String>)> = parser.get_productions().iter().collect();
+    let mut productions: Vec<(&String, &Vec<String>)> = grammar.get_productions().iter().collect();
     productions.sort_by(|a, b| a.0.cmp(b.0));
 
     print!("\n{} Productions:\n", productions.len());
@@ -135,18 +137,64 @@ fn main() {
         );
     }
 
-    // print_first_follow(&parser);
-    println!("\ngrammar is context free: {}\n", parser.is_context_free());
+    println!("\nFirst and Follow Sets:");
+    print_first_follow(&grammar);
 
-    let tests = ["ll_pass", "pass_1", "pass_2", "fail_1", "fail_2"];
-    for file in tests.iter() {
-        let parser = match Parser::new(&format!("input/{}.in", file)) {
-            Ok(parser) => parser,
-            Err(e) => {
-                println!("{}", e);
-                return;
-            }
-        };
-        println!("{} is context free: {}", file, parser.is_context_free());
+    println!("\ngrammar is context free: {}\n", grammar.is_context_free());
+    let parser = LL1Parser::new(grammar);
+
+    let mut table: Vec<(&(String, String), &String)> = parser.get_parsing_table().iter().collect();
+    table.sort_by(|a, b| {
+        if a.0 .0 == b.0 .0 {
+            return a.0 .1.cmp(&b.0 .1);
+        }
+        a.0 .0.cmp(&b.0 .0)
+    });
+
+    println!("Parsing Table:");
+    for ((non_terminal, terminal), production) in &table {
+        println!("({}, {}) -> '{}'", non_terminal, terminal, production);
     }
+    println!("Parsing Table Size: {}", table.len());
+
+    println!("\nFinished building parsing table.");
+
+    let mut scanner = match Scanner::new() {
+        Ok(scanner) => scanner,
+        Err(e) => {
+            println!("{}", e);
+            return;
+        }
+    };
+
+    let program = "../../programs/p3.oli";
+    match scanner.scan(program) {
+        Ok(_) => {}
+        Err(e) => {
+            println!("{}", e);
+            return;
+        }
+    }
+
+    println!("\nFinished scanning input.");
+    let tokens = scanner.get_token_list();
+
+    let output = match parser.parse(&tokens) {
+        Ok(output) => output,
+        Err(e) => {
+            println!("{}", e);
+            return;
+        }
+    };
+
+    output.display();
+    match output.write_output("output/parse_tree.out") {
+        Ok(_) => {}
+        Err(e) => {
+            println!("{}", e);
+            return;
+        }
+    }
+
+    println!("\nFinished parsing input.");
 }

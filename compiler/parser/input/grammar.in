@@ -1,51 +1,48 @@
-Letter Symbol Escape NonZero Digit NumberConstant Character CharacterList CharConstant StringConstant Constant Identifier Program NewLines Variable ArrayVariable Value DeclarationList Declaration Primitive ArrayDeclaration Type CompoundStatement StatementList Statement AssignStatement Expression Term Factor IOStatement IfStatement WhileStatement Conditions Condition SimpleCondition Relation
-\s ! " # $ % & ' ( ) * + , - . / 0 1 2 3 4 5 6 7 8 9 : ; < = > ? @ A B C D E F G H I J K L M N O P Q R S T U V W X Y Z [ \ ] ^ _ ` a b c d e f g h i j k l m n o p q r s t u v w x y z { \p } ~ number char string array input output if else while == != <= >= && \d \\ \" \n ε
+Program NewLine Variable VariableTail Value DeclarationList DeclarationListTail Declaration DeclarationTail OptionalAssignment Primitive ArrayDeclaration Type CompoundStatement StatementList Statement StatementTail AssignStatement Factor Expression ExpressionTail Term TermTail IOStatement IfStatement WhileStatement Conditions ConditionsTail Condition ConditionTail SimpleCondition Relation
+Identifier Constant number char string array input output if else while + - * / % = == != < > <= >= && \d ( ) [ ] { } : , \n
 Program
 
-Letter -> A | B | C | D | E | F | G | H | I | J | K | L | M | N | O | P | Q | R | S | T | U | V | W | X | Y | Z | a | b | c | d | e | f | g | h | i | j | k | l | m | n | o | p | q | r | s | t | u | v | w | x | y | z
-Symbol -> \s | ! | # | $ | % | & | ' | ( | ) | * | + | , | - | . | / | : | ; | < | = | > | ? | @ | [ | ] | ^ | _ | ` | { | \p | } | ~
-Escape -> \\ | \"
-
-NonZero -> 1 | 2 | 3 | 4 | 5 | 6 | 7 | 8 | 9
-Digit -> 0 | NonZero
-NumberConstant -> + NonZero Digit | - NonZero Digit | NonZero Digit | Digit
-
-Character -> Letter | Digit | Symbol | Escape
-CharacterList -> Character | Character CharacterList | ε
-CharConstant -> ' Character '
-StringConstant -> " CharacterList "
-
-Constant -> NumberConstant | CharConstant | StringConstant
-Identifier -> Letter | Letter Identifier
-
 Program -> StatementList
-NewLines -> \n | \n NewLines
+NewLine -> \n
 
-Variable -> Identifier | ArrayVariable
-ArrayVariable -> Identifier [ Expression ]
+Variable -> Identifier VariableTail
+VariableTail -> [ Expression ] | ε
 Value -> Constant | Variable
 
-DeclarationList -> Declaration | Declaration , DeclarationList
-Declaration -> Identifier : Type | Identifier : Type = Expression
+DeclarationList -> Declaration DeclarationListTail
+DeclarationListTail -> , Declaration DeclarationListTail | ε
+
+Declaration -> Identifier : DeclarationTail
+DeclarationTail -> Type OptionalAssignment
+OptionalAssignment -> = Expression | ε
 
 Primitive -> number | char | string
 ArrayDeclaration -> array < Primitive > ( Expression )
 Type -> Primitive | ArrayDeclaration
 
 CompoundStatement -> { StatementList }
-StatementList -> Statement | Statement NewLines StatementList
-Statement -> AssignStatement | IOStatement | DeclarationList | IfStatement | WhileStatement
+StatementList -> Statement NewLine StatementList | ε
+
+Statement -> Identifier StatementTail | IOStatement | IfStatement | WhileStatement
+StatementTail -> : DeclarationTail | VariableTail = Expression
 
 AssignStatement -> Variable = Expression
-Expression -> Term | Term + Expression | Term - Expression
-Term -> Factor | Factor * Term | Factor / Term | Factor % Term
 Factor -> ( Expression ) | Value
+
+Expression -> Term ExpressionTail
+ExpressionTail -> + Term ExpressionTail | - Term ExpressionTail | ε
+
+Term -> Factor TermTail
+TermTail -> * Factor TermTail | / Factor TermTail | % Factor TermTail | ε
 
 IOStatement -> input ( Variable ) | output ( Expression )
 IfStatement -> if ( Conditions ) CompoundStatement | if ( Conditions ) CompoundStatement else CompoundStatement
 WhileStatement -> while ( Conditions ) CompoundStatement
 
-Conditions -> Condition | Condition \d Conditions
-Condition -> SimpleCondition | SimpleCondition && Condition
+Conditions -> Condition ConditionsTail
+ConditionsTail -> \d Condition ConditionsTail | ε
+Condition -> SimpleCondition ConditionTail
+ConditionTail -> && SimpleCondition ConditionTail | ε
+
 SimpleCondition -> Expression Relation Expression
 Relation -> == | != | < | > | <= | >=
