@@ -1,6 +1,6 @@
 use super::grammar::Grammar;
 use super::output::ParserOutput;
-use hash_map::HashMap;
+use hash_map::{HashMap, Table};
 use scanner::{Token, TokenKind, EOF_TOKEN};
 
 const IDENTIFIER: &str = "Identifier";
@@ -73,8 +73,13 @@ impl LL1Parser {
         }
     }
 
-    pub fn parse(&self, tokens: &Vec<Token>) -> Result<ParserOutput, String> {
-        // TODO: find a way to break out of StatementList
+    pub fn parse(
+        &self,
+        tokens: &Vec<Token>,
+        identifiers: &Table<String>,
+        constants: &Table<String>,
+    ) -> Result<ParserOutput, String> {
+        // TODO: find a way to break out of StatementList (&& on line 96)
         let mut input = tokens.clone();
         input.push(Token::new(TokenKind::EOF, EOF_TOKEN));
 
@@ -88,7 +93,7 @@ impl LL1Parser {
 
         while let Some(stack_top) = stack.last() {
             if stack_top == EOF_TOKEN
-                && input
+                || input
                     .first()
                     .map_or(false, |t| t.get_kind() == TokenKind::EOF)
             {
@@ -96,32 +101,46 @@ impl LL1Parser {
                 return Ok(output);
             }
 
-            let current_token = &input[0];
+            // get the current token
+            let current_token = match input.first() {
+                Some(token) => token,
+                None => {
+                    self.print_stack_trace(&stack);
+                    return Err(String::from("Parse error: could not get current token"));
+                }
+            };
+
+            // get the terminal symbol value from the token
             let token_symbol = match current_token.get_kind() {
                 TokenKind::Identifier => IDENTIFIER,
-                TokenKind::Literal | TokenKind::Number | TokenKind::Char | TokenKind::String => {
-                    CONSTANT
-                }
+                TokenKind::Constant => CONSTANT,
                 _ => current_token.get_inner(),
             };
 
-            println!(
-                "stack_top: {:?} | current_token: {:?}",
-                stack_top, current_token
-            );
+            // get the value of the token from the identifier or constant table
+            let mut token_value = match current_token.get_kind() {
+                TokenKind::Identifier => identifiers.get(&current_token.value()).cloned(),
+                TokenKind::Constant => constants.get(&current_token.value()).cloned(),
+                _ => None,
+            };
+            // if the token is not an identifier or constant, use the representation
+            if token_value.is_none() {
+                token_value = Some(String::from(current_token.get_inner()));
+            }
+
             match (stack_top.as_str(), &current_token.get_kind()) {
                 (_, TokenKind::EOF) | (EOF_TOKEN, _) => {
                     self.print_stack_trace(&stack);
-                    return Err(String::from("Parse error: unexpected end of input"));
+                    return Err(String::from("Parse error: unexpected end of input stream"));
                 }
                 (top, _) if self.grammar.get_terminals().contains(top) => {
                     if top == token_symbol {
-                        let terminal = stack.pop(); // match terminal
+                        stack.pop(); // match terminal
                         input.remove(0);
 
                         // add terminal node to output
                         let parent_index = parent_stack.last();
-                        output.add_node(terminal, parent_index);
+                        output.add_node(token_value, parent_index);
                     } else {
                         self.print_stack_trace(&stack);
 
@@ -169,7 +188,9 @@ impl LL1Parser {
         }
 
         self.print_stack_trace(&stack);
-        Err(String::from("Parse error: incomplete input"))
+        Err(String::from(
+            "Parse error: grammar exhausted before token stream",
+        ))
     }
 
     fn print_stack_trace(&self, stack: &Vec<String>) {

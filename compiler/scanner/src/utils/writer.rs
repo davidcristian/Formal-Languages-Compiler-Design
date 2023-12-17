@@ -41,14 +41,14 @@ pub fn write_scan_result(
 
     output.push_str("\n\nIdentifier table:\n");
     for (key, value) in identifier_table {
-        output.push_str(&format!("K: {:?}, V: {}\n", key, value));
+        output.push_str(&format!("K: {}, V: {:?}\n", key, value));
     }
     output.push_str("Identifier table size: ");
     output.push_str(&identifier_table.len().to_string());
 
     output.push_str("\n\nConstant table:\n");
     for (key, value) in constant_table {
-        output.push_str(&format!("K: {:?}, V: {}\n", key, value));
+        output.push_str(&format!("K: {}, V: {:?}\n", key, value));
     }
     output.push_str("Constant table size: ");
     output.push_str(&constant_table.len().to_string());

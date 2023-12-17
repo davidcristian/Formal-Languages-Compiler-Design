@@ -1,6 +1,6 @@
 use super::hasher::Djb2Hasher;
 use crate::utils::vector::vector;
-use std::hash::Hasher;
+use std::hash::{Hash, Hasher};
 
 const INITIAL_CAPACITY: usize = 16;
 const RESIZE_FACTOR: usize = 2;
@@ -20,7 +20,7 @@ pub struct HashMap<K, V> {
 
 impl<K, V> HashMap<K, V>
 where
-    K: Eq + std::hash::Hash,
+    K: Eq + Hash,
 {
     // creates a new empty hash map
     pub fn new() -> Self {

@@ -73,7 +73,6 @@ fn print_first_follow(grammar: &Grammar) {
 }
 
 fn main() {
-    println!("The LL(1) Parser is not implemented yet.");
     let grammar = match Grammar::new("input/grammar.in") {
         Ok(grammar) => grammar,
         Err(e) => {
@@ -86,7 +85,7 @@ fn main() {
     let mut non_terminals: Vec<&String> = grammar.get_non_terminals().iter().collect();
     non_terminals.sort();
 
-    print!("\n{} Non-Terminals: ", non_terminals.len());
+    print!("{} Non-Terminals: ", non_terminals.len());
     println!(
         "{}",
         non_terminals
@@ -176,10 +175,13 @@ fn main() {
         }
     }
 
-    println!("\nFinished scanning input.");
+    println!("Finished scanning input.\n");
     let tokens = scanner.get_token_list();
 
-    let output = match parser.parse(&tokens) {
+    let identifiers = scanner.get_identifier_table();
+    let constants = scanner.get_constant_table();
+
+    let output = match parser.parse(&tokens, &identifiers, &constants) {
         Ok(output) => output,
         Err(e) => {
             println!("{}", e);

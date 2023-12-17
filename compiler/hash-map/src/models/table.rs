@@ -1,13 +1,13 @@
 use super::hash_map::{HashMap, HashMapIter};
 
-pub struct Table<K> {
-    table: HashMap<K, usize>,
+pub struct Table<V> {
+    table: HashMap<usize, V>,
     current_index: usize,
 }
 
-impl<K> Table<K>
+impl<V> Table<V>
 where
-    K: Clone + Eq + std::hash::Hash,
+    V: PartialEq,
 {
     pub fn new() -> Self {
         Self {
@@ -20,51 +20,43 @@ where
         self.table.len()
     }
 
-    pub fn put(&mut self, key: K) -> usize {
-        if let Some(value) = self.table.get(&key) {
-            return *value;
+    pub fn put(&mut self, value: V) -> usize {
+        // check if the value already exists, if yes return the key
+        for (key, val) in &self.table {
+            if val == &value {
+                return *key;
+            }
         }
 
         let index = self.current_index;
-        self.table.insert(key, index);
+        self.table.insert(index, value);
 
         self.current_index += 1;
         index
     }
 
-    pub fn insert(&mut self, key: K, value: usize) {
-        self.table.insert(key, value);
-    }
-
-    pub fn get(&self, key: &K) -> Option<&usize> {
+    pub fn get(&self, key: &usize) -> Option<&V> {
         self.table.get(key)
-    }
-
-    pub fn contains_key(&self, key: &K) -> bool {
-        self.table.contains_key(key)
-    }
-
-    pub fn remove(&mut self, key: &K) {
-        self.table.remove(key)
     }
 
     pub fn clear(&mut self) {
         self.table.clear();
+        self.current_index = 1;
     }
 }
 
 // iterator implementation for the Table
 
-impl<'a, K> Table<K> {
+impl<'a, V> Table<V> {
     // returns an iterator over the data in the table
-    pub fn iter(&'a self) -> HashMapIter<'a, K, usize> {
+    pub fn iter(&'a self) -> HashMapIter<'a, usize, V> {
         self.table.iter()
     }
 }
 
-impl<'a, K> IntoIterator for &'a Table<K> {
-    type Item = (&'a K, &'a usize);
-    type IntoIter = HashMapIter<'a, K, usize>;
+impl<'a, V> IntoIterator for &'a Table<V> {
+    type Item = (&'a usize, &'a V);
+    type IntoIter = HashMapIter<'a, usize, V>;
 
     // returns an iterator over the table
     fn into_iter(self) -> Self::IntoIter {

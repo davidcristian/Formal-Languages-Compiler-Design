@@ -52,14 +52,14 @@ Token list:
 Token list size: 50
 
 Identifier table:
-K: "n", V: 2
-K: "num", V: 1
-K: "sum", V: 3
+K: 1, V: "num"
+K: 2, V: "n"
+K: 3, V: "sum"
 Identifier table size: 3
 
 Constant table:
-K: "0", V: 1
-K: "1", V: 2
+K: 1, V: "0"
+K: 2, V: "1"
 Constant table size: 2
 
 Lexically correct!

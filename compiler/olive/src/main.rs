@@ -2,9 +2,6 @@ use parser::{Grammar, LL1Parser};
 use scanner::Scanner;
 
 fn main() {
-    println!("The compiler is not fully implemented yet.");
-    return;
-
     let grammar_file = "../parser/input/grammar.in";
     let grammar = match Grammar::new(grammar_file) {
         Ok(grammar) => grammar,
@@ -34,9 +31,13 @@ fn main() {
     }
 
     println!("Finished scanning input.");
-    let tokens = scanner.get_token_list();
+    println!("\nParsing input...");
 
-    let output = match parser.parse(&tokens) {
+    let tokens = scanner.get_token_list();
+    let identifiers = scanner.get_identifier_table();
+    let constants = scanner.get_constant_table();
+
+    let output = match parser.parse(&tokens, &identifiers, &constants) {
         Ok(output) => output,
         Err(e) => {
             println!("{}", e);
@@ -44,7 +45,6 @@ fn main() {
         }
     };
 
-    output.display();
     match output.write_output("output/parse_tree.out") {
         Ok(_) => {}
         Err(e) => {
@@ -53,5 +53,5 @@ fn main() {
         }
     }
 
-    println!("\nFinished parsing input.");
+    println!("Finished parsing input.");
 }

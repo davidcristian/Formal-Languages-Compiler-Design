@@ -66,10 +66,10 @@ Token list:
 Token list size: 64
 
 Identifier table:
-K: "a", V: 1
-K: "b", V: 2
-K: "c", V: 3
-K: "max", V: 4
+K: 1, V: "a"
+K: 2, V: "b"
+K: 3, V: "c"
+K: 4, V: "max"
 Identifier table size: 4
 
 Constant table:

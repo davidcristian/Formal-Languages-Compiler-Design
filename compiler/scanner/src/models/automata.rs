@@ -69,11 +69,11 @@ impl Automata {
         if self.is_identifier(value) {
             TokenKind::Identifier
         } else if self.is_number(value) {
-            TokenKind::Number
+            TokenKind::Constant
         } else if self.is_char(value) {
-            TokenKind::Char
+            TokenKind::Constant
         } else if self.is_string(value) {
-            TokenKind::String
+            TokenKind::Constant
         } else {
             TokenKind::Unknown
         }

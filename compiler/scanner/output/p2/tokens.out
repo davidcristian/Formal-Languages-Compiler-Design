@@ -97,17 +97,17 @@ Token list:
 Token list size: 95
 
 Identifier table:
-K: "n", V: 2
-K: "isPrime", V: 1
-K: "i", V: 3
+K: 1, V: "isPrime"
+K: 2, V: "n"
+K: 3, V: "i"
 Identifier table size: 3
 
 Constant table:
-K: "0", V: 2
-K: "1", V: 1
-K: "\"Prime\"", V: 4
-K: "2", V: 3
-K: "\"Not Prime\"", V: 5
+K: 1, V: "1"
+K: 2, V: "0"
+K: 3, V: "2"
+K: 4, V: "\"Prime\""
+K: 5, V: "\"Not Prime\""
 Constant table size: 5
 
 Lexically correct!

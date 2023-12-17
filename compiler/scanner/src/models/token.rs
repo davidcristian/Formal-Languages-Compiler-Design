@@ -43,9 +43,9 @@ lazy_static! {
 pub enum TokenKind {
     Unknown, // Other
 
-    // Identifiers and Literals
+    // Identifiers and Constants
     Identifier,
-    Literal,
+    Constant,
 
     // Special Symbols and Operators
     Plus,
@@ -87,11 +87,11 @@ pub enum TokenKind {
     // Special Tokens
     NewLine, // These are implicit statement separators (like Python)
     EOF,
-
+    //
     // Actual Literals (enum indexes are not used from here on)
-    Number,
-    Char,
-    String,
+    // Number,
+    // Char,
+    // String,
 }
 
 impl From<&str> for TokenKind {
@@ -140,13 +140,13 @@ impl Token {
     }
 
     pub fn key(&self) -> usize {
-        let kind = match self.kind {
-            TokenKind::Number | TokenKind::Char | TokenKind::String => TokenKind::Literal,
-            _ => self.kind,
-        };
+        // let kind = match self.kind {
+        //     TokenKind::Number | TokenKind::Char | TokenKind::String => TokenKind::Constant,
+        //     _ => self.kind,
+        // };
 
         // return the index of the token kind in the enum
-        kind as usize
+        self.kind as usize
     }
 
     pub fn value(&self) -> usize {

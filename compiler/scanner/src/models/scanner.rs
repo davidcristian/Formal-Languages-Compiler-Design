@@ -48,6 +48,14 @@ impl Scanner {
         &self.token_list
     }
 
+    pub fn get_identifier_table(&self) -> &Table<String> {
+        &self.identifier_table
+    }
+
+    pub fn get_constant_table(&self) -> &Table<String> {
+        &self.constant_table
+    }
+
     fn get_nth(&self, n: usize) -> &char {
         match self.raw_program.get(self.position + n) {
             Some(character) => character,
@@ -209,15 +217,15 @@ impl Scanner {
             ':' => TokenKind::Colon,
 
             // Other
-            '\'' => TokenKind::Char,
-            '"' => TokenKind::String,
+            '\'' => TokenKind::Constant,
+            '"' => TokenKind::Constant,
             _ => TokenKind::Unknown,
         };
 
         // if the token is unknown, consume the rest of the characters
         let token = match kind {
             TokenKind::Unknown => self.consume_general(&current),
-            TokenKind::Char | TokenKind::String => self.consume_literal(&current),
+            TokenKind::Constant => self.consume_literal(&current),
             _ => Token::new(kind, &String::from(current)),
         };
 
@@ -240,7 +248,7 @@ impl Scanner {
                 let value = self.identifier_table.put(value);
                 token.set_position(value);
             }
-            TokenKind::Number => {
+            TokenKind::Constant => {
                 let value = self.constant_table.put(value);
                 token.set_position(value);
             }
@@ -266,7 +274,7 @@ impl Scanner {
         token.classify(&self.automata);
 
         match token.get_kind() {
-            TokenKind::Char | TokenKind::String => {
+            TokenKind::Constant => {
                 let value = self.constant_table.put(value);
                 token.set_position(value);
             }
