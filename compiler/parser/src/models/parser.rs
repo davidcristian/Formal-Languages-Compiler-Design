@@ -74,7 +74,6 @@ impl LL1Parser {
     }
 
     pub fn parse(&self, tokens: &Vec<Token>) -> Result<ParserOutput, String> {
-        // TODO: implement the output node adding logic
         // TODO: find a way to break out of StatementList
         let mut input = tokens.clone();
         input.push(Token::new(TokenKind::EOF, EOF_TOKEN));
@@ -84,7 +83,9 @@ impl LL1Parser {
             String::from(self.grammar.get_start_symbol()),
         ];
 
-        let output = ParserOutput::new();
+        let mut parent_stack = Vec::new(); // indices of parent nodes
+        let mut output = ParserOutput::new();
+
         while let Some(stack_top) = stack.last() {
             if stack_top == EOF_TOKEN
                 && input
@@ -111,15 +112,16 @@ impl LL1Parser {
             match (stack_top.as_str(), &current_token.get_kind()) {
                 (_, TokenKind::EOF) | (EOF_TOKEN, _) => {
                     self.print_stack_trace(&stack);
-
-                    let error = format!("Parse error: unexpected end of input");
-                    return Err(error);
+                    return Err(String::from("Parse error: unexpected end of input"));
                 }
                 (top, _) if self.grammar.get_terminals().contains(top) => {
                     if top == token_symbol {
-                        stack.pop(); // match terminal
+                        let terminal = stack.pop(); // match terminal
                         input.remove(0);
-                        // TODO: add terminal node to output
+
+                        // add terminal node to output
+                        let parent_index = parent_stack.last();
+                        output.add_node(terminal, parent_index);
                     } else {
                         self.print_stack_trace(&stack);
 
@@ -134,9 +136,18 @@ impl LL1Parser {
                         .parsing_table
                         .get(&(String::from(top), String::from(token_symbol)))
                     {
-                        stack.pop(); // pop non-terminal
+                        let non_terminal = stack.pop(); // pop non-terminal
 
-                        // TODO: add non-terminal node to output
+                        // the non-terminal node becomes the new parent
+                        // for all subsequent nodes until the end of the production
+                        let new_parent = output.len();
+
+                        // add non-terminal node to output
+                        let parent_index = parent_stack.last();
+                        output.add_node(non_terminal, parent_index);
+
+                        // save the new parent index
+                        parent_stack.push(new_parent);
 
                         // push production onto the stack in reverse order
                         for sym in production.split_whitespace().rev() {
@@ -158,9 +169,7 @@ impl LL1Parser {
         }
 
         self.print_stack_trace(&stack);
-
-        let error = format!("Parse error: incomplete input");
-        Err(error)
+        Err(String::from("Parse error: incomplete input"))
     }
 
     fn print_stack_trace(&self, stack: &Vec<String>) {
