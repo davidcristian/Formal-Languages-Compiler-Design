@@ -1,17 +1,20 @@
 use super::hash_map::{HashMap, HashMapIter};
+use std::hash::Hash;
 
 pub struct Table<V> {
     table: HashMap<usize, V>,
+    inverse: HashMap<V, usize>,
     current_index: usize,
 }
 
 impl<V> Table<V>
 where
-    V: PartialEq,
+    V: Clone + Eq + Hash,
 {
     pub fn new() -> Self {
         Self {
             table: HashMap::new(),
+            inverse: HashMap::new(),
             current_index: 1,
         }
     }
@@ -22,14 +25,13 @@ where
 
     pub fn put(&mut self, value: V) -> usize {
         // check if the value already exists, if yes return the key
-        for (key, val) in &self.table {
-            if val == &value {
-                return *key;
-            }
+        if let Some(&key) = self.inverse.get(&value) {
+            return key;
         }
-
         let index = self.current_index;
-        self.table.insert(index, value);
+
+        self.table.insert(index, value.clone());
+        self.inverse.insert(value, index);
 
         self.current_index += 1;
         index
@@ -41,6 +43,7 @@ where
 
     pub fn clear(&mut self) {
         self.table.clear();
+        self.inverse.clear();
         self.current_index = 1;
     }
 }
