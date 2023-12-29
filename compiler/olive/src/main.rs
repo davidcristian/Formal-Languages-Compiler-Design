@@ -2,7 +2,7 @@ use parser::{Grammar, LL1Parser};
 use scanner::Scanner;
 
 fn main() {
-    let grammar_file = "../parser/input/grammar.in";
+    let grammar_file = "../parser/input/ll_pass.in";
     let grammar = match Grammar::new(grammar_file) {
         Ok(grammar) => grammar,
         Err(e) => {
@@ -21,7 +21,7 @@ fn main() {
         }
     };
 
-    let program = "../../programs/p3.oli";
+    let program = "../parser/input/program.test";
     match scanner.scan(program) {
         Ok(_) => {}
         Err(e) => {

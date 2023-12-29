@@ -29,7 +29,7 @@ fn test_pass_1() {
     let productions = grammar.get_productions();
 
     assert_eq!(non_terminals.len(), 5);
-    assert_eq!(terminals.len(), 3);
+    assert_eq!(terminals.len(), 4); // ε is added automatically
     assert_eq!(productions.len(), 5);
 
     let start_symbol = grammar.get_start_symbol();
@@ -47,7 +47,7 @@ fn test_pass_2() {
     let productions = grammar.get_productions();
 
     assert_eq!(non_terminals.len(), 2);
-    assert_eq!(terminals.len(), 2);
+    assert_eq!(terminals.len(), 3); // ε is added automatically
     assert_eq!(productions.len(), 2);
 
     let start_symbol = grammar.get_start_symbol();
@@ -65,7 +65,7 @@ fn test_fail_1() {
     let productions = grammar.get_productions();
 
     assert_eq!(non_terminals.len(), 3);
-    assert_eq!(terminals.len(), 2);
+    assert_eq!(terminals.len(), 3); // ε is added automatically
     assert_eq!(productions.len(), 2);
 
     let start_symbol = grammar.get_start_symbol();
@@ -83,7 +83,7 @@ fn test_fail_2() {
     let productions = grammar.get_productions();
 
     assert_eq!(non_terminals.len(), 2);
-    assert_eq!(terminals.len(), 2);
+    assert_eq!(terminals.len(), 3); // ε is added automatically
     assert_eq!(productions.len(), 2);
 
     let start_symbol = grammar.get_start_symbol();
@@ -96,34 +96,33 @@ fn test_fail_2() {
 fn test_first_follow_1() {
     let grammar = Grammar::new("input/ll_pass.in").unwrap();
 
-    assert_eq!(grammar.first("S"), Set::from([String::from("a")]));
-    assert_eq!(grammar.first("A"), Set::from([String::from("b")]));
     assert_eq!(
-        grammar.first("A'"),
-        Set::from([String::from("b"), String::from("ε")])
-    );
-    assert_eq!(grammar.first("B"), Set::from([String::from("b")]));
-    assert_eq!(
-        grammar.first("C"),
-        Set::from([String::from("a"), String::from("b")])
+        grammar.first("S"),
+        Set::from([String::from("("), String::from(")"), String::from("ε")])
     );
     assert_eq!(
-        grammar.first("C'"),
-        Set::from([String::from("b"), String::from("ε")])
+        grammar.first("A"),
+        Set::from([String::from("("), String::from(")"), String::from("ε")])
     );
-    assert_eq!(grammar.first("D"), Set::from([String::from("b")]));
+    assert_eq!(
+        grammar.first("B"),
+        Set::from([String::from("("), String::from(")")])
+    );
+    assert_eq!(grammar.first("("), Set::from([String::from("(")]));
+    assert_eq!(grammar.first(")"), Set::from([String::from(")")]));
 
     assert_eq!(grammar.follow("S"), Set::from([String::from("$")]));
     assert_eq!(grammar.follow("A"), Set::from([String::from("$")]));
-    assert_eq!(grammar.follow("A'"), Set::from([String::from("$")]));
     assert_eq!(
         grammar.follow("B"),
-        Set::from([String::from("b"), String::from("$")])
+        Set::from([String::from("("), String::from(")"), String::from("$")])
     );
-    assert_eq!(grammar.follow("C"), Set::from([String::from("$")]));
-    assert_eq!(grammar.follow("C'"), Set::from([String::from("$")]));
     assert_eq!(
-        grammar.follow("D"),
-        Set::from([String::from("b"), String::from("$")])
+        grammar.follow("("),
+        Set::from([String::from("("), String::from(")"), String::from("$")])
+    );
+    assert_eq!(
+        grammar.follow(")"),
+        Set::from([String::from("("), String::from(")"), String::from("$")])
     );
 }
