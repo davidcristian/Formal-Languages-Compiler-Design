@@ -12,6 +12,8 @@
           / '-----' \
 ```
 
+### 0. [Olive (Entry Point)](compiler/olive)
+
 ### 1. [Sample Programs](programs)
 
 ### 2. [Language Specification](specification)
@@ -23,3 +25,7 @@
 ### 5. [Deterministic Finite Automata](compiler/automata)
 
 ### 6. [LL(1) Parser](compiler/parser)
+
+<!--### 7. [Flex](compiler/flex)-->
+
+<!--### 8. [Bison](compiler/bison)-->
