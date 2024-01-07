@@ -19,18 +19,20 @@ escape          \\(\"|\\)
 character       {letter}|{digit}|{symbol}|{escape}
 
 number_constant ([+-]?{nonzero}{digit}*)|0
-char_constant   '{character}'
+char_constant   '{character}*'
 string_constant \"{character}*\"
 
 identifier      {letter}+
 bad_identifier  {digit}*{letter}+{digit}*
+
+comment         --
 newline         \r\n|\n
 
 %% /* Rules */
 
 [ \t]+                                                                  { /* Ignore spaces and tabs */ }
 
-"--".*{newline}                                                         { line_number++; }
+{comment}.*{newline}                                                    { line_number++; }
 
 {newline}                                                               { line_number++; }
 
@@ -42,7 +44,7 @@ newline         \r\n|\n
 
 {number_constant}                                                       { printf("Number constant: %s\n", yytext); }
 
-{char_constant}                                                         { printf("Character constant: %s\n", yytext); }
+{char_constant}                                                         { if (strlen(yytext) != 3) { printf("Lexical error on line %d: Invalid character constant %s\n", line_number, yytext); exit(1); } printf("Character constant: %s\n", yytext); }
 
 {string_constant}                                                       { printf("String constant: %s\n", yytext); }
 
