@@ -1,0 +1,6 @@
+# Intentionally include the .vscode folder for the build task
+!.vscode/
+
+# Ignore the generated files
+/lex
+/lex.yy.c

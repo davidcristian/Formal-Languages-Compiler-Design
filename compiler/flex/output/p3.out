@@ -1,0 +1,42 @@
+TOKENS:
+Identifier: num
+Separator: :
+Reserved word: number
+Identifier: n
+Separator: :
+Reserved word: number
+Reserved word: input
+Separator: (
+Identifier: n
+Separator: )
+Identifier: sum
+Separator: :
+Reserved word: number
+Operator: =
+Number constant: 0
+Reserved word: while
+Separator: (
+Identifier: n
+Operator: >
+Number constant: 0
+Separator: )
+Separator: {
+Reserved word: input
+Separator: (
+Identifier: num
+Separator: )
+Identifier: sum
+Operator: =
+Identifier: sum
+Operator: +
+Identifier: num
+Identifier: n
+Operator: =
+Identifier: n
+Operator: -
+Number constant: 1
+Separator: }
+Reserved word: output
+Separator: (
+Identifier: sum
+Separator: )

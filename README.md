@@ -26,6 +26,6 @@
 
 ### 6. [LL(1) Parser](compiler/parser)
 
-<!--### 7. [Flex](compiler/flex)-->
+### 7. [Flex](compiler/flex)
 
 <!--### 8. [Bison](compiler/bison)-->

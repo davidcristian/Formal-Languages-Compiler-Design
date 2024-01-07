@@ -1,0 +1,55 @@
+TOKENS:
+Identifier: a
+Separator: :
+Reserved word: number
+Separator: ,
+Identifier: b
+Separator: :
+Reserved word: number
+Separator: ,
+Identifier: c
+Separator: :
+Reserved word: number
+Reserved word: input
+Separator: (
+Identifier: a
+Separator: )
+Reserved word: input
+Separator: (
+Identifier: b
+Separator: )
+Reserved word: input
+Separator: (
+Identifier: c
+Separator: )
+Identifier: max
+Separator: :
+Reserved word: number
+Operator: =
+Identifier: a
+Reserved word: if
+Separator: (
+Identifier: b
+Operator: >
+Identifier: max
+Separator: )
+Separator: {
+Identifier: max
+Operator: =
+Identifier: b
+Separator: }
+Reserved word: if
+Separator: (
+Identifier: c
+Operator: >
+Identifier: max
+Separator: )
+Separator: {
+Identifier: max
+Operator: =
+Identifier: c
+Separator: }
+Reserved word: output
+Separator: (
+Identifier: max
+Separator: )
