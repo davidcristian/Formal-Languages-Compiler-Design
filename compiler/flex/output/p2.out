@@ -1,4 +1,4 @@
-TOKENS:
+Token list:
 Identifier: isPrime
 Separator: :
 Reserved word: number

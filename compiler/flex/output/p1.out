@@ -1,4 +1,4 @@
-TOKENS:
+Token list:
 Identifier: a
 Separator: :
 Reserved word: number

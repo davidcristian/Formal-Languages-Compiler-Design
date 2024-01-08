@@ -38,29 +38,57 @@ newline         \r\n|\n
 
 %% /* Rules */
 
-[ \t]+                                                                  { /* Ignore spaces and tabs */ }
+[ \t]+ {
+    /* Ignore spaces and tabs */
+}
 
-{comment}.*{newline}?                                                   { line_number++; }
+{comment}.*{newline}? {
+    line_number++;
+}
 
-{newline}                                                               { line_number++; }
+{newline} {
+    line_number++;
+}
 
-"number"|"char"|"string"|"array"|"input"|"output"|"if"|"else"|"while"   { printf("Reserved word: %s\n", yytext); }
+"number"|"char"|"string"|"array"|"input"|"output"|"if"|"else"|"while" {
+    printf("Reserved word: %s\n", yytext);
+}
 
-"+"|"-"|"*"|"/"|"%"|"="|"=="|"!="|"<"|">"|"<="|">="|"&&"|"||"           { printf("Operator: %s\n", yytext); }
+"+"|"-"|"*"|"/"|"%"|"="|"=="|"!="|"<"|">"|"<="|">="|"&&"|"||" {
+    printf("Operator: %s\n", yytext);
+}
 
-"("|")"|"["|"]"|"{"|"}"|":"|";"                                         { printf("Separator: %s\n", yytext); }
+"("|")"|"["|"]"|"{"|"}"|":"|";" {
+    printf("Separator: %s\n", yytext);
+}
 
-{number_constant}                                                       { printf("Number constant: %s\n", yytext); }
+{number_constant} {
+    printf("Number constant: %s\n", yytext);
+}
 
-{char_constant}                                                         { if (strlen(yytext) != 3) { lexical_error(&line_number, yytext); } else { printf("Character constant: %s\n", yytext); } }
+{char_constant} {
+    if (strlen(yytext) != 3) {
+        lexical_error(&line_number, yytext);
+    } else {
+        printf("Character constant: %s\n", yytext);
+    }
+}
 
-{string_constant}                                                       { printf("String constant: %s\n", yytext); }
+{string_constant} {
+    printf("String constant: %s\n", yytext);
+}
 
-{identifier}                                                            { printf("Identifier: %s\n", yytext); }
+{identifier} {
+    printf("Identifier: %s\n", yytext);
+}
 
-{bad_identifier}                                                        { lexical_error(&line_number, yytext); }
+{bad_identifier} {
+    lexical_error(&line_number, yytext);
+}
 
-.                                                                       { lexical_error(&line_number, yytext); }
+. {
+    lexical_error(&line_number, yytext);
+}
 
 %% /* Functions */
 
@@ -90,7 +118,7 @@ int main(int argc, char **argv) {
         yyin = stdin;
     }
 
-    printf("TOKENS:\n");
+    printf("Token list:\n");
     yylex();
 
     fclose(yyin);
