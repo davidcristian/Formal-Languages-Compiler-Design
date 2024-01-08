@@ -11,7 +11,7 @@ a. Special symbols, representing:
 - Assignment: =
 - Comparison: == != < > <= >=
 - Logical: && ||
-- Separators: whitespace ( ) [ ] { } < > : ,
+- Separators: whitespace ( ) [ ] { } < > : ;
 - Comments: --
 - Char: '
 - String: "

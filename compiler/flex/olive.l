@@ -48,7 +48,7 @@ newline         \r\n|\n
 
 "+"|"-"|"*"|"/"|"%"|"="|"=="|"!="|"<"|">"|"<="|">="|"&&"|"||"           { printf("Operator: %s\n", yytext); }
 
-"("|")"|"["|"]"|"{"|"}"|":"|","                                         { printf("Separator: %s\n", yytext); }
+"("|")"|"["|"]"|"{"|"}"|":"|";"                                         { printf("Separator: %s\n", yytext); }
 
 {number_constant}                                                       { printf("Number constant: %s\n", yytext); }
 

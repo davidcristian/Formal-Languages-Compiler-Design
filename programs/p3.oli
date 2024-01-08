@@ -1,14 +1,14 @@
 -- Compute the sum of n numbers
-num: number
+num: number;
 
-n: number
-input(n)
+n: number;
+input(n);
 
-sum: number = 0
+sum: number = 0;
 while (n > 0) {
-    input(num)
-    sum = sum + num
-    n = n - 1
-}
+    input(num);
+    sum = sum + num;
+    n = n - 1;
+};
 
-output(sum)
+output(sum);

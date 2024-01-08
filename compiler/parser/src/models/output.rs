@@ -69,11 +69,20 @@ impl ParserOutput {
         println!("Parse Tree:");
         for (index, node) in self.nodes.iter().enumerate() {
             let parent = self.get_symbol(node.parent);
-            let sibling = self.get_symbol(node.sibling);
+            let parent_index = match node.parent {
+                Some(index) => format!(" ({})", index),
+                None => String::from(""),
+            };
 
-            println!(
-                "Node {}: Symbol = {}, Parent = {}, Sibling = {}",
-                index, node.symbol, parent, sibling
+            let sibling = self.get_symbol(node.sibling);
+            let sibling_index = match node.sibling {
+                Some(index) => format!(" ({})", index),
+                None => String::from(""),
+            };
+
+            print!(
+                "Node {}: Symbol = {}, Parent = {}{}, Sibling = {}{}\n",
+                index, node.symbol, parent, parent_index, sibling, sibling_index
             );
         }
     }
@@ -90,11 +99,20 @@ impl ParserOutput {
         let mut output = String::new();
         for (index, node) in self.nodes.iter().enumerate() {
             let parent = self.get_symbol(node.parent);
+            let parent_index = match node.parent {
+                Some(index) => format!(" ({})", index),
+                None => String::from(""),
+            };
+
             let sibling = self.get_symbol(node.sibling);
+            let sibling_index = match node.sibling {
+                Some(index) => format!(" ({})", index),
+                None => String::from(""),
+            };
 
             output.push_str(&format!(
-                "Node {}: Symbol = {}, Parent = {}, Sibling = {}\n",
-                index, node.symbol, parent, sibling
+                "Node {}: Symbol = {}, Parent = {}{}, Sibling = {}{}\n",
+                index, node.symbol, parent, parent_index, sibling, sibling_index
             ));
         }
 

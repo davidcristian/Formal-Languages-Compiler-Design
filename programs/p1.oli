@@ -1,17 +1,19 @@
 -- Compute the maximum of three numbers
-a: number, b: number, c: number
+a: number;
+b: number;
+c: number;
 
-input(a)
-input(b)
-input(c)
+input(a);
+input(b);
+input(c);
 
-max: number = a
+max: number = a;
 if (b > max) {
-    max = b
-}
+    max = b;
+};
 
 if (c > max) {
-    max = c
-}
+    max = c;
+};
 
-output(max)
+output(max);

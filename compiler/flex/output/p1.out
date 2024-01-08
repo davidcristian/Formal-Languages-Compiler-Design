@@ -2,31 +2,36 @@ TOKENS:
 Identifier: a
 Separator: :
 Reserved word: number
-Separator: ,
+Separator: ;
 Identifier: b
 Separator: :
 Reserved word: number
-Separator: ,
+Separator: ;
 Identifier: c
 Separator: :
 Reserved word: number
+Separator: ;
 Reserved word: input
 Separator: (
 Identifier: a
 Separator: )
+Separator: ;
 Reserved word: input
 Separator: (
 Identifier: b
 Separator: )
+Separator: ;
 Reserved word: input
 Separator: (
 Identifier: c
 Separator: )
+Separator: ;
 Identifier: max
 Separator: :
 Reserved word: number
 Operator: =
 Identifier: a
+Separator: ;
 Reserved word: if
 Separator: (
 Identifier: b
@@ -37,7 +42,9 @@ Separator: {
 Identifier: max
 Operator: =
 Identifier: b
+Separator: ;
 Separator: }
+Separator: ;
 Reserved word: if
 Separator: (
 Identifier: c
@@ -48,8 +55,11 @@ Separator: {
 Identifier: max
 Operator: =
 Identifier: c
+Separator: ;
 Separator: }
+Separator: ;
 Reserved word: output
 Separator: (
 Identifier: max
 Separator: )
+Separator: ;

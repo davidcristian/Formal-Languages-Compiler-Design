@@ -1,169 +1,167 @@
 Node 0: Symbol = Program, Parent = None, Sibling = None
-Node 1: Symbol = StatementList, Parent = Program, Sibling = None
-Node 2: Symbol = Statement, Parent = StatementList, Sibling = None
-Node 3: Symbol = num, Parent = Statement, Sibling = StatementTail
-Node 4: Symbol = StatementTail, Parent = Statement, Sibling = None
-Node 5: Symbol = :, Parent = StatementTail, Sibling = DeclarationTail
-Node 6: Symbol = DeclarationTail, Parent = StatementTail, Sibling = None
-Node 7: Symbol = Type, Parent = DeclarationTail, Sibling = None
-Node 8: Symbol = Primitive, Parent = Type, Sibling = None
-Node 9: Symbol = number, Parent = Primitive, Sibling = OptionalAssignment
-Node 10: Symbol = OptionalAssignment, Parent = Primitive, Sibling = None
-Node 11: Symbol = NewLine, Parent = OptionalAssignment, Sibling = None
-Node 12: Symbol = \n, Parent = NewLine, Sibling = StatementList
-Node 13: Symbol = StatementList, Parent = NewLine, Sibling = None
-Node 14: Symbol = Statement, Parent = StatementList, Sibling = None
-Node 15: Symbol = n, Parent = Statement, Sibling = StatementTail
-Node 16: Symbol = StatementTail, Parent = Statement, Sibling = None
-Node 17: Symbol = :, Parent = StatementTail, Sibling = DeclarationTail
-Node 18: Symbol = DeclarationTail, Parent = StatementTail, Sibling = None
-Node 19: Symbol = Type, Parent = DeclarationTail, Sibling = None
-Node 20: Symbol = Primitive, Parent = Type, Sibling = None
-Node 21: Symbol = number, Parent = Primitive, Sibling = OptionalAssignment
-Node 22: Symbol = OptionalAssignment, Parent = Primitive, Sibling = None
-Node 23: Symbol = NewLine, Parent = OptionalAssignment, Sibling = None
-Node 24: Symbol = \n, Parent = NewLine, Sibling = StatementList
-Node 25: Symbol = StatementList, Parent = NewLine, Sibling = None
-Node 26: Symbol = Statement, Parent = StatementList, Sibling = None
-Node 27: Symbol = IOStatement, Parent = Statement, Sibling = None
-Node 28: Symbol = input, Parent = IOStatement, Sibling = (
-Node 29: Symbol = (, Parent = IOStatement, Sibling = Variable
-Node 30: Symbol = Variable, Parent = IOStatement, Sibling = None
-Node 31: Symbol = n, Parent = Variable, Sibling = VariableTail
-Node 32: Symbol = VariableTail, Parent = Variable, Sibling = None
-Node 33: Symbol = ), Parent = VariableTail, Sibling = NewLine
-Node 34: Symbol = NewLine, Parent = VariableTail, Sibling = None
-Node 35: Symbol = \n, Parent = NewLine, Sibling = StatementList
-Node 36: Symbol = StatementList, Parent = NewLine, Sibling = None
-Node 37: Symbol = Statement, Parent = StatementList, Sibling = None
-Node 38: Symbol = sum, Parent = Statement, Sibling = StatementTail
-Node 39: Symbol = StatementTail, Parent = Statement, Sibling = None
-Node 40: Symbol = :, Parent = StatementTail, Sibling = DeclarationTail
-Node 41: Symbol = DeclarationTail, Parent = StatementTail, Sibling = None
-Node 42: Symbol = Type, Parent = DeclarationTail, Sibling = None
-Node 43: Symbol = Primitive, Parent = Type, Sibling = None
-Node 44: Symbol = number, Parent = Primitive, Sibling = OptionalAssignment
-Node 45: Symbol = OptionalAssignment, Parent = Primitive, Sibling = None
-Node 46: Symbol = =, Parent = OptionalAssignment, Sibling = Expression
-Node 47: Symbol = Expression, Parent = OptionalAssignment, Sibling = None
-Node 48: Symbol = Term, Parent = Expression, Sibling = None
-Node 49: Symbol = Factor, Parent = Term, Sibling = None
-Node 50: Symbol = Value, Parent = Factor, Sibling = None
-Node 51: Symbol = 0, Parent = Value, Sibling = TermTail
-Node 52: Symbol = TermTail, Parent = Value, Sibling = None
-Node 53: Symbol = ExpressionTail, Parent = TermTail, Sibling = None
-Node 54: Symbol = NewLine, Parent = ExpressionTail, Sibling = None
-Node 55: Symbol = \n, Parent = NewLine, Sibling = StatementList
-Node 56: Symbol = StatementList, Parent = NewLine, Sibling = None
-Node 57: Symbol = Statement, Parent = StatementList, Sibling = None
-Node 58: Symbol = WhileStatement, Parent = Statement, Sibling = None
-Node 59: Symbol = while, Parent = WhileStatement, Sibling = (
-Node 60: Symbol = (, Parent = WhileStatement, Sibling = Conditions
-Node 61: Symbol = Conditions, Parent = WhileStatement, Sibling = None
-Node 62: Symbol = Condition, Parent = Conditions, Sibling = None
-Node 63: Symbol = SimpleCondition, Parent = Condition, Sibling = None
-Node 64: Symbol = Expression, Parent = SimpleCondition, Sibling = None
-Node 65: Symbol = Term, Parent = Expression, Sibling = None
-Node 66: Symbol = Factor, Parent = Term, Sibling = None
-Node 67: Symbol = Value, Parent = Factor, Sibling = None
-Node 68: Symbol = Variable, Parent = Value, Sibling = None
-Node 69: Symbol = n, Parent = Variable, Sibling = VariableTail
-Node 70: Symbol = VariableTail, Parent = Variable, Sibling = None
-Node 71: Symbol = TermTail, Parent = VariableTail, Sibling = None
-Node 72: Symbol = ExpressionTail, Parent = TermTail, Sibling = None
-Node 73: Symbol = Relation, Parent = ExpressionTail, Sibling = None
-Node 74: Symbol = >, Parent = Relation, Sibling = Expression
-Node 75: Symbol = Expression, Parent = Relation, Sibling = None
-Node 76: Symbol = Term, Parent = Expression, Sibling = None
-Node 77: Symbol = Factor, Parent = Term, Sibling = None
-Node 78: Symbol = Value, Parent = Factor, Sibling = None
-Node 79: Symbol = 0, Parent = Value, Sibling = TermTail
-Node 80: Symbol = TermTail, Parent = Value, Sibling = None
-Node 81: Symbol = ExpressionTail, Parent = TermTail, Sibling = None
-Node 82: Symbol = ConditionTail, Parent = ExpressionTail, Sibling = None
-Node 83: Symbol = ConditionsTail, Parent = ConditionTail, Sibling = None
-Node 84: Symbol = ), Parent = ConditionsTail, Sibling = CompoundStatement
-Node 85: Symbol = CompoundStatement, Parent = ConditionsTail, Sibling = None
-Node 86: Symbol = {, Parent = CompoundStatement, Sibling = StatementList
-Node 87: Symbol = StatementList, Parent = CompoundStatement, Sibling = None
-Node 88: Symbol = Statement, Parent = StatementList, Sibling = None
-Node 89: Symbol = IOStatement, Parent = Statement, Sibling = None
-Node 90: Symbol = input, Parent = IOStatement, Sibling = (
-Node 91: Symbol = (, Parent = IOStatement, Sibling = Variable
-Node 92: Symbol = Variable, Parent = IOStatement, Sibling = None
-Node 93: Symbol = num, Parent = Variable, Sibling = VariableTail
-Node 94: Symbol = VariableTail, Parent = Variable, Sibling = None
-Node 95: Symbol = ), Parent = VariableTail, Sibling = NewLine
-Node 96: Symbol = NewLine, Parent = VariableTail, Sibling = None
-Node 97: Symbol = \n, Parent = NewLine, Sibling = StatementList
-Node 98: Symbol = StatementList, Parent = NewLine, Sibling = None
-Node 99: Symbol = Statement, Parent = StatementList, Sibling = None
-Node 100: Symbol = sum, Parent = Statement, Sibling = StatementTail
-Node 101: Symbol = StatementTail, Parent = Statement, Sibling = None
-Node 102: Symbol = VariableTail, Parent = StatementTail, Sibling = None
-Node 103: Symbol = =, Parent = VariableTail, Sibling = Expression
-Node 104: Symbol = Expression, Parent = VariableTail, Sibling = None
-Node 105: Symbol = Term, Parent = Expression, Sibling = None
-Node 106: Symbol = Factor, Parent = Term, Sibling = None
-Node 107: Symbol = Value, Parent = Factor, Sibling = None
-Node 108: Symbol = Variable, Parent = Value, Sibling = None
-Node 109: Symbol = sum, Parent = Variable, Sibling = VariableTail
-Node 110: Symbol = VariableTail, Parent = Variable, Sibling = None
-Node 111: Symbol = TermTail, Parent = VariableTail, Sibling = None
-Node 112: Symbol = ExpressionTail, Parent = TermTail, Sibling = None
-Node 113: Symbol = +, Parent = ExpressionTail, Sibling = Term
-Node 114: Symbol = Term, Parent = ExpressionTail, Sibling = None
-Node 115: Symbol = Factor, Parent = Term, Sibling = None
-Node 116: Symbol = Value, Parent = Factor, Sibling = None
-Node 117: Symbol = Variable, Parent = Value, Sibling = None
-Node 118: Symbol = num, Parent = Variable, Sibling = VariableTail
-Node 119: Symbol = VariableTail, Parent = Variable, Sibling = None
-Node 120: Symbol = TermTail, Parent = VariableTail, Sibling = None
-Node 121: Symbol = ExpressionTail, Parent = TermTail, Sibling = None
-Node 122: Symbol = NewLine, Parent = ExpressionTail, Sibling = None
-Node 123: Symbol = \n, Parent = NewLine, Sibling = StatementList
-Node 124: Symbol = StatementList, Parent = NewLine, Sibling = None
-Node 125: Symbol = Statement, Parent = StatementList, Sibling = None
-Node 126: Symbol = n, Parent = Statement, Sibling = StatementTail
-Node 127: Symbol = StatementTail, Parent = Statement, Sibling = None
-Node 128: Symbol = VariableTail, Parent = StatementTail, Sibling = None
-Node 129: Symbol = =, Parent = VariableTail, Sibling = Expression
-Node 130: Symbol = Expression, Parent = VariableTail, Sibling = None
-Node 131: Symbol = Term, Parent = Expression, Sibling = None
-Node 132: Symbol = Factor, Parent = Term, Sibling = None
-Node 133: Symbol = Value, Parent = Factor, Sibling = None
-Node 134: Symbol = Variable, Parent = Value, Sibling = None
-Node 135: Symbol = n, Parent = Variable, Sibling = VariableTail
-Node 136: Symbol = VariableTail, Parent = Variable, Sibling = None
-Node 137: Symbol = TermTail, Parent = VariableTail, Sibling = None
-Node 138: Symbol = ExpressionTail, Parent = TermTail, Sibling = None
-Node 139: Symbol = -, Parent = ExpressionTail, Sibling = Term
-Node 140: Symbol = Term, Parent = ExpressionTail, Sibling = None
-Node 141: Symbol = Factor, Parent = Term, Sibling = None
-Node 142: Symbol = Value, Parent = Factor, Sibling = None
-Node 143: Symbol = 1, Parent = Value, Sibling = TermTail
-Node 144: Symbol = TermTail, Parent = Value, Sibling = None
-Node 145: Symbol = ExpressionTail, Parent = TermTail, Sibling = None
-Node 146: Symbol = NewLine, Parent = ExpressionTail, Sibling = None
-Node 147: Symbol = \n, Parent = NewLine, Sibling = StatementList
-Node 148: Symbol = StatementList, Parent = NewLine, Sibling = None
-Node 149: Symbol = }, Parent = StatementList, Sibling = NewLine
-Node 150: Symbol = NewLine, Parent = StatementList, Sibling = None
-Node 151: Symbol = \n, Parent = NewLine, Sibling = StatementList
-Node 152: Symbol = StatementList, Parent = NewLine, Sibling = None
-Node 153: Symbol = Statement, Parent = StatementList, Sibling = None
-Node 154: Symbol = IOStatement, Parent = Statement, Sibling = None
-Node 155: Symbol = output, Parent = IOStatement, Sibling = (
-Node 156: Symbol = (, Parent = IOStatement, Sibling = Expression
-Node 157: Symbol = Expression, Parent = IOStatement, Sibling = None
-Node 158: Symbol = Term, Parent = Expression, Sibling = None
-Node 159: Symbol = Factor, Parent = Term, Sibling = None
-Node 160: Symbol = Value, Parent = Factor, Sibling = None
-Node 161: Symbol = Variable, Parent = Value, Sibling = None
-Node 162: Symbol = sum, Parent = Variable, Sibling = VariableTail
-Node 163: Symbol = VariableTail, Parent = Variable, Sibling = None
-Node 164: Symbol = TermTail, Parent = VariableTail, Sibling = None
-Node 165: Symbol = ExpressionTail, Parent = TermTail, Sibling = None
-Node 166: Symbol = ), Parent = ExpressionTail, Sibling = NewLine
-Node 167: Symbol = NewLine, Parent = ExpressionTail, Sibling = None
-Node 168: Symbol = \n, Parent = NewLine, Sibling = None
+Node 1: Symbol = StatementList, Parent = Program (0), Sibling = None
+Node 2: Symbol = Statement, Parent = StatementList (1), Sibling = None
+Node 3: Symbol = num, Parent = Statement (2), Sibling = StatementTail (4)
+Node 4: Symbol = StatementTail, Parent = Statement (2), Sibling = None
+Node 5: Symbol = :, Parent = StatementTail (4), Sibling = Declaration (6)
+Node 6: Symbol = Declaration, Parent = StatementTail (4), Sibling = None
+Node 7: Symbol = Type, Parent = Declaration (6), Sibling = None
+Node 8: Symbol = Primitive, Parent = Type (7), Sibling = None
+Node 9: Symbol = number, Parent = Primitive (8), Sibling = OptionalAssignment (10)
+Node 10: Symbol = OptionalAssignment, Parent = Primitive (8), Sibling = None
+Node 11: Symbol = ;, Parent = OptionalAssignment (10), Sibling = StatementListTail (12)
+Node 12: Symbol = StatementListTail, Parent = OptionalAssignment (10), Sibling = None
+Node 13: Symbol = StatementList, Parent = StatementListTail (12), Sibling = None
+Node 14: Symbol = Statement, Parent = StatementList (13), Sibling = None
+Node 15: Symbol = n, Parent = Statement (14), Sibling = StatementTail (16)
+Node 16: Symbol = StatementTail, Parent = Statement (14), Sibling = None
+Node 17: Symbol = :, Parent = StatementTail (16), Sibling = Declaration (18)
+Node 18: Symbol = Declaration, Parent = StatementTail (16), Sibling = None
+Node 19: Symbol = Type, Parent = Declaration (18), Sibling = None
+Node 20: Symbol = Primitive, Parent = Type (19), Sibling = None
+Node 21: Symbol = number, Parent = Primitive (20), Sibling = OptionalAssignment (22)
+Node 22: Symbol = OptionalAssignment, Parent = Primitive (20), Sibling = None
+Node 23: Symbol = ;, Parent = OptionalAssignment (22), Sibling = StatementListTail (24)
+Node 24: Symbol = StatementListTail, Parent = OptionalAssignment (22), Sibling = None
+Node 25: Symbol = StatementList, Parent = StatementListTail (24), Sibling = None
+Node 26: Symbol = Statement, Parent = StatementList (25), Sibling = None
+Node 27: Symbol = IOStatement, Parent = Statement (26), Sibling = None
+Node 28: Symbol = input, Parent = IOStatement (27), Sibling = ( (29)
+Node 29: Symbol = (, Parent = IOStatement (27), Sibling = Variable (30)
+Node 30: Symbol = Variable, Parent = IOStatement (27), Sibling = None
+Node 31: Symbol = n, Parent = Variable (30), Sibling = OptionalArray (32)
+Node 32: Symbol = OptionalArray, Parent = Variable (30), Sibling = None
+Node 33: Symbol = ), Parent = OptionalArray (32), Sibling = ; (34)
+Node 34: Symbol = ;, Parent = OptionalArray (32), Sibling = StatementListTail (35)
+Node 35: Symbol = StatementListTail, Parent = OptionalArray (32), Sibling = None
+Node 36: Symbol = StatementList, Parent = StatementListTail (35), Sibling = None
+Node 37: Symbol = Statement, Parent = StatementList (36), Sibling = None
+Node 38: Symbol = sum, Parent = Statement (37), Sibling = StatementTail (39)
+Node 39: Symbol = StatementTail, Parent = Statement (37), Sibling = None
+Node 40: Symbol = :, Parent = StatementTail (39), Sibling = Declaration (41)
+Node 41: Symbol = Declaration, Parent = StatementTail (39), Sibling = None
+Node 42: Symbol = Type, Parent = Declaration (41), Sibling = None
+Node 43: Symbol = Primitive, Parent = Type (42), Sibling = None
+Node 44: Symbol = number, Parent = Primitive (43), Sibling = OptionalAssignment (45)
+Node 45: Symbol = OptionalAssignment, Parent = Primitive (43), Sibling = None
+Node 46: Symbol = =, Parent = OptionalAssignment (45), Sibling = Expression (47)
+Node 47: Symbol = Expression, Parent = OptionalAssignment (45), Sibling = None
+Node 48: Symbol = Term, Parent = Expression (47), Sibling = None
+Node 49: Symbol = Factor, Parent = Term (48), Sibling = None
+Node 50: Symbol = Value, Parent = Factor (49), Sibling = None
+Node 51: Symbol = 0, Parent = Value (50), Sibling = TermTail (52)
+Node 52: Symbol = TermTail, Parent = Value (50), Sibling = None
+Node 53: Symbol = ExpressionTail, Parent = TermTail (52), Sibling = None
+Node 54: Symbol = ;, Parent = ExpressionTail (53), Sibling = StatementListTail (55)
+Node 55: Symbol = StatementListTail, Parent = ExpressionTail (53), Sibling = None
+Node 56: Symbol = StatementList, Parent = StatementListTail (55), Sibling = None
+Node 57: Symbol = Statement, Parent = StatementList (56), Sibling = None
+Node 58: Symbol = WhileStatement, Parent = Statement (57), Sibling = None
+Node 59: Symbol = while, Parent = WhileStatement (58), Sibling = ( (60)
+Node 60: Symbol = (, Parent = WhileStatement (58), Sibling = Conditions (61)
+Node 61: Symbol = Conditions, Parent = WhileStatement (58), Sibling = None
+Node 62: Symbol = Condition, Parent = Conditions (61), Sibling = None
+Node 63: Symbol = SimpleCondition, Parent = Condition (62), Sibling = None
+Node 64: Symbol = Expression, Parent = SimpleCondition (63), Sibling = None
+Node 65: Symbol = Term, Parent = Expression (64), Sibling = None
+Node 66: Symbol = Factor, Parent = Term (65), Sibling = None
+Node 67: Symbol = Value, Parent = Factor (66), Sibling = None
+Node 68: Symbol = Variable, Parent = Value (67), Sibling = None
+Node 69: Symbol = n, Parent = Variable (68), Sibling = OptionalArray (70)
+Node 70: Symbol = OptionalArray, Parent = Variable (68), Sibling = None
+Node 71: Symbol = TermTail, Parent = OptionalArray (70), Sibling = None
+Node 72: Symbol = ExpressionTail, Parent = TermTail (71), Sibling = None
+Node 73: Symbol = Relation, Parent = ExpressionTail (72), Sibling = None
+Node 74: Symbol = >, Parent = Relation (73), Sibling = Expression (75)
+Node 75: Symbol = Expression, Parent = Relation (73), Sibling = None
+Node 76: Symbol = Term, Parent = Expression (75), Sibling = None
+Node 77: Symbol = Factor, Parent = Term (76), Sibling = None
+Node 78: Symbol = Value, Parent = Factor (77), Sibling = None
+Node 79: Symbol = 0, Parent = Value (78), Sibling = TermTail (80)
+Node 80: Symbol = TermTail, Parent = Value (78), Sibling = None
+Node 81: Symbol = ExpressionTail, Parent = TermTail (80), Sibling = None
+Node 82: Symbol = ConditionTail, Parent = ExpressionTail (81), Sibling = None
+Node 83: Symbol = ConditionsTail, Parent = ConditionTail (82), Sibling = None
+Node 84: Symbol = ), Parent = ConditionsTail (83), Sibling = CompoundStatement (85)
+Node 85: Symbol = CompoundStatement, Parent = ConditionsTail (83), Sibling = None
+Node 86: Symbol = {, Parent = CompoundStatement (85), Sibling = StatementList (87)
+Node 87: Symbol = StatementList, Parent = CompoundStatement (85), Sibling = None
+Node 88: Symbol = Statement, Parent = StatementList (87), Sibling = None
+Node 89: Symbol = IOStatement, Parent = Statement (88), Sibling = None
+Node 90: Symbol = input, Parent = IOStatement (89), Sibling = ( (91)
+Node 91: Symbol = (, Parent = IOStatement (89), Sibling = Variable (92)
+Node 92: Symbol = Variable, Parent = IOStatement (89), Sibling = None
+Node 93: Symbol = num, Parent = Variable (92), Sibling = OptionalArray (94)
+Node 94: Symbol = OptionalArray, Parent = Variable (92), Sibling = None
+Node 95: Symbol = ), Parent = OptionalArray (94), Sibling = ; (96)
+Node 96: Symbol = ;, Parent = OptionalArray (94), Sibling = StatementListTail (97)
+Node 97: Symbol = StatementListTail, Parent = OptionalArray (94), Sibling = None
+Node 98: Symbol = StatementList, Parent = StatementListTail (97), Sibling = None
+Node 99: Symbol = Statement, Parent = StatementList (98), Sibling = None
+Node 100: Symbol = sum, Parent = Statement (99), Sibling = StatementTail (101)
+Node 101: Symbol = StatementTail, Parent = Statement (99), Sibling = None
+Node 102: Symbol = OptionalArray, Parent = StatementTail (101), Sibling = None
+Node 103: Symbol = =, Parent = OptionalArray (102), Sibling = Expression (104)
+Node 104: Symbol = Expression, Parent = OptionalArray (102), Sibling = None
+Node 105: Symbol = Term, Parent = Expression (104), Sibling = None
+Node 106: Symbol = Factor, Parent = Term (105), Sibling = None
+Node 107: Symbol = Value, Parent = Factor (106), Sibling = None
+Node 108: Symbol = Variable, Parent = Value (107), Sibling = None
+Node 109: Symbol = sum, Parent = Variable (108), Sibling = OptionalArray (110)
+Node 110: Symbol = OptionalArray, Parent = Variable (108), Sibling = None
+Node 111: Symbol = TermTail, Parent = OptionalArray (110), Sibling = None
+Node 112: Symbol = ExpressionTail, Parent = TermTail (111), Sibling = None
+Node 113: Symbol = +, Parent = ExpressionTail (112), Sibling = Term (114)
+Node 114: Symbol = Term, Parent = ExpressionTail (112), Sibling = None
+Node 115: Symbol = Factor, Parent = Term (114), Sibling = None
+Node 116: Symbol = Value, Parent = Factor (115), Sibling = None
+Node 117: Symbol = Variable, Parent = Value (116), Sibling = None
+Node 118: Symbol = num, Parent = Variable (117), Sibling = OptionalArray (119)
+Node 119: Symbol = OptionalArray, Parent = Variable (117), Sibling = None
+Node 120: Symbol = TermTail, Parent = OptionalArray (119), Sibling = None
+Node 121: Symbol = ExpressionTail, Parent = TermTail (120), Sibling = None
+Node 122: Symbol = ;, Parent = ExpressionTail (121), Sibling = StatementListTail (123)
+Node 123: Symbol = StatementListTail, Parent = ExpressionTail (121), Sibling = None
+Node 124: Symbol = StatementList, Parent = StatementListTail (123), Sibling = None
+Node 125: Symbol = Statement, Parent = StatementList (124), Sibling = None
+Node 126: Symbol = n, Parent = Statement (125), Sibling = StatementTail (127)
+Node 127: Symbol = StatementTail, Parent = Statement (125), Sibling = None
+Node 128: Symbol = OptionalArray, Parent = StatementTail (127), Sibling = None
+Node 129: Symbol = =, Parent = OptionalArray (128), Sibling = Expression (130)
+Node 130: Symbol = Expression, Parent = OptionalArray (128), Sibling = None
+Node 131: Symbol = Term, Parent = Expression (130), Sibling = None
+Node 132: Symbol = Factor, Parent = Term (131), Sibling = None
+Node 133: Symbol = Value, Parent = Factor (132), Sibling = None
+Node 134: Symbol = Variable, Parent = Value (133), Sibling = None
+Node 135: Symbol = n, Parent = Variable (134), Sibling = OptionalArray (136)
+Node 136: Symbol = OptionalArray, Parent = Variable (134), Sibling = None
+Node 137: Symbol = TermTail, Parent = OptionalArray (136), Sibling = None
+Node 138: Symbol = ExpressionTail, Parent = TermTail (137), Sibling = None
+Node 139: Symbol = -, Parent = ExpressionTail (138), Sibling = Term (140)
+Node 140: Symbol = Term, Parent = ExpressionTail (138), Sibling = None
+Node 141: Symbol = Factor, Parent = Term (140), Sibling = None
+Node 142: Symbol = Value, Parent = Factor (141), Sibling = None
+Node 143: Symbol = 1, Parent = Value (142), Sibling = TermTail (144)
+Node 144: Symbol = TermTail, Parent = Value (142), Sibling = None
+Node 145: Symbol = ExpressionTail, Parent = TermTail (144), Sibling = None
+Node 146: Symbol = ;, Parent = ExpressionTail (145), Sibling = StatementListTail (147)
+Node 147: Symbol = StatementListTail, Parent = ExpressionTail (145), Sibling = None
+Node 148: Symbol = }, Parent = StatementListTail (147), Sibling = ; (149)
+Node 149: Symbol = ;, Parent = StatementListTail (147), Sibling = StatementListTail (150)
+Node 150: Symbol = StatementListTail, Parent = StatementListTail (147), Sibling = None
+Node 151: Symbol = StatementList, Parent = StatementListTail (150), Sibling = None
+Node 152: Symbol = Statement, Parent = StatementList (151), Sibling = None
+Node 153: Symbol = IOStatement, Parent = Statement (152), Sibling = None
+Node 154: Symbol = output, Parent = IOStatement (153), Sibling = ( (155)
+Node 155: Symbol = (, Parent = IOStatement (153), Sibling = Expression (156)
+Node 156: Symbol = Expression, Parent = IOStatement (153), Sibling = None
+Node 157: Symbol = Term, Parent = Expression (156), Sibling = None
+Node 158: Symbol = Factor, Parent = Term (157), Sibling = None
+Node 159: Symbol = Value, Parent = Factor (158), Sibling = None
+Node 160: Symbol = Variable, Parent = Value (159), Sibling = None
+Node 161: Symbol = sum, Parent = Variable (160), Sibling = OptionalArray (162)
+Node 162: Symbol = OptionalArray, Parent = Variable (160), Sibling = None
+Node 163: Symbol = TermTail, Parent = OptionalArray (162), Sibling = None
+Node 164: Symbol = ExpressionTail, Parent = TermTail (163), Sibling = None
+Node 165: Symbol = ), Parent = ExpressionTail (164), Sibling = ; (166)
+Node 166: Symbol = ;, Parent = ExpressionTail (164), Sibling = None

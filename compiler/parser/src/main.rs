@@ -1,5 +1,6 @@
 mod models;
 mod tests;
+mod utils;
 
 use models::grammar::Grammar;
 use models::parser::LL1Parser;

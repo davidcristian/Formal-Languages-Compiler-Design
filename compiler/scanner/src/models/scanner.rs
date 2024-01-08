@@ -4,7 +4,7 @@ use super::automata::Automata;
 use hash_map::Table;
 
 use super::token::{Token, TokenKind};
-use crate::utils::constants::{EOF_CHAR, LINE_COMMENT, NEWLINE_CHAR, NEWLINE_TOKEN};
+use crate::utils::constants::{EOF_CHAR, LINE_COMMENT, NEWLINE_CHAR};
 use crate::utils::writer::write_scan_result;
 
 pub struct Scanner {
@@ -78,7 +78,8 @@ impl Scanner {
     pub fn scan(&mut self, input_file: &str) -> Result<(), String> {
         println!("Scanning '{}'", input_file);
         self.raw_program = match fs::read_to_string(input_file) {
-            Ok(program) => program.replace("\r\n", "\n").chars().collect(),
+            // Ok(program) => program.replace("\r\n", "\n").chars().collect(),
+            Ok(program) => program.chars().collect(),
             Err(e) => {
                 let error = format!("could not read program file: {}", e.to_string());
                 return Err(error);
@@ -150,57 +151,72 @@ impl Scanner {
 
         // start parsing the token
         self.advance(1);
+        let next = self.current();
+
+        let mut token_value = String::from(current);
         let kind = match current {
             // Special Symbols and Operators
-            '+' => match self.current().is_ascii_digit() {
+            '+' => match next.is_ascii_digit() {
                 true => TokenKind::Unknown,
                 false => TokenKind::Plus,
             },
-            '-' => match self.current().is_ascii_digit() {
+            '-' => match next.is_ascii_digit() {
                 true => TokenKind::Unknown,
                 false => TokenKind::Minus,
             },
             '*' => TokenKind::Multiply,
             '/' => TokenKind::Divide,
             '%' => TokenKind::Modulo,
-            '=' => match self.current() {
+            '=' => match next {
                 &'=' => {
+                    token_value.push(*next);
                     self.advance(1);
+
                     TokenKind::Equal
                 }
                 _ => TokenKind::Assign,
             },
-            '!' => match self.current() {
+            '!' => match next {
                 &'=' => {
+                    token_value.push(*next);
                     self.advance(1);
+
                     TokenKind::NotEqual
                 }
                 _ => TokenKind::Unknown,
             },
-            '<' => match self.current() {
+            '<' => match next {
                 &'=' => {
+                    token_value.push(*next);
                     self.advance(1);
+
                     TokenKind::LessEqual
                 }
                 _ => TokenKind::Less,
             },
-            '>' => match self.current() {
+            '>' => match next {
                 &'=' => {
+                    token_value.push(*next);
                     self.advance(1);
+
                     TokenKind::GreaterEqual
                 }
                 _ => TokenKind::Greater,
             },
-            '&' => match self.current() {
+            '&' => match next {
                 &'&' => {
+                    token_value.push(*next);
                     self.advance(1);
+
                     TokenKind::And
                 }
                 _ => TokenKind::Unknown,
             },
-            '|' => match self.current() {
+            '|' => match next {
                 &'|' => {
+                    token_value.push(*next);
                     self.advance(1);
+
                     TokenKind::Or
                 }
                 _ => TokenKind::Unknown,
@@ -214,6 +230,7 @@ impl Scanner {
             '[' => TokenKind::BracketOpen,
             ']' => TokenKind::BracketClose,
             ',' => TokenKind::Comma,
+            ';' => TokenKind::SemiColon,
             ':' => TokenKind::Colon,
 
             // Other
@@ -226,7 +243,7 @@ impl Scanner {
         let token = match kind {
             TokenKind::Unknown => self.consume_general(&current),
             TokenKind::Constant => self.consume_literal(&current),
-            _ => Token::new(kind, &String::from(current)),
+            _ => Token::new(kind, &token_value),
         };
 
         Some(token)
@@ -301,42 +318,13 @@ impl Scanner {
     }
 
     fn consume_whitespace(&mut self) {
-        let mut newlines = 0;
-
         // keep reading until we reach a non-whitespace character
         while self.current().is_whitespace() {
             if self.current() == NEWLINE_CHAR {
-                newlines += 1;
+                self.current_line += 1;
             }
 
             self.advance(1);
-        }
-
-        // add a statement separator token if we have newlines
-        if newlines > 0 {
-            self.current_line += newlines;
-            self.add_separator_token();
-        }
-    }
-
-    fn add_separator_token(&mut self) {
-        // don't add a separator token if there are no tokens yet
-        // => the program may have started with comments or whitespace
-        if self.token_list.is_empty() {
-            return;
-        }
-
-        // don't add a separator token if the last
-        // token is part of the blacklisted tokens
-        if let Some(token) = self.token_list.last() {
-            match token.get_kind() {
-                TokenKind::NewLine => return,
-                TokenKind::BraceOpen => return,
-                _ => {
-                    let token = Token::new(TokenKind::NewLine, &String::from(NEWLINE_TOKEN));
-                    self.token_list.push(token);
-                }
-            }
         }
     }
 }

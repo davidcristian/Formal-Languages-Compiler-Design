@@ -19,22 +19,20 @@ constant ::= number_constant | char_constant | string_constant
 identifier ::= letter {letter}
 
 program ::= statement_list
-new_lines ::= "\r\n" | "\n" | "\r\n" new_lines | "\n" new_lines
 
 variable ::= Identifier | array_variable
-array_variable =  identifier "[" expression "]"
+array_variable ::= identifier "[" expression "]"
 value ::= constant | variable
 
-declaration_list ::= declaration | declaration "," declaration_list
 declaration ::= identifier ":" type | identifier ":" type "=" expression
 
 primitive ::= "number" | "char" | "string"
-array_declaration ::= "array" "<" primitive ">" "(" expression ")"
+array_declaration ::= "array" "(" primitive ")" "[" expression "]"
 type ::= primitive | array_declaration
 
 compound_statement ::= "{" statement_list "}"
-statement_list ::= statement | statement new_lines statement_list
-statement ::= assign_statement | io_statement | declaration_list | if_statement | while_statement
+statement_list ::= statement | statement ";" statement_list
+statement ::= declaration | assign_statement | io_statement | if_statement | while_statement
 
 assign_statement ::= variable "=" expression
 expression ::=  term | expression "+" term | expression "-" term
@@ -42,7 +40,8 @@ term ::= factor | term "*" factor | term "/" factor | term "%" factor
 factor ::= "(" expression ")" | value
 
 io_statement ::= "input" "(" variable ")" | "output" "(" expression ")"
-if_statement ::= "if" "(" conditions ")" compound_statement | "if" "(" conditions ")" compound_statement "else" compound_statement
+if_statement ::= "if" "(" conditions ")" compound_statement | "if" "(" conditions ")" compound_statement else_statement
+else_statement ::= "else" compound_statement
 while_statement ::= "while" "(" conditions ")" compound_statement
 
 conditions ::= condition | condition "||" conditions

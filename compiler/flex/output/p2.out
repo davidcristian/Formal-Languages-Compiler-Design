@@ -4,13 +4,16 @@ Separator: :
 Reserved word: number
 Operator: =
 Number constant: 1
+Separator: ;
 Identifier: n
 Separator: :
 Reserved word: number
+Separator: ;
 Reserved word: input
 Separator: (
 Identifier: n
 Separator: )
+Separator: ;
 Reserved word: if
 Separator: (
 Identifier: n
@@ -21,6 +24,7 @@ Separator: {
 Identifier: isPrime
 Operator: =
 Number constant: 0
+Separator: ;
 Separator: }
 Reserved word: else
 Separator: {
@@ -29,6 +33,7 @@ Separator: :
 Reserved word: number
 Operator: =
 Number constant: 2
+Separator: ;
 Reserved word: while
 Separator: (
 Identifier: i
@@ -54,14 +59,19 @@ Separator: {
 Identifier: isPrime
 Operator: =
 Number constant: 0
+Separator: ;
 Separator: }
+Separator: ;
 Identifier: i
 Operator: =
 Identifier: i
 Operator: +
 Number constant: 1
+Separator: ;
 Separator: }
+Separator: ;
 Separator: }
+Separator: ;
 Reserved word: if
 Separator: (
 Identifier: isPrime
@@ -73,6 +83,7 @@ Reserved word: output
 Separator: (
 String constant: "Prime"
 Separator: )
+Separator: ;
 Separator: }
 Reserved word: else
 Separator: {
@@ -80,4 +91,6 @@ Reserved word: output
 Separator: (
 String constant: "Not Prime"
 Separator: )
+Separator: ;
 Separator: }
+Separator: ;

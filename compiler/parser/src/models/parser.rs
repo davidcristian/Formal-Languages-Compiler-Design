@@ -1,7 +1,9 @@
 use super::grammar::Grammar;
 use super::output::ParserOutput;
 use hash_map::{HashMap, Table};
-use scanner::{Token, TokenKind, EOF_TOKEN};
+use scanner::{Token, TokenKind};
+
+use crate::utils::constants::{EOF_TOKEN, EPSILON};
 
 const IDENTIFIER: &str = "Identifier";
 const CONSTANT: &str = "Constant";
@@ -44,7 +46,7 @@ impl LL1Parser {
 
                     // populate the parsing table
                     for first_symbol in &first_set {
-                        if first_symbol != "ε" {
+                        if first_symbol != EPSILON {
                             self.parsing_table.insert(
                                 (String::from(non_terminal), String::from(first_symbol)),
                                 String::from(production),
@@ -53,7 +55,7 @@ impl LL1Parser {
                     }
 
                     // break the loop if ε is not in the FIRST set of the current symbol
-                    if !first_set.contains("ε") {
+                    if !first_set.contains(EPSILON) {
                         should_follow = false;
                         break;
                     }
@@ -79,7 +81,7 @@ impl LL1Parser {
         identifiers: &Table<String>,
         constants: &Table<String>,
     ) -> Result<ParserOutput, String> {
-        // TODO: find a way to break out of StatementList (&& on line 96)
+        // TODO: find a way to break out of StatementList (&& on line 98)
         let mut input = tokens.clone();
         input.push(Token::new(TokenKind::EOF, EOF_TOKEN));
 
@@ -170,7 +172,7 @@ impl LL1Parser {
 
                         // push production onto the stack in reverse order
                         for sym in production.split_whitespace().rev() {
-                            if sym != "ε" {
+                            if sym != EPSILON {
                                 stack.push(String::from(sym));
                             }
                         }

@@ -1,30 +1,26 @@
-Program NewLine Variable VariableTail Value DeclarationList DeclarationListTail Declaration DeclarationTail OptionalAssignment Primitive ArrayDeclaration Type CompoundStatement StatementList Statement StatementTail AssignStatement Factor Expression ExpressionTail Term TermTail IOStatement IfStatement WhileStatement Conditions ConditionsTail Condition ConditionTail SimpleCondition Relation
-Identifier Constant number char string array input output if else while + - * / % = == != < > <= >= && \d ( ) [ ] { } : , \n
+Program Variable OptionalArray Value Declaration OptionalAssignment Primitive ArrayDeclaration Type CompoundStatement StatementList StatementListTail Statement StatementTail AssignStatement Factor Expression ExpressionTail Term TermTail IOStatement IfStatement ElseStatement WhileStatement Conditions ConditionsTail Condition ConditionTail SimpleCondition Relation
+Identifier Constant number char string array input output if else while + - * / % = == != < > <= >= && \d ( ) [ ] { } : ;
 Program
 
 Program -> StatementList
-NewLine -> \n
 
-Variable -> Identifier VariableTail
-VariableTail -> [ Expression ] | ε
+Variable -> Identifier OptionalArray
+OptionalArray -> [ Expression ] | ε
 Value -> Constant | Variable
 
-DeclarationList -> Declaration DeclarationListTail
-DeclarationListTail -> , Declaration DeclarationListTail | ε
-
-Declaration -> Identifier : DeclarationTail
-DeclarationTail -> Type OptionalAssignment
+Declaration -> Type OptionalAssignment
 OptionalAssignment -> = Expression | ε
 
 Primitive -> number | char | string
-ArrayDeclaration -> array < Primitive > ( Expression )
+ArrayDeclaration -> array ( Primitive ) [ Expression ]
 Type -> Primitive | ArrayDeclaration
 
 CompoundStatement -> { StatementList }
-StatementList -> Statement NewLine StatementList | ε
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList | ε
 
 Statement -> Identifier StatementTail | IOStatement | IfStatement | WhileStatement
-StatementTail -> : DeclarationTail | VariableTail = Expression
+StatementTail -> : Declaration | OptionalArray = Expression
 
 AssignStatement -> Variable = Expression
 Factor -> ( Expression ) | Value
@@ -36,7 +32,8 @@ Term -> Factor TermTail
 TermTail -> * Factor TermTail | / Factor TermTail | % Factor TermTail | ε
 
 IOStatement -> input ( Variable ) | output ( Expression )
-IfStatement -> if ( Conditions ) CompoundStatement | if ( Conditions ) CompoundStatement else CompoundStatement
+IfStatement -> if ( Conditions ) CompoundStatement ElseStatement
+ElseStatement -> else CompoundStatement | ε
 WhileStatement -> while ( Conditions ) CompoundStatement
 
 Conditions -> Condition ConditionsTail

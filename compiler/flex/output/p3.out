@@ -2,18 +2,22 @@ TOKENS:
 Identifier: num
 Separator: :
 Reserved word: number
+Separator: ;
 Identifier: n
 Separator: :
 Reserved word: number
+Separator: ;
 Reserved word: input
 Separator: (
 Identifier: n
 Separator: )
+Separator: ;
 Identifier: sum
 Separator: :
 Reserved word: number
 Operator: =
 Number constant: 0
+Separator: ;
 Reserved word: while
 Separator: (
 Identifier: n
@@ -25,18 +29,23 @@ Reserved word: input
 Separator: (
 Identifier: num
 Separator: )
+Separator: ;
 Identifier: sum
 Operator: =
 Identifier: sum
 Operator: +
 Identifier: num
+Separator: ;
 Identifier: n
 Operator: =
 Identifier: n
 Operator: -
 Number constant: 1
+Separator: ;
 Separator: }
+Separator: ;
 Reserved word: output
 Separator: (
 Identifier: sum
 Separator: )
+Separator: ;

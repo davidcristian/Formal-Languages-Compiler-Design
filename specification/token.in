@@ -19,7 +19,7 @@
 {
 }
 :
-,
+;
 number
 char
 string

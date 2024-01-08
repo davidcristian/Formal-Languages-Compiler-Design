@@ -6,6 +6,8 @@ use std::fs::File;
 use std::io::{BufReader, Lines};
 use utils::{extract_line_data, get_next_line, open_file, InputLine};
 
+use crate::utils::constants::{EOF_TOKEN, EPSILON};
+
 lazy_static! {
     static ref ESCAPES: HashMap<&'static str, &'static str> = HashMap::from([
         (r"\s", " "),   // space
@@ -57,7 +59,25 @@ impl Grammar {
     }
 
     pub fn first(&self, symbol: &str) -> Set<String> {
+        let mut in_progress = Set::new();
+        self.first_logic(symbol, &mut in_progress)
+    }
+
+    fn first_logic(&self, symbol: &str, in_progress: &mut Set<String>) -> Set<String> {
+        // avoid infinite recursion
+        // example: first(A) -> first(B) -> first(A) -> ...
+        if in_progress.contains(symbol) {
+            return Set::new();
+        }
+
+        in_progress.insert(String::from(symbol));
         let mut first_set = Set::new();
+
+        // ε is the FIRST set of ε
+        if symbol == EPSILON {
+            first_set.insert(String::from(symbol));
+            return first_set;
+        }
 
         if self.terminals.contains(symbol) {
             // if the symbol is a terminal, add it to the first set
@@ -73,7 +93,7 @@ impl Grammar {
 
                     // add all except ε
                     for item in &first_of_symbol {
-                        if item != "ε" {
+                        if item != EPSILON {
                             first_set.insert(String::from(item));
                         } else {
                             empty_string_derivable = true;
@@ -88,11 +108,12 @@ impl Grammar {
 
                 // if ε is derivable from the entire production, add it
                 if empty_string_derivable {
-                    first_set.insert(String::from("ε"));
+                    first_set.insert(String::from(EPSILON));
                 }
             }
         }
 
+        in_progress.remove(symbol);
         first_set
     }
 
@@ -111,9 +132,9 @@ impl Grammar {
         in_progress.insert(String::from(symbol));
         let mut follow_set = Set::new();
 
-        // rule 1: if the symbol is the start symbol, add '$' to its follow set
+        // rule 1: if the symbol is the start symbol, add 'EOF_TOKEN' to its follow set
         if symbol == self.start_symbol {
-            follow_set.insert(String::from("$"));
+            follow_set.insert(String::from(EOF_TOKEN));
         }
 
         // iterate over all non-terminals and their productions
@@ -130,13 +151,13 @@ impl Grammar {
                             let first_of_beta = self.first(beta);
 
                             for item in &first_of_beta {
-                                if item != "ε" {
+                                if item != EPSILON {
                                     follow_set.insert(String::from(item));
                                 }
                             }
 
                             // rule 3: if β derives ε, add follow(A) to follow(B)
-                            if first_of_beta.contains("ε") {
+                            if first_of_beta.contains(EPSILON) {
                                 follow_set.extend(self.follow_logic(non_terminal, in_progress));
                             }
                         } else {
@@ -177,7 +198,7 @@ impl Grammar {
 
                 // check if each symbol is a terminal or a non-terminal
                 for symbol in &symbols {
-                    if symbol == "ε" {
+                    if symbol == EPSILON {
                         // ε is allowed
                         continue;
                     }
@@ -283,8 +304,6 @@ impl Grammar {
             }
         }
 
-        // add ε to the set of terminals
-        self.terminals.insert(String::from("ε"));
         Ok(())
     }
 

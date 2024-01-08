@@ -29,7 +29,7 @@ fn test_pass_1() {
     let productions = grammar.get_productions();
 
     assert_eq!(non_terminals.len(), 5);
-    assert_eq!(terminals.len(), 4); // ε is added automatically
+    assert_eq!(terminals.len(), 3);
     assert_eq!(productions.len(), 5);
 
     let start_symbol = grammar.get_start_symbol();
@@ -47,7 +47,7 @@ fn test_pass_2() {
     let productions = grammar.get_productions();
 
     assert_eq!(non_terminals.len(), 2);
-    assert_eq!(terminals.len(), 3); // ε is added automatically
+    assert_eq!(terminals.len(), 2);
     assert_eq!(productions.len(), 2);
 
     let start_symbol = grammar.get_start_symbol();
@@ -65,7 +65,7 @@ fn test_fail_1() {
     let productions = grammar.get_productions();
 
     assert_eq!(non_terminals.len(), 3);
-    assert_eq!(terminals.len(), 3); // ε is added automatically
+    assert_eq!(terminals.len(), 2);
     assert_eq!(productions.len(), 2);
 
     let start_symbol = grammar.get_start_symbol();
@@ -83,7 +83,7 @@ fn test_fail_2() {
     let productions = grammar.get_productions();
 
     assert_eq!(non_terminals.len(), 2);
-    assert_eq!(terminals.len(), 3); // ε is added automatically
+    assert_eq!(terminals.len(), 2);
     assert_eq!(productions.len(), 2);
 
     let start_symbol = grammar.get_start_symbol();
