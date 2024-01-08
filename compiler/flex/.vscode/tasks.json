@@ -6,7 +6,7 @@
         {
             "label": "Flex",
             "type": "shell",
-            "command": "/usr/bin/flex olive.l && /usr/bin/gcc -o lex lex.yy.c && ./lex ../../programs/${input:programFile}.oli | tee output/${input:programFile}.out",
+            "command": "/usr/bin/flex olive.l && /usr/bin/gcc -Wall -o lex lex.yy.c && ./lex ../../programs/${input:programFile}.oli | tee output/${input:programFile}.out",
             "problemMatcher": [],
             "group": {
                 "kind": "build",

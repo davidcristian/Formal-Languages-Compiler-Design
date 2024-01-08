@@ -1,4 +1,4 @@
-%option noyywrap
+%option noyywrap noinput nounput
 
 %{ /* Declarations */
     #include <stdio.h>
@@ -92,8 +92,8 @@ newline         \r\n|\n
 
 %% /* Functions */
 
-extern int yylex(void);
 extern FILE *yyin;
+extern int yylex(void);
 
 void lexical_error(const uint64_t *line, const char *token) {
     printf("Lexical error on line %" PRIu64 ": Undefined token %s\n", *line, token);
