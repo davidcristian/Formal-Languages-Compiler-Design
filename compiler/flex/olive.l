@@ -1,7 +1,15 @@
 %option noyywrap
 
 %{ /* Declarations */
-    int line_number = 1;
+    #include <stdio.h>
+    #include <stdlib.h>
+    #include <string.h>
+
+    #include <stdint.h>
+    #include <inttypes.h>
+
+    uint64_t line_number = 1;
+    void lexical_error(const uint64_t *line, const char *token);   
 %}
 
 /* Definitions */
@@ -32,7 +40,7 @@ newline         \r\n|\n
 
 [ \t]+                                                                  { /* Ignore spaces and tabs */ }
 
-{comment}.*{newline}                                                    { line_number++; }
+{comment}.*{newline}?                                                   { line_number++; }
 
 {newline}                                                               { line_number++; }
 
@@ -44,23 +52,35 @@ newline         \r\n|\n
 
 {number_constant}                                                       { printf("Number constant: %s\n", yytext); }
 
-{char_constant}                                                         { if (strlen(yytext) != 3) { printf("Lexical error on line %d: Invalid character constant %s\n", line_number, yytext); exit(1); } printf("Character constant: %s\n", yytext); }
+{char_constant}                                                         { if (strlen(yytext) != 3) { lexical_error(&line_number, yytext); } else { printf("Character constant: %s\n", yytext); } }
 
 {string_constant}                                                       { printf("String constant: %s\n", yytext); }
 
 {identifier}                                                            { printf("Identifier: %s\n", yytext); }
 
-{bad_identifier}                                                        { printf("Lexical error on line %d: Unrecognized token %s\n", line_number, yytext); exit(1); }
+{bad_identifier}                                                        { lexical_error(&line_number, yytext); }
 
-.                                                                       { printf("Lexical error on line %d: Undefined token %s\n", line_number, yytext); exit(1); }
+.                                                                       { lexical_error(&line_number, yytext); }
 
-%% /* Main */
+%% /* Functions */
 
-int main(int argc, char** argv) {
+extern int yylex(void);
+extern FILE *yyin;
+
+void lexical_error(const uint64_t *line, const char *token) {
+    printf("Lexical error on line %" PRIu64 ": Undefined token %s\n", *line, token);
+    
+    fclose(yyin);
+    exit(1);
+}
+
+int main(int argc, char **argv) {
     if (argc > 2) {
         printf("Usage: %s [file]\n", argv[0]);
         exit(1);
-    } else if (argc == 2) {
+    }
+    
+    if (argc == 2) {
         yyin = fopen(argv[1], "r");
         if (yyin == NULL) {
             printf("Error: Could not open file %s\n", argv[1]);
