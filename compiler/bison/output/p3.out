@@ -1,0 +1,121 @@
+Primitive -> NUMBER
+Type -> Primitive
+OptionalAssignment -> epsilon
+Declaration -> Type OptionalAssignment
+StatementTail -> : Declaration
+Statement -> IDENTIFIER StatementTail
+Primitive -> NUMBER
+Type -> Primitive
+OptionalAssignment -> epsilon
+Declaration -> Type OptionalAssignment
+StatementTail -> : Declaration
+Statement -> IDENTIFIER StatementTail
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+IOStatement -> INPUT ( Variable )
+Statement -> IOStatement
+Primitive -> NUMBER
+Type -> Primitive
+Constant -> NUMBER_CONSTANT
+Value -> Constant
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+OptionalAssignment -> = Expression
+Declaration -> Type OptionalAssignment
+StatementTail -> : Declaration
+Statement -> IDENTIFIER StatementTail
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+Value -> Variable
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+Relation -> >
+Constant -> NUMBER_CONSTANT
+Value -> Constant
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+SimpleCondition -> Expression Relation Expression
+ConditionTail -> epsilon
+Condition -> SimpleCondition ConditionTail
+ConditionsTail -> epsilon
+Conditions -> Condition ConditionsTail
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+IOStatement -> INPUT ( Variable )
+Statement -> IOStatement
+OptionalArray -> epsilon
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+Value -> Variable
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+Value -> Variable
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+ExpressionTail -> + Term ExpressionTail
+Expression -> Term ExpressionTail
+StatementTail -> OptionalArray = Expression
+Statement -> IDENTIFIER StatementTail
+OptionalArray -> epsilon
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+Value -> Variable
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+Constant -> NUMBER_CONSTANT
+Value -> Constant
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+ExpressionTail -> - Term ExpressionTail
+Expression -> Term ExpressionTail
+StatementTail -> OptionalArray = Expression
+Statement -> IDENTIFIER StatementTail
+StatementListTail -> epsilon
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+CompoundStatement -> { StatementList }
+WhileStatement -> WHILE ( Conditions ) CompoundStatement
+Statement -> WhileStatement
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+Value -> Variable
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+IOStatement -> OUTPUT ( Expression )
+Statement -> IOStatement
+StatementListTail -> epsilon
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+Program -> StatementList

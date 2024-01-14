@@ -1,0 +1,153 @@
+Primitive -> NUMBER
+Type -> Primitive
+OptionalAssignment -> epsilon
+Declaration -> Type OptionalAssignment
+StatementTail -> : Declaration
+Statement -> IDENTIFIER StatementTail
+Primitive -> NUMBER
+Type -> Primitive
+OptionalAssignment -> epsilon
+Declaration -> Type OptionalAssignment
+StatementTail -> : Declaration
+Statement -> IDENTIFIER StatementTail
+Primitive -> NUMBER
+Type -> Primitive
+OptionalAssignment -> epsilon
+Declaration -> Type OptionalAssignment
+StatementTail -> : Declaration
+Statement -> IDENTIFIER StatementTail
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+IOStatement -> INPUT ( Variable )
+Statement -> IOStatement
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+IOStatement -> INPUT ( Variable )
+Statement -> IOStatement
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+IOStatement -> INPUT ( Variable )
+Statement -> IOStatement
+Primitive -> NUMBER
+Type -> Primitive
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+Value -> Variable
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+OptionalAssignment -> = Expression
+Declaration -> Type OptionalAssignment
+StatementTail -> : Declaration
+Statement -> IDENTIFIER StatementTail
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+Value -> Variable
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+Relation -> >
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+Value -> Variable
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+SimpleCondition -> Expression Relation Expression
+ConditionTail -> epsilon
+Condition -> SimpleCondition ConditionTail
+ConditionsTail -> epsilon
+Conditions -> Condition ConditionsTail
+OptionalArray -> epsilon
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+Value -> Variable
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+StatementTail -> OptionalArray = Expression
+Statement -> IDENTIFIER StatementTail
+StatementListTail -> epsilon
+StatementList -> Statement ; StatementListTail
+CompoundStatement -> { StatementList }
+ElseStatement -> epsilon
+IfStatement -> IF ( Conditions ) CompoundStatement ElseStatement
+Statement -> IfStatement
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+Value -> Variable
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+Relation -> >
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+Value -> Variable
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+SimpleCondition -> Expression Relation Expression
+ConditionTail -> epsilon
+Condition -> SimpleCondition ConditionTail
+ConditionsTail -> epsilon
+Conditions -> Condition ConditionsTail
+OptionalArray -> epsilon
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+Value -> Variable
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+StatementTail -> OptionalArray = Expression
+Statement -> IDENTIFIER StatementTail
+StatementListTail -> epsilon
+StatementList -> Statement ; StatementListTail
+CompoundStatement -> { StatementList }
+ElseStatement -> epsilon
+IfStatement -> IF ( Conditions ) CompoundStatement ElseStatement
+Statement -> IfStatement
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+Value -> Variable
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+IOStatement -> OUTPUT ( Expression )
+Statement -> IOStatement
+StatementListTail -> epsilon
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+Program -> StatementList

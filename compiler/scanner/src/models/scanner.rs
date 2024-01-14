@@ -229,7 +229,6 @@ impl Scanner {
             '}' => TokenKind::BraceClose,
             '[' => TokenKind::BracketOpen,
             ']' => TokenKind::BracketClose,
-            ',' => TokenKind::Comma,
             ';' => TokenKind::SemiColon,
             ':' => TokenKind::Colon,
 

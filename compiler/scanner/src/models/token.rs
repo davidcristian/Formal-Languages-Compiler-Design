@@ -27,7 +27,6 @@ lazy_static! {
         ("}", TokenKind::BraceClose),
         (":", TokenKind::Colon),
         (";", TokenKind::SemiColon),
-        (",", TokenKind::Comma),
         ("number", TokenKind::KeywordNumber),
         ("char", TokenKind::KeywordChar),
         ("string", TokenKind::KeywordString),
@@ -73,7 +72,6 @@ pub enum TokenKind {
     BraceClose,
     Colon,
     SemiColon,
-    Comma,
 
     // Reserved Words
     KeywordNumber,
@@ -87,13 +85,7 @@ pub enum TokenKind {
     KeywordWhile,
 
     // Special Tokens
-    // NewLine, // These are implicit statement separators (like Python)
     EOF,
-    //
-    // Actual Literals (enum indexes are not used from here on)
-    // Number,
-    // Char,
-    // String,
 }
 
 impl From<&str> for TokenKind {

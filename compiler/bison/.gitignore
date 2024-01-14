@@ -1,0 +1,13 @@
+# Intentionally include the .vscode folder for the build task
+!.vscode/
+
+# Ignore the generated files
+/lex
+/lex.yy.c
+
+/yacc
+/olive.tab.h
+/olive.tab.c
+
+/olive.h
+/olive.c

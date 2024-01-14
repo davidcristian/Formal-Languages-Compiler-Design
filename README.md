@@ -28,4 +28,4 @@
 
 ### 7. [Flex](compiler/flex)
 
-<!--### 8. [Bison](compiler/bison)-->
+### 8. [Bison](compiler/bison)

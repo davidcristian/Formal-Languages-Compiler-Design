@@ -1,4 +1,4 @@
-Program Variable OptionalArray Value Declaration OptionalAssignment Primitive ArrayDeclaration Type CompoundStatement StatementList StatementListTail Statement StatementTail AssignStatement Factor Expression ExpressionTail Term TermTail IOStatement IfStatement ElseStatement WhileStatement Conditions ConditionsTail Condition ConditionTail SimpleCondition Relation
+Program Variable OptionalArray Value Declaration OptionalAssignment Primitive ArrayDeclaration Type CompoundStatement StatementList StatementListTail Statement StatementTail Factor Expression ExpressionTail Term TermTail IOStatement IfStatement ElseStatement WhileStatement Conditions ConditionsTail Condition ConditionTail SimpleCondition Relation
 Identifier Constant number char string array input output if else while + - * / % = == != < > <= >= && \d ( ) [ ] { } : ;
 Program
 
@@ -22,9 +22,7 @@ StatementListTail -> StatementList | ε
 Statement -> Identifier StatementTail | IOStatement | IfStatement | WhileStatement
 StatementTail -> : Declaration | OptionalArray = Expression
 
-AssignStatement -> Variable = Expression
 Factor -> ( Expression ) | Value
-
 Expression -> Term ExpressionTail
 ExpressionTail -> + Term ExpressionTail | - Term ExpressionTail | ε
 

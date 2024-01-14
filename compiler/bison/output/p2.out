@@ -1,0 +1,247 @@
+Primitive -> NUMBER
+Type -> Primitive
+Constant -> NUMBER_CONSTANT
+Value -> Constant
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+OptionalAssignment -> = Expression
+Declaration -> Type OptionalAssignment
+StatementTail -> : Declaration
+Statement -> IDENTIFIER StatementTail
+Primitive -> NUMBER
+Type -> Primitive
+OptionalAssignment -> epsilon
+Declaration -> Type OptionalAssignment
+StatementTail -> : Declaration
+Statement -> IDENTIFIER StatementTail
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+IOStatement -> INPUT ( Variable )
+Statement -> IOStatement
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+Value -> Variable
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+Relation -> <=
+Constant -> NUMBER_CONSTANT
+Value -> Constant
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+SimpleCondition -> Expression Relation Expression
+ConditionTail -> epsilon
+Condition -> SimpleCondition ConditionTail
+ConditionsTail -> epsilon
+Conditions -> Condition ConditionsTail
+OptionalArray -> epsilon
+Constant -> NUMBER_CONSTANT
+Value -> Constant
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+StatementTail -> OptionalArray = Expression
+Statement -> IDENTIFIER StatementTail
+StatementListTail -> epsilon
+StatementList -> Statement ; StatementListTail
+CompoundStatement -> { StatementList }
+Primitive -> NUMBER
+Type -> Primitive
+Constant -> NUMBER_CONSTANT
+Value -> Constant
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+OptionalAssignment -> = Expression
+Declaration -> Type OptionalAssignment
+StatementTail -> : Declaration
+Statement -> IDENTIFIER StatementTail
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+Value -> Variable
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+Relation -> <=
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+Value -> Variable
+Factor -> Value
+Constant -> NUMBER_CONSTANT
+Value -> Constant
+Factor -> Value
+TermTail -> epsilon
+TermTail -> / Factor TermTail
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+SimpleCondition -> Expression Relation Expression
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+Value -> Variable
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+Relation -> ==
+Constant -> NUMBER_CONSTANT
+Value -> Constant
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+SimpleCondition -> Expression Relation Expression
+ConditionTail -> epsilon
+ConditionTail -> AND SimpleCondition ConditionTail
+Condition -> SimpleCondition ConditionTail
+ConditionsTail -> epsilon
+Conditions -> Condition ConditionsTail
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+Value -> Variable
+Factor -> Value
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+Value -> Variable
+Factor -> Value
+TermTail -> epsilon
+TermTail -> % Factor TermTail
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+Relation -> ==
+Constant -> NUMBER_CONSTANT
+Value -> Constant
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+SimpleCondition -> Expression Relation Expression
+ConditionTail -> epsilon
+Condition -> SimpleCondition ConditionTail
+ConditionsTail -> epsilon
+Conditions -> Condition ConditionsTail
+OptionalArray -> epsilon
+Constant -> NUMBER_CONSTANT
+Value -> Constant
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+StatementTail -> OptionalArray = Expression
+Statement -> IDENTIFIER StatementTail
+StatementListTail -> epsilon
+StatementList -> Statement ; StatementListTail
+CompoundStatement -> { StatementList }
+ElseStatement -> epsilon
+IfStatement -> IF ( Conditions ) CompoundStatement ElseStatement
+Statement -> IfStatement
+OptionalArray -> epsilon
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+Value -> Variable
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+Constant -> NUMBER_CONSTANT
+Value -> Constant
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+ExpressionTail -> + Term ExpressionTail
+Expression -> Term ExpressionTail
+StatementTail -> OptionalArray = Expression
+Statement -> IDENTIFIER StatementTail
+StatementListTail -> epsilon
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+CompoundStatement -> { StatementList }
+WhileStatement -> WHILE ( Conditions ) CompoundStatement
+Statement -> WhileStatement
+StatementListTail -> epsilon
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+CompoundStatement -> { StatementList }
+ElseStatement -> ELSE CompoundStatement
+IfStatement -> IF ( Conditions ) CompoundStatement ElseStatement
+Statement -> IfStatement
+OptionalArray -> epsilon
+Variable -> IDENTIFIER OptionalArray
+Value -> Variable
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+Relation -> ==
+Constant -> NUMBER_CONSTANT
+Value -> Constant
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+SimpleCondition -> Expression Relation Expression
+ConditionTail -> epsilon
+Condition -> SimpleCondition ConditionTail
+ConditionsTail -> epsilon
+Conditions -> Condition ConditionsTail
+Constant -> STRING_CONSTANT
+Value -> Constant
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+IOStatement -> OUTPUT ( Expression )
+Statement -> IOStatement
+StatementListTail -> epsilon
+StatementList -> Statement ; StatementListTail
+CompoundStatement -> { StatementList }
+Constant -> STRING_CONSTANT
+Value -> Constant
+Factor -> Value
+TermTail -> epsilon
+Term -> Factor TermTail
+ExpressionTail -> epsilon
+Expression -> Term ExpressionTail
+IOStatement -> OUTPUT ( Expression )
+Statement -> IOStatement
+StatementListTail -> epsilon
+StatementList -> Statement ; StatementListTail
+CompoundStatement -> { StatementList }
+ElseStatement -> ELSE CompoundStatement
+IfStatement -> IF ( Conditions ) CompoundStatement ElseStatement
+Statement -> IfStatement
+StatementListTail -> epsilon
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+StatementListTail -> StatementList
+StatementList -> Statement ; StatementListTail
+Program -> StatementList
