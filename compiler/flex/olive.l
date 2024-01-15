@@ -3,7 +3,6 @@
 %{ /* Declarations */
     #include <stdio.h>
     #include <stdlib.h>
-    #include <string.h>
 
     #include <stdint.h>
     #include <inttypes.h>
@@ -27,7 +26,7 @@ escape          \\(\"|\\)
 character       {letter}|{digit}|{symbol}|{escape}
 
 number_constant ([+-]?{nonzero}{digit}*)|0
-char_constant   '{character}*'
+char_constant   '{character}'
 string_constant \"{character}*\"
 
 identifier      {letter}+
@@ -67,11 +66,7 @@ newline         \r\n|\n
 }
 
 {char_constant} {
-    if (strlen(yytext) != 3) {
-        lexical_error(&line_number, yytext);
-    } else {
-        printf("Character constant: %s\n", yytext);
-    }
+    printf("Character constant: %s\n", yytext);
 }
 
 {string_constant} {
@@ -96,7 +91,7 @@ extern FILE *yyin;
 extern int yylex(void);
 
 void lexical_error(const uint64_t *line, const char *token) {
-    printf("Lexical error on line %" PRIu64 ": Undefined token %s\n", *line, token);
+    printf("Lexical error on line %" PRIu64 ": Unexpected token %s\n", *line, token);
     
     fclose(yyin);
     exit(1);
@@ -105,14 +100,14 @@ void lexical_error(const uint64_t *line, const char *token) {
 int main(int argc, char **argv) {
     if (argc > 2) {
         printf("Usage: %s [file]\n", argv[0]);
-        exit(1);
+        return 1;
     }
     
     if (argc == 2) {
         yyin = fopen(argv[1], "r");
         if (yyin == NULL) {
             printf("Error: Could not open file %s\n", argv[1]);
-            exit(1);
+            return 1;
         }
     } else {
         yyin = stdin;
