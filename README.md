@@ -95,7 +95,7 @@ Olive is fundamentally built upon the following lexical specification:
 cargo build
 ```
 
-### Usage
+## Usage
 
 To compile an Olive program, run the following command:
 
